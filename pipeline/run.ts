@@ -22,8 +22,16 @@ export interface RunOptions {
 export interface RunOutcome {
   adapter: string;
   ok: boolean;
+  skipped: boolean;
   result: AdapterResult | null;
   error: string | null;
+}
+
+export function missingCredentials(
+  adapter: Adapter,
+  env: NodeJS.ProcessEnv = process.env,
+): string[] {
+  return (adapter.credentials ?? []).filter((v) => !env[v]);
 }
 
 // Each adapter runs in isolation: a failure records a failed fetch_run and leaves the
@@ -43,6 +51,32 @@ export async function runAdapters(
 
   for (const adapter of adapters) {
     const startedAt = now().toISOString();
+    const missing = missingCredentials(adapter);
+    if (missing.length) {
+      // Not a failure: the probe waits until the account exists. The sources page shows it as waiting.
+      await store.appendFetchRun({
+        adapter: adapter.id,
+        url: adapter.url,
+        started_at: startedAt,
+        finished_at: now().toISOString(),
+        ok: false,
+        http_status: null,
+        content_hash: null,
+        changed: false,
+        observations: 0,
+        error: `waiting for credentials: ${missing.join(", ")}`,
+      });
+      outcomes.push({
+        adapter: adapter.id,
+        ok: false,
+        skipped: true,
+        result: null,
+        error: `waiting for credentials: ${missing.join(", ")}`,
+      });
+      log("info", "adapter.skipped", { adapter: adapter.id, missing: missing.join(",") });
+      await store.flush();
+      continue;
+    }
     let lastStatus: number | null = null;
     let anyChanged = false;
     const hashes: string[] = [];
@@ -86,7 +120,7 @@ export async function runAdapters(
         error: null,
       };
       await store.appendFetchRun(run);
-      outcomes.push({ adapter: adapter.id, ok: true, result, error: null });
+      outcomes.push({ adapter: adapter.id, ok: true, skipped: false, result, error: null });
       log("info", "adapter.done", { adapter: adapter.id, ...result, changed: anyChanged });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -102,7 +136,13 @@ export async function runAdapters(
         observations: 0,
         error: message.slice(0, 500),
       });
-      outcomes.push({ adapter: adapter.id, ok: false, result: null, error: message });
+      outcomes.push({
+        adapter: adapter.id,
+        ok: false,
+        skipped: false,
+        result: null,
+        error: message,
+      });
       log("error", "adapter.failed", { adapter: adapter.id, error: message });
     }
     await store.flush();

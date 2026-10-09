@@ -3,6 +3,7 @@ import { dateFloor, daysBetween } from "../shared/dates";
 import { parseFilters } from "../shared/filters";
 import { METRICS } from "../shared/metrics";
 import { PROVIDERS } from "../shared/providers";
+import { levelFor, type Level, type Readings } from "../shared/availability";
 import { selectObservation, type Candidate } from "../shared/selection";
 import type {
   AvailabilitySignal,
@@ -503,10 +504,8 @@ const sources: Handler = async (_req, env) => {
   return json({ sources: list, runs, review });
 };
 
-interface SignalRow extends AvailabilitySignal {
-  rn?: number;
-}
-
+// Levels are relative within one provider and SKU family at the latest observation hour,
+// never across providers, because each signal measures something different.
 // Levels are relative within one provider and SKU family at the latest observation hour,
 // never across providers, because each signal measures something different.
 const availability: Handler = async (_req, env, url) => {
@@ -518,12 +517,18 @@ const availability: Handler = async (_req, env, url) => {
     `SELECT provider_slug, MAX(observed_at) AS observed_at FROM availability_signal ${where} GROUP BY provider_slug`,
     params,
   );
-  const out: Record<string, { observed_at: string; families: Record<string, unknown[]> }> = {};
+  const out: Record<
+    string,
+    { observed_at: string; signals: string[]; families: Record<string, unknown[]> }
+  > = {};
   for (const l of latest) {
-    const rows = await all<SignalRow>(
+    // Daily probes and hourly probes land in different hours; take each signal's latest hour.
+    const rows = await all<AvailabilitySignal>(
       env.DB,
-      "SELECT * FROM availability_signal WHERE provider_slug = ? AND observed_at = ?",
-      [l.provider_slug, l.observed_at],
+      `SELECT s.* FROM availability_signal s JOIN (
+         SELECT signal, MAX(observed_at) AS observed_at FROM availability_signal WHERE provider_slug = ? GROUP BY signal
+       ) m ON m.signal = s.signal AND m.observed_at = s.observed_at WHERE s.provider_slug = ?`,
+      [l.provider_slug, l.provider_slug],
     );
     const weekAgo = new Date(Date.parse(l.observed_at) - 7 * 86_400_000).toISOString();
     const baseline = await all<{ region_code: string; sku: string; signal: string; avg: number }>(
@@ -534,26 +539,18 @@ const availability: Handler = async (_req, env, url) => {
     );
     const base = new Map(baseline.map((b) => [`${b.region_code}|${b.sku}|${b.signal}`, b.avg]));
     const families: Record<string, unknown[]> = {};
-    const byFamily = new Map<string, SignalRow[]>();
+    const byFamily = new Map<string, AvailabilitySignal[]>();
     for (const r of rows) byFamily.set(r.sku_family, [...(byFamily.get(r.sku_family) ?? []), r]);
     for (const [family, list] of byFamily) {
       const ratios = list
         .filter((r) => r.signal === "spot_ratio")
         .map((r) => r.value)
         .sort((a, b) => a - b);
-      const q = (p: number) =>
-        ratios[Math.min(ratios.length - 1, Math.floor(p * ratios.length))] ?? null;
-      const q33 = q(0.33);
-      const q66 = q(0.66);
+      const q = (p: number) => ratios[Math.min(ratios.length - 1, Math.floor(p * ratios.length))];
+      const terciles = ratios.length ? { q33: q(0.33)!, q66: q(0.66)! } : null;
       const byRegion = new Map<
         string,
-        {
-          region_code: string;
-          sku: string;
-          offered: boolean;
-          signals: Record<string, { value: number; detail: unknown; baseline: number | null }>;
-          level: string;
-        }
+        { region_code: string; sku: string; offered: boolean; signals: Readings; level: Level }
       >();
       for (const r of list) {
         const key = `${r.region_code}|${r.sku}`;
@@ -562,47 +559,40 @@ const availability: Handler = async (_req, env, url) => {
           sku: r.sku,
           offered: false,
           signals: {},
-          level: "unknown",
+          level: "unknown" as Level,
         };
+        const detail = r.detail ? (JSON.parse(r.detail) as Record<string, unknown>) : null;
         if (r.signal === "sku_offered") {
           entry.offered = true;
           // Zone-level offering rows collapse to their region, keeping the zone count.
-          const prev = entry.signals["sku_offered"];
-          const detail = r.detail ? (JSON.parse(r.detail) as Record<string, unknown>) : {};
-          const prevDetail = prev?.detail as Record<string, unknown> | null | undefined;
-          const prevZones = typeof prevDetail?.zones === "number" ? prevDetail.zones : 0;
-          entry.signals["sku_offered"] = {
+          const prevZones =
+            typeof entry.signals.sku_offered?.detail?.zones === "number"
+              ? (entry.signals.sku_offered.detail.zones as number)
+              : 0;
+          entry.signals.sku_offered = {
             value: 1,
-            detail: { ...detail, ...(r.zone_code ? { zones: prevZones + 1 } : {}) },
+            detail: { ...(detail ?? {}), ...(r.zone_code ? { zones: prevZones + 1 } : {}) },
             baseline: null,
           };
-          byRegion.set(key, entry);
-          continue;
+        } else {
+          entry.signals[r.signal] = {
+            value: r.value,
+            detail,
+            baseline: base.get(`${r.region_code}|${r.sku}|${r.signal}`) ?? null,
+          };
         }
-        entry.signals[r.signal] = {
-          value: r.value,
-          detail: r.detail ? JSON.parse(r.detail) : null,
-          baseline: base.get(`${r.region_code}|${r.sku}|${r.signal}`) ?? null,
-        };
         byRegion.set(key, entry);
       }
-      for (const entry of byRegion.values()) {
-        const band = entry.signals["interruption_band"]?.value;
-        const ratio = entry.signals["spot_ratio"]?.value;
-        const score = entry.signals["placement_score"]?.value;
-        if (score !== undefined)
-          entry.level = score >= 7 ? "available" : score >= 4 ? "constrained" : "tight";
-        else if (band !== undefined)
-          entry.level = band <= 1 ? "available" : band === 2 ? "constrained" : "tight";
-        else if (ratio !== undefined && q33 !== null && q66 !== null)
-          entry.level = ratio <= q33 ? "available" : ratio <= q66 ? "constrained" : "tight";
-        else if (entry.offered) entry.level = "offered";
-      }
+      for (const entry of byRegion.values()) entry.level = levelFor(entry.signals, terciles);
       families[family] = [...byRegion.values()].sort((a, b) =>
         a.region_code.localeCompare(b.region_code),
       );
     }
-    out[l.provider_slug] = { observed_at: l.observed_at, families };
+    out[l.provider_slug] = {
+      observed_at: l.observed_at,
+      signals: [...new Set(rows.map((r) => r.signal))].sort(),
+      families,
+    };
   }
   return json({ providers: out });
 };

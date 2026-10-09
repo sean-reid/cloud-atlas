@@ -1,6 +1,6 @@
 import { stableId } from "../../shared/ids";
 import { ensureSource } from "../entities";
-import { emptyResult, type Adapter, type AdapterContext } from "./types";
+import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
 
 const URL = "https://spot-bid-advisor.s3.amazonaws.com/spot-advisor-data.json";
 const PAGE = "https://aws.amazon.com/ec2/spot/instance-advisor/";
@@ -23,16 +23,10 @@ interface Advisor {
 }
 
 export const awsSpotAdvisor: Adapter = {
-  id: "aws-spot-advisor",
-  title: "AWS Spot Instance Advisor (availability signals)",
-  publisher: "Amazon Web Services",
+  ...meta("aws-spot-advisor"),
   url: PAGE,
   tier: 1,
   license: "Public data file behind the Spot Instance Advisor page; AWS Site Terms",
-  measures:
-    "Interruption frequency band and spot savings per instance type per region over the trailing month, and which instance types have a spot pool in each region. A reclaim-pressure proxy, not capacity.",
-  mode: "automated",
-  schedule: "hourly",
   hosts: ["spot-bid-advisor.s3.amazonaws.com"],
   source: () => ({
     id: "",

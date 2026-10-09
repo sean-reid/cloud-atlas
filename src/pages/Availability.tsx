@@ -1,5 +1,15 @@
 import { lazy, Suspense, useState } from "react";
+import { ADAPTER_META } from "../../shared/adapters-meta";
+import {
+  LEVEL_LABEL,
+  measureFor,
+  SIGNAL_NOTES,
+  worstLevel,
+  type Level,
+  type Readings,
+} from "../../shared/availability";
 import { providerBySlug } from "../../shared/providers";
+import type { AvailabilitySignalKind } from "../../shared/types";
 import type { RegionMarker } from "../components/Map";
 import { useApi } from "../lib/api";
 import { fmtAgo } from "../lib/format";
@@ -10,85 +20,46 @@ interface Cell {
   region_code: string;
   sku: string;
   offered: boolean;
-  level: string;
-  signals: Record<
-    string,
-    { value: number; detail: Record<string, unknown> | null; baseline: number | null }
-  >;
+  level: Level;
+  signals: Readings;
 }
 
 interface Data {
-  providers: Record<string, { observed_at: string; families: Record<string, Cell[]> }>;
+  providers: Record<
+    string,
+    { observed_at: string; signals: AvailabilitySignalKind[]; families: Record<string, Cell[]> }
+  >;
 }
 
-const LEVELS = ["available", "constrained", "tight", "offered", "unknown"] as const;
-const LEVEL_LABEL: Record<string, string> = {
-  available: "available",
-  constrained: "constrained",
-  tight: "tight",
-  offered: "offered, no spot signal",
-  unknown: "unknown",
-  absent: "not offered",
-};
+const LEVELS: Level[] = ["available", "constrained", "tight", "offered", "unknown"];
 const FAMILY_ORDER = [
   "H100",
   "H200",
+  "B200",
+  "GB200",
   "MI300X",
   "A100",
   "L40S",
+  "L4",
   "A10G",
+  "RTX PRO 6000",
   "T4",
+  "V100",
+  "P100",
+  "P4",
   "Trainium",
   "Inferentia",
   "general",
   "memory",
   "compute",
 ];
-
-function describe(c: Cell): string {
-  const parts: string[] = [`${c.sku}: ${LEVEL_LABEL[c.level]}`];
-  if (c.signals["spot_ratio"]) {
-    const s = c.signals["spot_ratio"];
-    parts.push(`spot at ${Math.round(s.value * 100)}% of pay-as-you-go`);
-    if (s.baseline !== null) parts.push(`7-day baseline ${Math.round(s.baseline * 100)}%`);
-  }
-  if (c.signals["interruption_band"]) {
-    const s = c.signals["interruption_band"];
-    parts.push(`interruption frequency ${String(s.detail?.label ?? s.value)}`);
-    if (typeof s.detail?.spot_savings_pct === "number")
-      parts.push(`spot saves ${s.detail.spot_savings_pct}%`);
-  }
-  return parts.join(" · ");
-}
-
-// The provider's own number behind a level: AWS publishes an interruption band, Azure a price.
-function measure(c: Cell): string {
-  const band = c.signals["interruption_band"];
-  if (band)
-    return String(band.detail?.label ?? band.value)
-      .replace("<", "under ")
-      .replace(">", "over ");
-  const ratio = c.signals["spot_ratio"];
-  if (ratio) return `${Math.round(ratio.value * 100)}% of list`;
-  const zones = c.signals["sku_offered"]?.detail?.zones;
-  if (typeof zones === "number") return `${zones} zone${zones === 1 ? "" : "s"}`;
-  return c.offered ? "list price only" : "";
-}
-
-// The worst level among a family's SKUs in a region is the one a buyer feels.
-const rank: Record<string, number> = {
-  tight: 3,
-  constrained: 2,
-  available: 1,
-  offered: 0,
-  unknown: 0,
+const order = (f: string) => {
+  const i = FAMILY_ORDER.indexOf(f);
+  return i < 0 ? FAMILY_ORDER.length : i;
 };
-function worst(cells: Cell[]): Cell | null {
-  return cells.reduce<Cell | null>(
-    (w, c) => (!w || (rank[c.level] ?? 0) > (rank[w.level] ?? 0) ? c : w),
-    null,
-  );
-}
+
+const describe = (c: Cell) =>
+  `${c.sku}: ${LEVEL_LABEL[c.level]}${measureFor(c.signals) ? `, ${measureFor(c.signals)}` : ""}`;
 
 export function Availability() {
   const { data } = useApi<Data>("/api/availability");
@@ -101,10 +72,6 @@ export function Availability() {
     slug ? `/api/regions?provider=${slug}` : null,
   );
 
-  const order = (f: string) => {
-    const i = FAMILY_ORDER.indexOf(f);
-    return i < 0 ? FAMILY_ORDER.length : i;
-  };
   const families = p
     ? Object.keys(p.families).sort((a, b) => order(a) - order(b) || a.localeCompare(b))
     : [];
@@ -121,32 +88,38 @@ export function Availability() {
   const byRegionFamily = new Map<string, Cell[]>();
   if (p) {
     for (const [f, cells] of Object.entries(p.families)) {
-      for (const c of cells) {
-        const k = `${c.region_code}|${f}`;
-        byRegionFamily.set(k, [...(byRegionFamily.get(k) ?? []), c]);
-      }
+      for (const c of cells)
+        byRegionFamily.set(`${c.region_code}|${f}`, [
+          ...(byRegionFamily.get(`${c.region_code}|${f}`) ?? []),
+          c,
+        ]);
     }
   }
-  const famCells = p && fam ? p.families[fam]! : [];
   const famByRegion = new Map<string, Cell[]>();
-  for (const c of famCells)
+  for (const c of p && fam ? p.families[fam]! : [])
     famByRegion.set(c.region_code, [...(famByRegion.get(c.region_code) ?? []), c]);
-  const counts: Record<string, number> = { available: 0, constrained: 0, tight: 0, offered: 0 };
+  const counts: Record<string, number> = {
+    available: 0,
+    constrained: 0,
+    tight: 0,
+    offered: 0,
+    unknown: 0,
+  };
   for (const cells of famByRegion.values()) {
-    const w = worst(cells);
+    const w = worstLevel(cells);
     if (w) counts[w.level] = (counts[w.level] ?? 0) + 1;
   }
-
   const mapRegions: RegionMarker[] = (regionsApi.data?.regions ?? [])
     .filter((r) => r.code && famByRegion.has(r.code))
     .map((r) => {
-      const w = worst(famByRegion.get(r.code!)!)!;
+      const w = worstLevel(famByRegion.get(r.code!)!)!;
       return {
         ...r,
-        name: `${r.name}: ${LEVEL_LABEL[w.level]}${measure(w) ? `, ${measure(w)}` : ""}`,
+        name: `${r.name}: ${LEVEL_LABEL[w.level]}${measureFor(w.signals) ? `, ${measureFor(w.signals)}` : ""}`,
         level: w.level,
-      } as RegionMarker & { level: string };
+      };
     });
+  const waiting = ADAPTER_META.filter((a) => a.credentials?.length);
 
   return (
     <>
@@ -154,8 +127,9 @@ export function Availability() {
         <h1>Availability signals</h1>
         <p className="muted" style={{ marginTop: "0.5rem" }}>
           Could a new customer get this SKU in this region now? Levels are relative within one
-          provider and SKU family, from public market signals. They measure spare capacity for new
-          requests, not infrastructure, and are never converted to megawatts.
+          provider and SKU family, from public market signals and, where an account allows, the
+          provider&apos;s own capacity answers. They measure spare capacity for new requests, not
+          infrastructure, and are never converted to megawatts.
         </p>
       </section>
       <section className="block">
@@ -205,7 +179,7 @@ export function Availability() {
             <p className="muted small">
               {counts.available} region{counts.available === 1 ? "" : "s"} available,{" "}
               {counts.constrained} constrained, {counts.tight} tight
-              {counts.offered ? `, ${counts.offered} offered without a spot signal` : ""};{" "}
+              {counts.offered ? `, ${counts.offered} offered without a scarcity signal` : ""};{" "}
               {famByRegion.size} of {regions.length} regions offer {fam}.
             </p>
             <Suspense fallback={<div className="map" aria-busy="true" />}>
@@ -224,7 +198,7 @@ export function Availability() {
             <div className="lead" style={{ marginTop: "1.75rem" }}>
               <h2>Every family, every region</h2>
               <span className="muted small">
-                worst SKU in the family per region; hover a cell for the signal
+                worst SKU per region; the figure is the provider&apos;s own measurement
               </span>
             </div>
             <div className="legend" style={{ marginBottom: "0.5rem" }}>
@@ -261,7 +235,7 @@ export function Availability() {
                     </div>
                     {families.map((f) => {
                       const cells = byRegionFamily.get(`${r}|${f}`);
-                      const w = cells ? worst(cells) : null;
+                      const w = cells ? worstLevel(cells) : null;
                       return (
                         <div
                           key={f}
@@ -275,7 +249,7 @@ export function Availability() {
                           }
                         >
                           <span className={`swatch ${w ? w.level : "absent"}`} />
-                          {w && <span className="measure">{measure(w)}</span>}
+                          {w && <span className="measure">{measureFor(w.signals)}</span>}
                         </div>
                       );
                     })}
@@ -283,18 +257,23 @@ export function Availability() {
                 ))}
               </div>
             </div>
-            <p className="small muted" style={{ marginTop: "0.75rem" }}>
-              {slug === "azure"
-                ? "Spot to pay-as-you-go price ratio per SKU and region, Azure Retail Prices API. Terciles within the family: lowest third available, middle constrained, top third tight. On-demand only means offered, no spot signal."
-                : slug === "gcp"
-                  ? "GPU machine types per zone from Google's documentation, read daily. Offering only; Google publishes no public scarcity signal."
-                  : "Spot interruption band per instance type and region, AWS Spot Instance Advisor. Under 10% available, 10 to 15% constrained, above tight. A low band can also mean little spot use."}
-            </p>
+            <ul className="small muted" style={{ marginTop: "0.75rem", paddingLeft: "1.1rem" }}>
+              {p.signals.map((k) => (
+                <li key={k}>
+                  <span className="mono">{k.replace(/_/g, " ")}</span>: {SIGNAL_NOTES[k]}
+                </li>
+              ))}
+            </ul>
           </>
         )}
         {!providers.length && <p className="muted">No availability signals recorded yet.</p>}
         <h2 style={{ marginTop: "2rem" }}>Not yet covered</h2>
         <ul className="small muted" style={{ marginTop: "0.5rem" }}>
+          {waiting.map((a) => (
+            <li key={a.id}>
+              {a.title}: {a.measures} Waiting for {a.credentials!.join(", ")}.
+            </li>
+          ))}
           <li>
             Oracle Cloud publishes a capacity report per shape and availability domain, but only to
             an account.

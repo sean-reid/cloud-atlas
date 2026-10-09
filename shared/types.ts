@@ -108,7 +108,8 @@ export type AvailabilitySignalKind =
   | "placement_score"
   | "sell_status"
   | "capacity_report"
-  | "interruption_band";
+  | "interruption_band"
+  | "lead_time_days";
 
 export interface AvailabilitySignal {
   id: string;

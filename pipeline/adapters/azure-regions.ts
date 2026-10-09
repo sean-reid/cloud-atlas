@@ -1,22 +1,16 @@
 import { ensureEntity, ensureSource, makeObservation, providerEntity } from "../entities";
 import { regionGeo } from "../geo";
 import { columnIndex, tables } from "../html";
-import { emptyResult, type Adapter, type AdapterContext } from "./types";
+import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
 
 const URL = "https://learn.microsoft.com/en-us/azure/reliability/regions-list";
 
 export const azureRegions: Adapter = {
-  id: "azure-regions",
-  title: "Azure regions list",
-  publisher: "Microsoft",
+  ...meta("azure-regions"),
   url: URL,
   tier: 1,
   license:
     "Microsoft Learn; Microsoft Terms of Use permit informational non-commercial use of documents",
-  measures:
-    "Public cloud regions with availability zone counts and physical locations. Geography only.",
-  mode: "automated",
-  schedule: "daily",
   hosts: ["learn.microsoft.com"],
   source: () => ({
     id: "",

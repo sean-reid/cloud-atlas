@@ -84,11 +84,11 @@ async function main(argv: string[]): Promise<number> {
         ...(offline ? { fetchImpl: fixtureFetch(), fetchDefaults: { minIntervalMs: 0 } } : {}),
       });
       await db.close();
-      for (const o of outcomes)
-        console.log(
-          `${o.ok ? "ok  " : "FAIL"} ${o.adapter.padEnd(22)} ${o.ok ? JSON.stringify(o.result) : o.error}`,
-        );
-      return outcomes.every((o) => o.ok) ? 0 : 1;
+      for (const o of outcomes) {
+        const mark = o.ok ? "ok  " : o.skipped ? "skip" : "FAIL";
+        console.log(`${mark} ${o.adapter.padEnd(22)} ${o.ok ? JSON.stringify(o.result) : o.error}`);
+      }
+      return outcomes.every((o) => o.ok || o.skipped) ? 0 : 1;
     }
     case "import": {
       const files = args.filter((a) => a.endsWith(".csv")).map((f) => resolve(f));

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { ADAPTER_META } from "../../shared/adapters-meta";
 
 // The filter drawer is collapsed below 900px.
 const openFilters = async (page: Page) => {
@@ -94,7 +95,7 @@ test("provider, methodology, sources, availability, and API pages render", async
   await shot(page, "methodology");
   await page.goto("/sources");
   await expect(page.getByText("Last attempted")).toBeVisible();
-  await expect(page.locator("table").first().locator("tbody tr")).toHaveCount(7);
+  await expect(page.locator("table").first().locator("tbody tr")).toHaveCount(ADAPTER_META.length);
   await shot(page, "sources");
   await page.goto("/availability");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Availability signals");
