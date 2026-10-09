@@ -33,9 +33,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run build && npx wrangler dev --port ${port} --ip 127.0.0.1`,
+    command: `npm run build && npm run seed:offline && npx wrangler dev --port ${port} --ip 127.0.0.1`,
     url: `http://127.0.0.1:${port}/`,
     reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
+    timeout: 300_000,
   },
 });

@@ -1,0 +1,1118 @@
+{
+ "Memphis, TN, US": {
+  "lat": 35.15,
+  "lon": -90.05,
+  "country_code": "US",
+  "admin_area": "TN"
+ },
+ "Fayetteville, GA, US": {
+  "lat": 33.45,
+  "lon": -84.45,
+  "country_code": "US",
+  "admin_area": "GA"
+ },
+ "New Carlisle, IN, US": {
+  "lat": 41.7,
+  "lon": -86.51,
+  "country_code": "US",
+  "admin_area": "IN"
+ },
+ "Pryor, OK, US": {
+  "lat": 36.31,
+  "lon": -95.32,
+  "country_code": "US",
+  "admin_area": "OK"
+ },
+ "New Albany, OH, US": {
+  "lat": 40.08,
+  "lon": -82.81,
+  "country_code": "US",
+  "admin_area": "OH"
+ },
+ "Abilene, TX, US": {
+  "lat": 32.45,
+  "lon": -99.73,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Mount Pleasant, WI, US": {
+  "lat": 42.71,
+  "lon": -87.89,
+  "country_code": "US",
+  "admin_area": "WI"
+ },
+ "Columbus, OH, US": {
+  "lat": 39.96,
+  "lon": -83.0,
+  "country_code": "US",
+  "admin_area": "OH"
+ },
+ "Sandston, VA, US": {
+  "lat": 37.52,
+  "lon": -77.31,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Rosemount, MN, US": {
+  "lat": 44.74,
+  "lon": -93.13,
+  "country_code": "US",
+  "admin_area": "MN"
+ },
+ "Canton, MS, US": {
+  "lat": 32.61,
+  "lon": -90.04,
+  "country_code": "US",
+  "admin_area": "MS"
+ },
+ "Bristow, VA, US": {
+  "lat": 38.72,
+  "lon": -77.54,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Goodyear, AZ, US": {
+  "lat": 33.44,
+  "lon": -112.36,
+  "country_code": "US",
+  "admin_area": "AZ"
+ },
+ "Jeffersonville, IN, US": {
+  "lat": 38.28,
+  "lon": -85.74,
+  "country_code": "US",
+  "admin_area": "IN"
+ },
+ "Temple, TX, US": {
+  "lat": 31.1,
+  "lon": -97.34,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Omaha, NE, US": {
+  "lat": 41.26,
+  "lon": -95.94,
+  "country_code": "US",
+  "admin_area": "NE"
+ },
+ "Lincoln, NE, US": {
+  "lat": 40.81,
+  "lon": -96.7,
+  "country_code": "US",
+  "admin_area": "NE"
+ },
+ "The Dalles, OR, US": {
+  "lat": 45.59,
+  "lon": -121.18,
+  "country_code": "US",
+  "admin_area": "OR"
+ },
+ "Montgomery, AL, US": {
+  "lat": 32.37,
+  "lon": -86.3,
+  "country_code": "US",
+  "admin_area": "AL"
+ },
+ "Kuna, ID, US": {
+  "lat": 43.49,
+  "lon": -116.42,
+  "country_code": "US",
+  "admin_area": "ID"
+ },
+ "Cheyenne, WY, US": {
+  "lat": 41.14,
+  "lon": -104.82,
+  "country_code": "US",
+  "admin_area": "WY"
+ },
+ "Ridgeland, MS, US": {
+  "lat": 32.43,
+  "lon": -90.13,
+  "country_code": "US",
+  "admin_area": "MS"
+ },
+ "Toney, AL, US": {
+  "lat": 34.9,
+  "lon": -86.72,
+  "country_code": "US",
+  "admin_area": "AL"
+ },
+ "Afton, TX, US": {
+  "lat": 33.76,
+  "lon": -100.81,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Dickens, TX, US": {
+  "lat": 33.62,
+  "lon": -100.84,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Cumming, IA, US": {
+  "lat": 41.48,
+  "lon": -93.76,
+  "country_code": "US",
+  "admin_area": "IA"
+ },
+ "Eagle Mountain, UT, US": {
+  "lat": 40.31,
+  "lon": -112.01,
+  "country_code": "US",
+  "admin_area": "UT"
+ },
+ "Midlothian, TX, US": {
+  "lat": 32.48,
+  "lon": -96.99,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Lancaster, OH, US": {
+  "lat": 39.71,
+  "lon": -82.6,
+  "country_code": "US",
+  "admin_area": "OH"
+ },
+ "Hillsboro, OR, US": {
+  "lat": 45.52,
+  "lon": -122.99,
+  "country_code": "US",
+  "admin_area": "OR"
+ },
+ "Sterling, VA, US": {
+  "lat": 39.01,
+  "lon": -77.43,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Red Oak, TX, US": {
+  "lat": 32.52,
+  "lon": -96.8,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Papillion, NE, US": {
+  "lat": 41.15,
+  "lon": -96.04,
+  "country_code": "US",
+  "admin_area": "NE"
+ },
+ "Gallatin, TN, US": {
+  "lat": 36.39,
+  "lon": -86.45,
+  "country_code": "US",
+  "admin_area": "TN"
+ },
+ "Los Lunas, NM, US": {
+  "lat": 34.81,
+  "lon": -106.73,
+  "country_code": "US",
+  "admin_area": "NM"
+ },
+ "Ellendale, ND, US": {
+  "lat": 46.0,
+  "lon": -98.53,
+  "country_code": "US",
+  "admin_area": "ND"
+ },
+ "Springfield, NE, US": {
+  "lat": 41.08,
+  "lon": -96.13,
+  "country_code": "US",
+  "admin_area": "NE"
+ },
+ "Chester, VA, US": {
+  "lat": 37.36,
+  "lon": -77.44,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Berwick, PA, US": {
+  "lat": 41.05,
+  "lon": -76.23,
+  "country_code": "US",
+  "admin_area": "PA"
+ },
+ "Salem Township, PA, US": {
+  "lat": 41.09,
+  "lon": -76.15,
+  "country_code": "US",
+  "admin_area": "PA"
+ },
+ "Marble, NC, US": {
+  "lat": 35.17,
+  "lon": -83.92,
+  "country_code": "US",
+  "admin_area": "NC"
+ },
+ "Trenton, SC, US": {
+  "lat": 33.74,
+  "lon": -81.84,
+  "country_code": "US",
+  "admin_area": "SC"
+ },
+ "Barker, NY, US": {
+  "lat": 43.33,
+  "lon": -78.55,
+  "country_code": "US",
+  "admin_area": "NY"
+ },
+ "San Antonio, TX, US": {
+  "lat": 29.42,
+  "lon": -98.49,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Manassas, VA, US": {
+  "lat": 38.75,
+  "lon": -77.48,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Vineland, NJ, US": {
+  "lat": 39.49,
+  "lon": -75.03,
+  "country_code": "US",
+  "admin_area": "NJ"
+ },
+ "Dalton, GA, US": {
+  "lat": 34.77,
+  "lon": -84.97,
+  "country_code": "US",
+  "admin_area": "GA"
+ },
+ "Atlanta, GA, US": {
+  "lat": 33.75,
+  "lon": -84.39,
+  "country_code": "US",
+  "admin_area": "GA"
+ },
+ "Lancaster, PA, US": {
+  "lat": 40.04,
+  "lon": -76.31,
+  "country_code": "US",
+  "admin_area": "PA"
+ },
+ "Muskogee, OK, US": {
+  "lat": 35.75,
+  "lon": -95.37,
+  "country_code": "US",
+  "admin_area": "OK"
+ },
+ "Cedar Rapids, IA, US": {
+  "lat": 41.98,
+  "lon": -91.67,
+  "country_code": "US",
+  "admin_area": "IA"
+ },
+ "Fort Wayne, IN, US": {
+  "lat": 41.08,
+  "lon": -85.14,
+  "country_code": "US",
+  "admin_area": "IN"
+ },
+ "Bowling Green, OH, US": {
+  "lat": 41.37,
+  "lon": -83.65,
+  "country_code": "US",
+  "admin_area": "OH"
+ },
+ "Holly Ridge, LA, US": {
+  "lat": 32.49,
+  "lon": -91.53,
+  "country_code": "US",
+  "admin_area": "LA"
+ },
+ "Warren, OH, US": {
+  "lat": 41.24,
+  "lon": -80.82,
+  "country_code": "US",
+  "admin_area": "OH"
+ },
+ "Fairfax, IA, US": {
+  "lat": 41.92,
+  "lon": -91.78,
+  "country_code": "US",
+  "admin_area": "IA"
+ },
+ "Council Bluffs, IA, US": {
+  "lat": 41.26,
+  "lon": -95.86,
+  "country_code": "US",
+  "admin_area": "IA"
+ },
+ "Denton, TX, US": {
+  "lat": 33.21,
+  "lon": -97.13,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Quincy, WA, US": {
+  "lat": 47.23,
+  "lon": -119.85,
+  "country_code": "US",
+  "admin_area": "WA"
+ },
+ "Boydton, VA, US": {
+  "lat": 36.67,
+  "lon": -78.39,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Des Moines, IA, US": {
+  "lat": 41.59,
+  "lon": -93.62,
+  "country_code": "US",
+  "admin_area": "IA"
+ },
+ "West Des Moines, IA, US": {
+  "lat": 41.58,
+  "lon": -93.71,
+  "country_code": "US",
+  "admin_area": "IA"
+ },
+ "Ashburn, VA, US": {
+  "lat": 39.04,
+  "lon": -77.49,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Boardman, OR, US": {
+  "lat": 45.84,
+  "lon": -119.7,
+  "country_code": "US",
+  "admin_area": "OR"
+ },
+ "Hermiston, OR, US": {
+  "lat": 45.84,
+  "lon": -119.29,
+  "country_code": "US",
+  "admin_area": "OR"
+ },
+ "Umatilla, OR, US": {
+  "lat": 45.92,
+  "lon": -119.34,
+  "country_code": "US",
+  "admin_area": "OR"
+ },
+ "Prineville, OR, US": {
+  "lat": 44.3,
+  "lon": -120.83,
+  "country_code": "US",
+  "admin_area": "OR"
+ },
+ "Lenoir, NC, US": {
+  "lat": 35.91,
+  "lon": -81.54,
+  "country_code": "US",
+  "admin_area": "NC"
+ },
+ "Douglas County, GA, US": {
+  "lat": 33.7,
+  "lon": -84.77,
+  "country_code": "US",
+  "admin_area": "GA"
+ },
+ "Douglasville, GA, US": {
+  "lat": 33.75,
+  "lon": -84.75,
+  "country_code": "US",
+  "admin_area": "GA"
+ },
+ "Henderson, NV, US": {
+  "lat": 36.04,
+  "lon": -114.98,
+  "country_code": "US",
+  "admin_area": "NV"
+ },
+ "Mesa, AZ, US": {
+  "lat": 33.42,
+  "lon": -111.83,
+  "country_code": "US",
+  "admin_area": "AZ"
+ },
+ "Storey County, NV, US": {
+  "lat": 39.53,
+  "lon": -119.45,
+  "country_code": "US",
+  "admin_area": "NV"
+ },
+ "Reno, NV, US": {
+  "lat": 39.53,
+  "lon": -119.81,
+  "country_code": "US",
+  "admin_area": "NV"
+ },
+ "Moncks Corner, SC, US": {
+  "lat": 33.2,
+  "lon": -80.01,
+  "country_code": "US",
+  "admin_area": "SC"
+ },
+ "Kansas City, MO, US": {
+  "lat": 39.1,
+  "lon": -94.58,
+  "country_code": "US",
+  "admin_area": "MO"
+ },
+ "West Memphis, AR, US": {
+  "lat": 35.15,
+  "lon": -90.18,
+  "country_code": "US",
+  "admin_area": "AR"
+ },
+ "Van Buren Township, MI, US": {
+  "lat": 42.22,
+  "lon": -83.49,
+  "country_code": "US",
+  "admin_area": "MI"
+ },
+ "Caledonia, WI, US": {
+  "lat": 42.8,
+  "lon": -87.9,
+  "country_code": "US",
+  "admin_area": "WI"
+ },
+ "Mason County, WV, US": {
+  "lat": 38.77,
+  "lon": -82.03,
+  "country_code": "US",
+  "admin_area": "WV"
+ },
+ "Point Pleasant, WV, US": {
+  "lat": 38.84,
+  "lon": -82.14,
+  "country_code": "US",
+  "admin_area": "WV"
+ },
+ "Licking County, OH, US": {
+  "lat": 40.09,
+  "lon": -82.48,
+  "country_code": "US",
+  "admin_area": "OH"
+ },
+ "Newark, OH, US": {
+  "lat": 40.06,
+  "lon": -82.4,
+  "country_code": "US",
+  "admin_area": "OH"
+ },
+ "Louisa, VA, US": {
+  "lat": 38.03,
+  "lon": -78.0,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Mineral, VA, US": {
+  "lat": 38.01,
+  "lon": -77.91,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Lusby, MD, US": {
+  "lat": 38.43,
+  "lon": -76.44,
+  "country_code": "US",
+  "admin_area": "MD"
+ },
+ "Richmond County, NC, US": {
+  "lat": 35.0,
+  "lon": -79.75,
+  "country_code": "US",
+  "admin_area": "NC"
+ },
+ "Madison County, MS, US": {
+  "lat": 32.63,
+  "lon": -90.03,
+  "country_code": "US",
+  "admin_area": "MS"
+ },
+ "Salt Lake City, UT, US": {
+  "lat": 40.76,
+  "lon": -111.89,
+  "country_code": "US",
+  "admin_area": "UT"
+ },
+ "Dallas, TX, US": {
+  "lat": 32.78,
+  "lon": -96.8,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Las Vegas, NV, US": {
+  "lat": 36.17,
+  "lon": -115.14,
+  "country_code": "US",
+  "admin_area": "NV"
+ },
+ "Phoenix, AZ, US": {
+  "lat": 33.45,
+  "lon": -112.07,
+  "country_code": "US",
+  "admin_area": "AZ"
+ },
+ "Chicago, IL, US": {
+  "lat": 41.88,
+  "lon": -87.63,
+  "country_code": "US",
+  "admin_area": "IL"
+ },
+ "Los Angeles, CA, US": {
+  "lat": 34.05,
+  "lon": -118.24,
+  "country_code": "US",
+  "admin_area": "CA"
+ },
+ "San Jose, CA, US": {
+  "lat": 37.34,
+  "lon": -121.89,
+  "country_code": "US",
+  "admin_area": "CA"
+ },
+ "Richmond, VA, US": {
+  "lat": 37.54,
+  "lon": -77.43,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Leesburg, VA, US": {
+  "lat": 39.12,
+  "lon": -77.56,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Haymarket, VA, US": {
+  "lat": 38.81,
+  "lon": -77.64,
+  "country_code": "US",
+  "admin_area": "VA"
+ },
+ "Hilliard, OH, US": {
+  "lat": 40.03,
+  "lon": -83.16,
+  "country_code": "US",
+  "admin_area": "OH"
+ },
+ "Indianapolis, IN, US": {
+  "lat": 39.77,
+  "lon": -86.16,
+  "country_code": "US",
+  "admin_area": "IN"
+ },
+ "Jackson, MS, US": {
+  "lat": 32.3,
+  "lon": -90.18,
+  "country_code": "US",
+  "admin_area": "MS"
+ },
+ "Tucson, AZ, US": {
+  "lat": 32.22,
+  "lon": -110.93,
+  "country_code": "US",
+  "admin_area": "AZ"
+ },
+ "Fort Worth, TX, US": {
+  "lat": 32.75,
+  "lon": -97.33,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Austin, TX, US": {
+  "lat": 30.27,
+  "lon": -97.74,
+  "country_code": "US",
+  "admin_area": "TX"
+ },
+ "Charleston, SC, US": {
+  "lat": 32.78,
+  "lon": -79.93,
+  "country_code": "US",
+  "admin_area": "SC"
+ },
+ "Dublin, IE": {
+  "lat": 53.35,
+  "lon": -6.26,
+  "country_code": "IE",
+  "admin_area": null
+ },
+ "Mulhuddart, IE": {
+  "lat": 53.4,
+  "lon": -6.4,
+  "country_code": "IE",
+  "admin_area": null
+ },
+ "Hamina, FI": {
+  "lat": 60.57,
+  "lon": 27.2,
+  "country_code": "FI",
+  "admin_area": null
+ },
+ "Saint-Ghislain, BE": {
+  "lat": 50.45,
+  "lon": 3.82,
+  "country_code": "BE",
+  "admin_area": null
+ },
+ "Farciennes, BE": {
+  "lat": 50.43,
+  "lon": 4.54,
+  "country_code": "BE",
+  "admin_area": null
+ },
+ "Eemshaven, NL": {
+  "lat": 53.45,
+  "lon": 6.83,
+  "country_code": "NL",
+  "admin_area": null
+ },
+ "Fredericia, DK": {
+  "lat": 55.57,
+  "lon": 9.75,
+  "country_code": "DK",
+  "admin_area": null
+ },
+ "Waltham Cross, GB": {
+  "lat": 51.69,
+  "lon": -0.03,
+  "country_code": "GB",
+  "admin_area": null
+ },
+ "Cheshunt, GB": {
+  "lat": 51.7,
+  "lon": -0.03,
+  "country_code": "GB",
+  "admin_area": null
+ },
+ "Changhua, TW": {
+  "lat": 24.08,
+  "lon": 120.54,
+  "country_code": "TW",
+  "admin_area": null
+ },
+ "Quilicura, CL": {
+  "lat": -33.36,
+  "lon": -70.73,
+  "country_code": "CL",
+  "admin_area": null
+ },
+ "Santiago, CL": {
+  "lat": -33.45,
+  "lon": -70.67,
+  "country_code": "CL",
+  "admin_area": null
+ },
+ "Cerrillos, CL": {
+  "lat": -33.5,
+  "lon": -70.71,
+  "country_code": "CL",
+  "admin_area": null
+ },
+ "Visakhapatnam, IN": {
+  "lat": 17.69,
+  "lon": 83.22,
+  "country_code": "IN",
+  "admin_area": null
+ },
+ "Winschoten, NL": {
+  "lat": 53.14,
+  "lon": 7.03,
+  "country_code": "NL",
+  "admin_area": null
+ },
+ "Groningen, NL": {
+  "lat": 53.22,
+  "lon": 6.57,
+  "country_code": "NL",
+  "admin_area": null
+ },
+ "Middenmeer, NL": {
+  "lat": 52.81,
+  "lon": 5.0,
+  "country_code": "NL",
+  "admin_area": null
+ },
+ "Ulanqab, CN": {
+  "lat": 41.0,
+  "lon": 113.1,
+  "country_code": "CN",
+  "admin_area": null
+ },
+ "Horinger, CN": {
+  "lat": 40.38,
+  "lon": 111.82,
+  "country_code": "CN",
+  "admin_area": null
+ },
+ "Wuhu, CN": {
+  "lat": 31.35,
+  "lon": 118.43,
+  "country_code": "CN",
+  "admin_area": null
+ },
+ "Zhangjiakou, CN": {
+  "lat": 40.77,
+  "lon": 114.89,
+  "country_code": "CN",
+  "admin_area": null
+ },
+ "Zhangbei, CN": {
+  "lat": 41.16,
+  "lon": 114.7,
+  "country_code": "CN",
+  "admin_area": null
+ },
+ "Gui'an New Area, CN": {
+  "lat": 26.4,
+  "lon": 106.6,
+  "country_code": "CN",
+  "admin_area": null
+ },
+ "Ovrebo, NO": {
+  "lat": 58.27,
+  "lon": 7.86,
+  "country_code": "NO",
+  "admin_area": null
+ },
+ "Narvik, NO": {
+  "lat": 68.44,
+  "lon": 17.43,
+  "country_code": "NO",
+  "admin_area": null
+ },
+ "Sines, PT": {
+  "lat": 37.96,
+  "lon": -8.87,
+  "country_code": "PT",
+  "admin_area": null
+ },
+ "Reykjanesbaer, IS": {
+  "lat": 63.99,
+  "lon": -22.56,
+  "country_code": "IS",
+  "admin_area": null
+ },
+ "Borlange, SE": {
+  "lat": 60.48,
+  "lon": 15.43,
+  "country_code": "SE",
+  "admin_area": null
+ },
+ "Gavle, SE": {
+  "lat": 60.67,
+  "lon": 17.14,
+  "country_code": "SE",
+  "admin_area": null
+ },
+ "Sandviken, SE": {
+  "lat": 60.62,
+  "lon": 16.78,
+  "country_code": "SE",
+  "admin_area": null
+ },
+ "Staffanstorp, SE": {
+  "lat": 55.64,
+  "lon": 13.21,
+  "country_code": "SE",
+  "admin_area": null
+ },
+ "Abu Dhabi, AE": {
+  "lat": 24.45,
+  "lon": 54.38,
+  "country_code": "AE",
+  "admin_area": null
+ },
+ "Dubai, AE": {
+  "lat": 25.2,
+  "lon": 55.27,
+  "country_code": "AE",
+  "admin_area": null
+ },
+ "Johor Bahru, MY": {
+  "lat": 1.49,
+  "lon": 103.74,
+  "country_code": "MY",
+  "admin_area": null
+ },
+ "Loughton, GB": {
+  "lat": 51.65,
+  "lon": 0.06,
+  "country_code": "GB",
+  "admin_area": null
+ },
+ "London, GB": {
+  "lat": 51.51,
+  "lon": -0.13,
+  "country_code": "GB",
+  "admin_area": null
+ },
+ "Sydney, AU": {
+  "lat": -33.87,
+  "lon": 151.21,
+  "country_code": "AU",
+  "admin_area": null
+ },
+ "Gregory Hills, AU": {
+  "lat": -34.03,
+  "lon": 150.77,
+  "country_code": "AU",
+  "admin_area": null
+ },
+ "Melbourne, AU": {
+  "lat": -37.81,
+  "lon": 144.96,
+  "country_code": "AU",
+  "admin_area": null
+ },
+ "Jakarta, ID": {
+  "lat": -6.21,
+  "lon": 106.85,
+  "country_code": "ID",
+  "admin_area": null
+ },
+ "Tokyo, JP": {
+  "lat": 35.68,
+  "lon": 139.69,
+  "country_code": "JP",
+  "admin_area": null
+ },
+ "Inzai, JP": {
+  "lat": 35.83,
+  "lon": 140.15,
+  "country_code": "JP",
+  "admin_area": null
+ },
+ "Osaka, JP": {
+  "lat": 34.69,
+  "lon": 135.5,
+  "country_code": "JP",
+  "admin_area": null
+ },
+ "Hyderabad, IN": {
+  "lat": 17.39,
+  "lon": 78.49,
+  "country_code": "IN",
+  "admin_area": null
+ },
+ "Mumbai, IN": {
+  "lat": 19.08,
+  "lon": 72.88,
+  "country_code": "IN",
+  "admin_area": null
+ },
+ "Riyadh, SA": {
+  "lat": 24.71,
+  "lon": 46.68,
+  "country_code": "SA",
+  "admin_area": null
+ },
+ "Dammam, SA": {
+  "lat": 26.43,
+  "lon": 50.1,
+  "country_code": "SA",
+  "admin_area": null
+ },
+ "Zaragoza, ES": {
+  "lat": 41.65,
+  "lon": -0.89,
+  "country_code": "ES",
+  "admin_area": null
+ },
+ "Madrid, ES": {
+  "lat": 40.42,
+  "lon": -3.7,
+  "country_code": "ES",
+  "admin_area": null
+ },
+ "Auckland, NZ": {
+  "lat": -36.85,
+  "lon": 174.76,
+  "country_code": "NZ",
+  "admin_area": null
+ },
+ "Queretaro, MX": {
+  "lat": 20.59,
+  "lon": -100.39,
+  "country_code": "MX",
+  "admin_area": null
+ },
+ "Taipei, TW": {
+  "lat": 25.03,
+  "lon": 121.57,
+  "country_code": "TW",
+  "admin_area": null
+ },
+ "Tel Aviv, IL": {
+  "lat": 32.09,
+  "lon": 34.78,
+  "country_code": "IL",
+  "admin_area": null
+ },
+ "Johannesburg, ZA": {
+  "lat": -26.2,
+  "lon": 28.05,
+  "country_code": "ZA",
+  "admin_area": null
+ },
+ "Cape Town, ZA": {
+  "lat": -33.93,
+  "lon": 18.42,
+  "country_code": "ZA",
+  "admin_area": null
+ },
+ "Pune, IN": {
+  "lat": 18.52,
+  "lon": 73.86,
+  "country_code": "IN",
+  "admin_area": null
+ },
+ "Chennai, IN": {
+  "lat": 13.08,
+  "lon": 80.27,
+  "country_code": "IN",
+  "admin_area": null
+ },
+ "Singapore, SG": {
+  "lat": 1.35,
+  "lon": 103.82,
+  "country_code": "SG",
+  "admin_area": null
+ },
+ "Hong Kong, HK": {
+  "lat": 22.32,
+  "lon": 114.17,
+  "country_code": "HK",
+  "admin_area": null
+ },
+ "Seoul, KR": {
+  "lat": 37.57,
+  "lon": 126.98,
+  "country_code": "KR",
+  "admin_area": null
+ },
+ "Frankfurt, DE": {
+  "lat": 50.11,
+  "lon": 8.68,
+  "country_code": "DE",
+  "admin_area": null
+ },
+ "Hanau, DE": {
+  "lat": 50.13,
+  "lon": 8.92,
+  "country_code": "DE",
+  "admin_area": null
+ },
+ "Dietzenbach, DE": {
+  "lat": 50.01,
+  "lon": 8.78,
+  "country_code": "DE",
+  "admin_area": null
+ },
+ "Berlin, DE": {
+  "lat": 52.52,
+  "lon": 13.41,
+  "country_code": "DE",
+  "admin_area": null
+ },
+ "Paris, FR": {
+  "lat": 48.86,
+  "lon": 2.35,
+  "country_code": "FR",
+  "admin_area": null
+ },
+ "Milan, IT": {
+  "lat": 45.46,
+  "lon": 9.19,
+  "country_code": "IT",
+  "admin_area": null
+ },
+ "Zurich, CH": {
+  "lat": 47.38,
+  "lon": 8.54,
+  "country_code": "CH",
+  "admin_area": null
+ },
+ "Warsaw, PL": {
+  "lat": 52.23,
+  "lon": 21.01,
+  "country_code": "PL",
+  "admin_area": null
+ },
+ "Doha, QA": {
+  "lat": 25.29,
+  "lon": 51.53,
+  "country_code": "QA",
+  "admin_area": null
+ },
+ "Stockholm, SE": {
+  "lat": 59.33,
+  "lon": 18.07,
+  "country_code": "SE",
+  "admin_area": null
+ },
+ "Montreal, CA": {
+  "lat": 45.5,
+  "lon": -73.57,
+  "country_code": "CA",
+  "admin_area": null
+ },
+ "Toronto, CA": {
+  "lat": 43.65,
+  "lon": -79.38,
+  "country_code": "CA",
+  "admin_area": null
+ },
+ "Sao Paulo, BR": {
+  "lat": -23.55,
+  "lon": -46.63,
+  "country_code": "BR",
+  "admin_area": null
+ },
+ "Espoo, FI": {
+  "lat": 60.21,
+  "lon": 24.66,
+  "country_code": "FI",
+  "admin_area": null
+ },
+ "Muhos, FI": {
+  "lat": 64.81,
+  "lon": 25.99,
+  "country_code": "FI",
+  "admin_area": null
+ },
+ "Vaala, FI": {
+  "lat": 64.56,
+  "lon": 26.84,
+  "country_code": "FI",
+  "admin_area": null
+ },
+ "Horndal, SE": {
+  "lat": 60.3,
+  "lon": 16.42,
+  "country_code": "SE",
+  "admin_area": null
+ },
+ "Canelones, UY": {
+  "lat": -34.52,
+  "lon": -56.28,
+  "country_code": "UY",
+  "admin_area": null
+ },
+ "Kempas, MY": {
+  "lat": 1.52,
+  "lon": 103.72,
+  "country_code": "MY",
+  "admin_area": null
+ },
+ "Nusajaya, MY": {
+  "lat": 1.42,
+  "lon": 103.63,
+  "country_code": "MY",
+  "admin_area": null
+ },
+ "Batam, ID": {
+  "lat": 1.08,
+  "lon": 104.03,
+  "country_code": "ID",
+  "admin_area": null
+ }
+}

@@ -1,0 +1,35 @@
+{
+  "ranges": [
+    { "index": 0, "label": "<5%", "dots": 0, "max": 5 },
+    { "index": 1, "label": "5-10%", "dots": 1, "max": 11 },
+    { "index": 2, "label": "10-15%", "dots": 2, "max": 16 },
+    { "index": 3, "label": "15-20%", "dots": 3, "max": 22 },
+    { "index": 4, "label": ">20%", "dots": 4, "max": 100 }
+  ],
+  "instance_types": {},
+  "global_rate": "<10%",
+  "spot_advisor": {
+    "us-east-1": {
+      "Linux": {
+        "p4d.24xlarge": { "s": 56, "r": 3 },
+        "inf2.xlarge": { "s": 84, "r": 4 },
+        "c6i.large": { "s": 59, "r": 3 },
+        "g6e.xlarge": { "s": 50, "r": 4 },
+        "p5.48xlarge": { "s": 57, "r": 0 },
+        "p5en.48xlarge": { "s": 67, "r": 0 },
+        "m5.large": { "s": 59, "r": 4 },
+        "g5.xlarge": { "s": 56, "r": 4 },
+        "trn1.32xlarge": { "s": 61, "r": 0 }
+      }
+    },
+    "eu-west-1": {
+      "Linux": {
+        "g5.xlarge": { "s": 50, "r": 2 },
+        "p4d.24xlarge": { "s": 59, "r": 4 },
+        "inf2.xlarge": { "s": 72, "r": 4 },
+        "c6i.large": { "s": 40, "r": 0 },
+        "m5.large": { "s": 40, "r": 4 }
+      }
+    }
+  }
+}

@@ -1,5 +1,18 @@
 export type ProviderSlug =
-  "aws" | "azure" | "gcp" | "oracle" | "alibaba" | "tencent" | "huawei" | "ibm" | "coreweave";
+  | "aws"
+  | "azure"
+  | "gcp"
+  | "oracle"
+  | "alibaba"
+  | "tencent"
+  | "huawei"
+  | "ibm"
+  | "coreweave"
+  | "nebius"
+  | "nscale"
+  | "crusoe"
+  | "baidu"
+  | "ovhcloud";
 
 export type ProviderCategory = "hyperscale" | "regional" | "gpu";
 
@@ -84,6 +97,46 @@ export const PROVIDERS: readonly Provider[] = [
     company: "CoreWeave",
     category: "gpu",
     color: "#5e7a3a",
+  },
+  {
+    slug: "nebius",
+    name: "Nebius",
+    shortName: "Nebius",
+    company: "Nebius Group",
+    category: "gpu",
+    color: "#3f8a8a",
+  },
+  {
+    slug: "nscale",
+    name: "Nscale",
+    shortName: "Nscale",
+    company: "Nscale",
+    category: "gpu",
+    color: "#7b6b2e",
+  },
+  {
+    slug: "crusoe",
+    name: "Crusoe Cloud",
+    shortName: "Crusoe",
+    company: "Crusoe Energy",
+    category: "gpu",
+    color: "#9c5a2a",
+  },
+  {
+    slug: "baidu",
+    name: "Baidu AI Cloud",
+    shortName: "Baidu",
+    company: "Baidu",
+    category: "regional",
+    color: "#2f4f8f",
+  },
+  {
+    slug: "ovhcloud",
+    name: "OVHcloud",
+    shortName: "OVHcloud",
+    company: "OVH Groupe",
+    category: "regional",
+    color: "#1f6f9f",
   },
 ];
 

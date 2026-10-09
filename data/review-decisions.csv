@@ -1,0 +1,11 @@
+id,resolution
+rev_gcp_scope_europe-west15,rejected: appears only in the IP range feed; no public zone table entry so no region entity is created
+rev_gcp_scope_us-central2,rejected: internal or pre-launch code with no public zone table entry
+rev_gcp_scope_us-east7,rejected: internal or pre-launch code with no public zone table entry
+rev_gcp_scope_us-west8,rejected: internal or pre-launch code with no public zone table entry
+rev_epoch_place_ent_219e736504ccad86,accepted: left unlocated; Armstrong County Texas site with no gazetteer entry
+rev_dup_ent_6d4881348ec50b6b_ent_0a20eb7e2969de1a,accepted: kept separate; first and second datacenters are distinct buildings on one campus
+rev_dup_ent_f88a2cefe337581d_ent_6071e032a5a90787,accepted: kept separate; the north parcels are new sites outside the original campus
+rev_dup_ent_0590d11caacf65a3_ent_bbbae55844949e58,accepted: kept separate; the west-of-A7 plot is a new site beside the existing campus
+rev_dup_ent_63d008285878f0fb_ent_23bbd460f2a4dd87,accepted: kept separate; the county pair covers two campuses and the mega site is one of them
+rev_dup_ent_9e39b478f5f4f986_ent_94620b1234c3317f,accepted: kept separate; Kansas City East is one of the two sites the campus row covers
