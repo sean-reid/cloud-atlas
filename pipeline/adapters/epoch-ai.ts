@@ -4,7 +4,7 @@ import type { Observation } from "../../shared/types";
 import { csvRecords } from "../csv";
 import { ensureEntity, ensureSource, findSite, makeObservation } from "../entities";
 import { resolveAddress } from "../geo";
-import { emptyResult, type Adapter, type AdapterContext } from "./types";
+import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
 
 const PAGE_URL = "https://epoch.ai/data/ai-data-centers";
 const SITES_URL = "https://epoch.ai/data/data_centers/data_centers.csv";
@@ -34,16 +34,10 @@ export function parseOwner(cell: string): {
 }
 
 export const epochAi: Adapter = {
-  id: "epoch-ai",
-  title: "Epoch AI: AI data centers",
-  publisher: "Epoch AI",
+  ...meta("epoch-ai"),
   url: PAGE_URL,
   tier: 3,
   license: "CC BY 4.0",
-  measures:
-    "Estimated IT power, total power, and H100-equivalent compute for the largest AI data centers, with dated construction timelines. AI facilities only; not a measure of cloud coverage.",
-  mode: "automated",
-  schedule: "daily",
   hosts: ["epoch.ai"],
   source: () => ({
     id: "",

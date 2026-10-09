@@ -128,11 +128,13 @@ export function Methodology() {
       <h2>Availability signals</h2>
       <p>
         A separate family of measurements asks whether a new customer could get a given virtual
-        machine SKU in a given region right now. The signals are Azure&apos;s spot to pay-as-you-go
-        price ratio and SKU offering map, read from the public retail prices API, and AWS&apos;s
-        spot interruption frequency bands from the Spot Instance Advisor. They are relative levels
-        within one provider and SKU family, never converted to megawatts, and never compared across
-        providers.
+        machine SKU in a given region right now. Public signals: Azure&apos;s spot to pay-as-you-go
+        price ratio and SKU offering map, AWS&apos;s spot interruption frequency bands, and
+        Google&apos;s GPU offering per zone. Account signals, run only when read-only credentials
+        exist: AWS placement scores and capacity block lead times, Google&apos;s calendar-mode lead
+        times, Oracle capacity reports, and Alibaba and Tencent sell status. Each level is relative
+        within one provider and SKU family, the provider&apos;s own measurement is shown next to it,
+        and nothing is converted to megawatts or compared across providers.
       </p>
 
       <h2>Confidence</h2>

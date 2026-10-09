@@ -1,7 +1,7 @@
 import { ensureEntity, ensureSource, makeObservation, providerEntity } from "../entities";
 import { regionGeo } from "../geo";
 import { columnIndex, tableWithColumns } from "../html";
-import { emptyResult, type Adapter, type AdapterContext } from "./types";
+import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
 
 const ZONES_URL = "https://docs.cloud.google.com/compute/docs/regions-zones";
 const RANGES_URL = "https://www.gstatic.com/ipranges/cloud.json";
@@ -11,17 +11,11 @@ interface CloudJson {
 }
 
 export const gcpRegions: Adapter = {
-  id: "gcp-regions",
-  title: "Google Cloud regions and zones",
-  publisher: "Google Cloud",
+  ...meta("gcp-regions"),
   url: ZONES_URL,
   tier: 1,
   license:
     "Google Cloud documentation, CC BY 4.0; cloud.json carries no licence and is used for code discovery only",
-  measures:
-    "Zone codes with their cities, zones per region, and region codes present in the public IP range feed. Geography only.",
-  mode: "automated",
-  schedule: "daily",
   hosts: ["docs.cloud.google.com", "www.gstatic.com"],
   source: () => ({
     id: "",

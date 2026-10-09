@@ -3,9 +3,9 @@ import type { FetchOptions, FetchResult } from "../fetch";
 import type { Gazetteer } from "../geo";
 import type { Store } from "../store";
 
-export type Schedule = "hourly" | "daily" | "weekly" | "manual";
+import { adapterMeta, type AdapterMeta } from "../../shared/adapters-meta";
 
-export type IngestMode = "automated" | "manual_review" | "unsupported";
+export type { IngestMode, Schedule } from "../../shared/adapters-meta";
 
 export interface AdapterContext {
   store: Store;
@@ -23,16 +23,10 @@ export interface AdapterResult {
   review: number;
 }
 
-export interface Adapter {
-  id: string;
-  title: string;
-  publisher: string;
+export interface Adapter extends AdapterMeta {
   url: string;
   tier: 1 | 2 | 3 | 4;
   license: string;
-  measures: string;
-  mode: IngestMode;
-  schedule: Schedule;
   hosts: readonly string[];
   source: () => Source;
   run: (ctx: AdapterContext) => Promise<AdapterResult>;
@@ -56,3 +50,9 @@ export const emptyResult = (): AdapterResult => ({
   signals: 0,
   review: 0,
 });
+
+export function meta(id: string): AdapterMeta {
+  const m = adapterMeta(id);
+  if (!m) throw new Error(`adapter ${id} has no entry in shared/adapters-meta.ts`);
+  return m;
+}

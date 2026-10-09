@@ -1,7 +1,7 @@
 import { stableId } from "../../shared/ids";
 import { ensureSource } from "../entities";
 import { columnIndex, tableWithColumns } from "../html";
-import { emptyResult, type Adapter, type AdapterContext } from "./types";
+import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
 
 const URL = "https://docs.cloud.google.com/compute/docs/gpus/gpu-regions-zones";
 
@@ -26,16 +26,10 @@ export function familyOf(machineType: string): string {
 }
 
 export const gcpGpuZones: Adapter = {
-  id: "gcp-gpu-zones",
-  title: "Google Cloud GPU regions and zones (availability signals)",
-  publisher: "Google Cloud",
+  ...meta("gcp-gpu-zones"),
   url: URL,
   tier: 1,
   license: "Google Cloud documentation, CC BY 4.0",
-  measures:
-    "Which GPU machine types Google offers in each zone, from its documentation. An offering map only: it says where a GPU exists, not whether one is free right now.",
-  mode: "automated",
-  schedule: "daily",
   hosts: ["docs.cloud.google.com"],
   source: () => ({
     id: "",

@@ -2,7 +2,7 @@ import { datePrecision } from "../../shared/dates";
 import { ensureEntity, ensureSource, makeObservation, providerEntity } from "../entities";
 import { regionGeo } from "../geo";
 import { columnIndex, stripTags, tableWithColumns } from "../html";
-import { emptyResult, type Adapter, type AdapterContext } from "./types";
+import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
 
 const REGIONS_URL =
   "https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-regions.html";
@@ -39,16 +39,10 @@ interface Endpoints {
 }
 
 export const awsRegions: Adapter = {
-  id: "aws-regions",
-  title: "AWS Regions and Availability Zones",
-  publisher: "Amazon Web Services",
+  ...meta("aws-regions"),
   url: REGIONS_URL,
   tier: 1,
   license: "AWS documentation, CC BY-SA 4.0; botocore endpoints, Apache 2.0",
-  measures:
-    "Region codes, names, availability zone counts, and launch dates. Geography only; no power.",
-  mode: "automated",
-  schedule: "daily",
   hosts: ["docs.aws.amazon.com", "raw.githubusercontent.com"],
   source: () => ({
     id: "",

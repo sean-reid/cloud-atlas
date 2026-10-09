@@ -18,7 +18,7 @@ import type { EntityInput } from "../entities";
 import { csvRecords } from "../csv";
 import { ensureEntity, ensureSource, findSite, makeObservation, providerEntity } from "../entities";
 import { resolveAddress } from "../geo";
-import { emptyResult, type Adapter, type AdapterContext, type AdapterResult } from "./types";
+import { emptyResult, meta, type Adapter, type AdapterContext, type AdapterResult } from "./types";
 
 const STATUSES = new Set<Status>([
   "operational",
@@ -257,16 +257,10 @@ export async function importCsv(
 }
 
 export const csvImport: Adapter = {
-  id: "csv-import",
-  title: "Reviewed observations (CSV)",
-  publisher: "Cloud Atlas maintainers",
+  ...meta("csv-import"),
   url: "https://github.com/sean-reid/cloud-atlas/tree/main/data/imports",
   tier: 4,
   license: "Each row cites its own source; the compilation is CC BY 4.0",
-  measures:
-    "Hand-reviewed capacity, investment, land, and count observations transcribed from provider releases, public records, and reporting, each with a citation and excerpt.",
-  mode: "manual_review",
-  schedule: "manual",
   hosts: [],
   source: () => ({
     id: "",

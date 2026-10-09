@@ -1,3 +1,4 @@
+import { ADAPTER_META } from "../../shared/adapters-meta";
 import type { FetchRun, ReviewItem, Source } from "../../shared/types";
 import { useApi } from "../lib/api";
 import { fmtAgo, fmtDate, tierLabel } from "../lib/format";
@@ -7,54 +8,6 @@ interface Data {
   runs: FetchRun[];
   review: ReviewItem[];
 }
-
-const ADAPTERS: Record<
-  string,
-  { title: string; mode: string; schedule: string; measures: string }
-> = {
-  "aws-regions": {
-    title: "AWS regions and zones",
-    mode: "automated",
-    schedule: "daily",
-    measures: "region codes, zone counts, launch dates",
-  },
-  "gcp-regions": {
-    title: "Google Cloud regions and zones",
-    mode: "automated",
-    schedule: "daily",
-    measures: "zone list with cities",
-  },
-  "azure-regions": {
-    title: "Azure regions list",
-    mode: "automated",
-    schedule: "daily",
-    measures: "regions with zone counts",
-  },
-  "epoch-ai": {
-    title: "Epoch AI, AI data centers",
-    mode: "automated",
-    schedule: "daily",
-    measures: "estimated IT power, compute, timelines for large AI sites",
-  },
-  "csv-import": {
-    title: "Reviewed observations",
-    mode: "manual review",
-    schedule: "on commit",
-    measures: "cited capacity, land, and investment figures",
-  },
-  "azure-retail-prices": {
-    title: "Azure Retail Prices",
-    mode: "automated",
-    schedule: "hourly",
-    measures: "SKU offering map, spot price ratio",
-  },
-  "aws-spot-advisor": {
-    title: "AWS Spot Instance Advisor",
-    mode: "automated",
-    schedule: "hourly",
-    measures: "spot interruption bands",
-  },
-};
 
 const UNSUPPORTED = [
   [
@@ -107,26 +60,34 @@ export function Sources() {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(ADAPTERS).map(([id, a]) => {
+              {ADAPTER_META.map((a) => {
+                const id = a.id;
                 const r = latest.get(id);
                 const ok = latestOk.get(id);
+                const waiting = !!r?.error?.startsWith("waiting for credentials");
                 return (
                   <tr key={id}>
                     <td>
                       {a.title}
                       <div className="faint small mono">{id}</div>
                     </td>
-                    <td>{a.mode}</td>
+                    <td>
+                      {a.mode.replace("_", " ")}
+                      {a.credentials?.length ? (
+                        <div className="faint small">needs an account</div>
+                      ) : null}
+                    </td>
                     <td>{a.schedule}</td>
                     <td>
                       {r ? (
                         <>
                           <span title={r.started_at}>{fmtAgo(r.started_at)}</span>
-                          {!r.ok && (
+                          {!r.ok && !waiting && (
                             <div className="small" style={{ fontStyle: "italic" }}>
                               failed: {r.error}
                             </div>
                           )}
+                          {waiting && <div className="small faint">{r.error}</div>}
                         </>
                       ) : (
                         <span className="faint">

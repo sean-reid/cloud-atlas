@@ -1,6 +1,6 @@
 import { stableId } from "../../shared/ids";
 import { ensureSource } from "../entities";
-import { emptyResult, type Adapter, type AdapterContext } from "./types";
+import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
 
 const API = "https://prices.azure.com/api/retail/prices";
 
@@ -56,16 +56,10 @@ export function summarise(items: readonly Item[]): Map<string, RegionPrices> {
 }
 
 export const azureRetailPrices: Adapter = {
-  id: "azure-retail-prices",
-  title: "Azure Retail Prices (availability signals)",
-  publisher: "Microsoft",
+  ...meta("azure-retail-prices"),
   url: API,
   tier: 1,
   license: "Public API, no authentication; Microsoft Terms of Use",
-  measures:
-    "Which VM SKUs are offered in which regions, and the spot to pay-as-you-go price ratio per SKU per region as a scarcity proxy. Not capacity.",
-  mode: "automated",
-  schedule: "hourly",
   hosts: ["prices.azure.com"],
   source: () => ({
     id: "",
