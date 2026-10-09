@@ -1,0 +1,112 @@
+import { createHash } from "node:crypto";
+import type { Dataset, FetchRun } from "../shared/types";
+import type { Adapter, AdapterContext, AdapterResult } from "./adapters/types";
+import type { Db } from "./db";
+import { FetchError, safeFetch, type FetchOptions } from "./fetch";
+import { loadReviewed } from "./decisions";
+import { loadGeo } from "./geo";
+import { log } from "./log";
+import { ensureMethods } from "./methods";
+import { Store } from "./store";
+
+export interface RunOptions {
+  db: Db;
+  dataRoot: string;
+  dataset: Dataset;
+  cacheDir: string;
+  now?: () => Date;
+  fetchImpl?: typeof fetch;
+  fetchDefaults?: Partial<FetchOptions>;
+}
+
+export interface RunOutcome {
+  adapter: string;
+  ok: boolean;
+  result: AdapterResult | null;
+  error: string | null;
+}
+
+// Each adapter runs in isolation: a failure records a failed fetch_run and leaves the
+// last good observations in place, marked stale by their age rather than removed.
+export async function runAdapters(
+  adapters: readonly Adapter[],
+  opts: RunOptions,
+): Promise<{ store: Store; outcomes: RunOutcome[] }> {
+  const now = opts.now ?? (() => new Date());
+  const store = await Store.open(opts.db, opts.dataset, now());
+  await ensureMethods(store);
+  const reviewed = loadReviewed(opts.dataRoot);
+  store.aliases = reviewed.aliases;
+  store.decisions = reviewed.decisions;
+  const geo = loadGeo(opts.dataRoot);
+  const outcomes: RunOutcome[] = [];
+
+  for (const adapter of adapters) {
+    const startedAt = now().toISOString();
+    let lastStatus: number | null = null;
+    let anyChanged = false;
+    const hashes: string[] = [];
+    const ctx: AdapterContext = {
+      store,
+      dataset: opts.dataset,
+      now,
+      geo: geo.regions,
+      places: geo.places,
+      fetch: async (url: string, extra: Partial<FetchOptions> = {}) => {
+        const base: FetchOptions = {
+          adapter: adapter.id,
+          allowHosts: adapter.hosts,
+          cacheDir: opts.cacheDir,
+          ...opts.fetchDefaults,
+          ...extra,
+        };
+        if (opts.fetchImpl) base.fetchImpl = opts.fetchImpl;
+        const res = await safeFetch(url, base);
+        lastStatus = res.status;
+        anyChanged ||= res.changed;
+        hashes.push(res.hash);
+        return res;
+      },
+    };
+    log("info", "adapter.start", { adapter: adapter.id });
+    try {
+      const result = await adapter.run(ctx);
+      const run: FetchRun = {
+        adapter: adapter.id,
+        url: adapter.url,
+        started_at: startedAt,
+        finished_at: now().toISOString(),
+        ok: true,
+        http_status: lastStatus,
+        content_hash: hashes.length
+          ? createHash("sha256").update(hashes.join("")).digest("hex")
+          : null,
+        changed: anyChanged,
+        observations: result.observations + result.signals,
+        error: null,
+      };
+      await store.appendFetchRun(run);
+      outcomes.push({ adapter: adapter.id, ok: true, result, error: null });
+      log("info", "adapter.done", { adapter: adapter.id, ...result, changed: anyChanged });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      await store.appendFetchRun({
+        adapter: adapter.id,
+        url: adapter.url,
+        started_at: startedAt,
+        finished_at: now().toISOString(),
+        ok: false,
+        http_status: err instanceof FetchError ? err.status : lastStatus,
+        content_hash: null,
+        changed: false,
+        observations: 0,
+        error: message.slice(0, 500),
+      });
+      outcomes.push({ adapter: adapter.id, ok: false, result: null, error: message });
+      log("error", "adapter.failed", { adapter: adapter.id, error: message });
+    }
+    await store.flush();
+  }
+  await store.flush();
+  return { store, outcomes };
+}

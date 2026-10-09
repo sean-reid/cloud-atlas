@@ -1,0 +1,1250 @@
+{
+ "aws": {
+  "us-east-1": {
+   "code": "us-east-1",
+   "name": "US East (N. Virginia)",
+   "locality": "Ashburn",
+   "admin_area": "Virginia",
+   "country_code": "US",
+   "lat": 39.04,
+   "lon": -77.49
+  },
+  "us-east-2": {
+   "code": "us-east-2",
+   "name": "US East (Ohio)",
+   "locality": "Columbus",
+   "admin_area": "Ohio",
+   "country_code": "US",
+   "lat": 39.96,
+   "lon": -83.0
+  },
+  "us-west-1": {
+   "code": "us-west-1",
+   "name": "US West (N. California)",
+   "locality": "San Francisco Bay Area",
+   "admin_area": "California",
+   "country_code": "US",
+   "lat": 37.77,
+   "lon": -122.42
+  },
+  "us-west-2": {
+   "code": "us-west-2",
+   "name": "US West (Oregon)",
+   "locality": "Boardman",
+   "admin_area": "Oregon",
+   "country_code": "US",
+   "lat": 45.84,
+   "lon": -119.7
+  },
+  "af-south-1": {
+   "code": "af-south-1",
+   "name": "Africa (Cape Town)",
+   "locality": "Cape Town",
+   "admin_area": "Western Cape",
+   "country_code": "ZA",
+   "lat": -33.93,
+   "lon": 18.42
+  },
+  "ap-east-1": {
+   "code": "ap-east-1",
+   "name": "Asia Pacific (Hong Kong)",
+   "locality": "Hong Kong",
+   "admin_area": null,
+   "country_code": "HK",
+   "lat": 22.32,
+   "lon": 114.17
+  },
+  "ap-east-2": {
+   "code": "ap-east-2",
+   "name": "Asia Pacific (Taipei)",
+   "locality": "Taipei",
+   "admin_area": null,
+   "country_code": "TW",
+   "lat": 25.03,
+   "lon": 121.57
+  },
+  "ap-south-1": {
+   "code": "ap-south-1",
+   "name": "Asia Pacific (Mumbai)",
+   "locality": "Mumbai",
+   "admin_area": "Maharashtra",
+   "country_code": "IN",
+   "lat": 19.08,
+   "lon": 72.88
+  },
+  "ap-south-2": {
+   "code": "ap-south-2",
+   "name": "Asia Pacific (Hyderabad)",
+   "locality": "Hyderabad",
+   "admin_area": "Telangana",
+   "country_code": "IN",
+   "lat": 17.39,
+   "lon": 78.49
+  },
+  "ap-northeast-1": {
+   "code": "ap-northeast-1",
+   "name": "Asia Pacific (Tokyo)",
+   "locality": "Tokyo",
+   "admin_area": null,
+   "country_code": "JP",
+   "lat": 35.68,
+   "lon": 139.69
+  },
+  "ap-northeast-2": {
+   "code": "ap-northeast-2",
+   "name": "Asia Pacific (Seoul)",
+   "locality": "Seoul",
+   "admin_area": null,
+   "country_code": "KR",
+   "lat": 37.57,
+   "lon": 126.98
+  },
+  "ap-northeast-3": {
+   "code": "ap-northeast-3",
+   "name": "Asia Pacific (Osaka)",
+   "locality": "Osaka",
+   "admin_area": null,
+   "country_code": "JP",
+   "lat": 34.69,
+   "lon": 135.5
+  },
+  "ap-southeast-1": {
+   "code": "ap-southeast-1",
+   "name": "Asia Pacific (Singapore)",
+   "locality": "Singapore",
+   "admin_area": null,
+   "country_code": "SG",
+   "lat": 1.35,
+   "lon": 103.82
+  },
+  "ap-southeast-2": {
+   "code": "ap-southeast-2",
+   "name": "Asia Pacific (Sydney)",
+   "locality": "Sydney",
+   "admin_area": "New South Wales",
+   "country_code": "AU",
+   "lat": -33.87,
+   "lon": 151.21
+  },
+  "ap-southeast-3": {
+   "code": "ap-southeast-3",
+   "name": "Asia Pacific (Jakarta)",
+   "locality": "Jakarta",
+   "admin_area": null,
+   "country_code": "ID",
+   "lat": -6.21,
+   "lon": 106.85
+  },
+  "ap-southeast-4": {
+   "code": "ap-southeast-4",
+   "name": "Asia Pacific (Melbourne)",
+   "locality": "Melbourne",
+   "admin_area": "Victoria",
+   "country_code": "AU",
+   "lat": -37.81,
+   "lon": 144.96
+  },
+  "ap-southeast-5": {
+   "code": "ap-southeast-5",
+   "name": "Asia Pacific (Malaysia)",
+   "locality": "Kuala Lumpur",
+   "admin_area": null,
+   "country_code": "MY",
+   "lat": 3.14,
+   "lon": 101.69
+  },
+  "ap-southeast-6": {
+   "code": "ap-southeast-6",
+   "name": "Asia Pacific (New Zealand)",
+   "locality": "Auckland",
+   "admin_area": null,
+   "country_code": "NZ",
+   "lat": -36.85,
+   "lon": 174.76
+  },
+  "ap-southeast-7": {
+   "code": "ap-southeast-7",
+   "name": "Asia Pacific (Thailand)",
+   "locality": "Bangkok",
+   "admin_area": null,
+   "country_code": "TH",
+   "lat": 13.76,
+   "lon": 100.5
+  },
+  "ca-central-1": {
+   "code": "ca-central-1",
+   "name": "Canada (Central)",
+   "locality": "Montreal",
+   "admin_area": "Quebec",
+   "country_code": "CA",
+   "lat": 45.5,
+   "lon": -73.57
+  },
+  "ca-west-1": {
+   "code": "ca-west-1",
+   "name": "Canada West (Calgary)",
+   "locality": "Calgary",
+   "admin_area": "Alberta",
+   "country_code": "CA",
+   "lat": 51.05,
+   "lon": -114.07
+  },
+  "eu-central-1": {
+   "code": "eu-central-1",
+   "name": "Europe (Frankfurt)",
+   "locality": "Frankfurt",
+   "admin_area": "Hesse",
+   "country_code": "DE",
+   "lat": 50.11,
+   "lon": 8.68
+  },
+  "eu-central-2": {
+   "code": "eu-central-2",
+   "name": "Europe (Zurich)",
+   "locality": "Zurich",
+   "admin_area": null,
+   "country_code": "CH",
+   "lat": 47.38,
+   "lon": 8.54
+  },
+  "eu-west-1": {
+   "code": "eu-west-1",
+   "name": "Europe (Ireland)",
+   "locality": "Dublin",
+   "admin_area": null,
+   "country_code": "IE",
+   "lat": 53.35,
+   "lon": -6.26
+  },
+  "eu-west-2": {
+   "code": "eu-west-2",
+   "name": "Europe (London)",
+   "locality": "London",
+   "admin_area": null,
+   "country_code": "GB",
+   "lat": 51.51,
+   "lon": -0.13
+  },
+  "eu-west-3": {
+   "code": "eu-west-3",
+   "name": "Europe (Paris)",
+   "locality": "Paris",
+   "admin_area": null,
+   "country_code": "FR",
+   "lat": 48.86,
+   "lon": 2.35
+  },
+  "eu-north-1": {
+   "code": "eu-north-1",
+   "name": "Europe (Stockholm)",
+   "locality": "Stockholm",
+   "admin_area": null,
+   "country_code": "SE",
+   "lat": 59.33,
+   "lon": 18.07
+  },
+  "eu-south-1": {
+   "code": "eu-south-1",
+   "name": "Europe (Milan)",
+   "locality": "Milan",
+   "admin_area": "Lombardy",
+   "country_code": "IT",
+   "lat": 45.46,
+   "lon": 9.19
+  },
+  "eu-south-2": {
+   "code": "eu-south-2",
+   "name": "Europe (Spain)",
+   "locality": "Zaragoza",
+   "admin_area": "Aragon",
+   "country_code": "ES",
+   "lat": 41.65,
+   "lon": -0.89
+  },
+  "il-central-1": {
+   "code": "il-central-1",
+   "name": "Israel (Tel Aviv)",
+   "locality": "Tel Aviv",
+   "admin_area": null,
+   "country_code": "IL",
+   "lat": 32.09,
+   "lon": 34.78
+  },
+  "me-south-1": {
+   "code": "me-south-1",
+   "name": "Middle East (Bahrain)",
+   "locality": "Manama",
+   "admin_area": null,
+   "country_code": "BH",
+   "lat": 26.22,
+   "lon": 50.59
+  },
+  "me-central-1": {
+   "code": "me-central-1",
+   "name": "Middle East (UAE)",
+   "locality": "Abu Dhabi",
+   "admin_area": null,
+   "country_code": "AE",
+   "lat": 24.45,
+   "lon": 54.38
+  },
+  "mx-central-1": {
+   "code": "mx-central-1",
+   "name": "Mexico (Central)",
+   "locality": "Queretaro",
+   "admin_area": "Queretaro",
+   "country_code": "MX",
+   "lat": 20.59,
+   "lon": -100.39
+  },
+  "sa-east-1": {
+   "code": "sa-east-1",
+   "name": "South America (Sao Paulo)",
+   "locality": "Sao Paulo",
+   "admin_area": "Sao Paulo",
+   "country_code": "BR",
+   "lat": -23.55,
+   "lon": -46.63
+  }
+ },
+ "gcp": {
+  "africa-south1": {
+   "code": "africa-south1",
+   "name": "Johannesburg",
+   "locality": "Johannesburg",
+   "admin_area": "Gauteng",
+   "country_code": "ZA",
+   "lat": -26.2,
+   "lon": 28.05
+  },
+  "asia-east1": {
+   "code": "asia-east1",
+   "name": "Taiwan",
+   "locality": "Changhua County",
+   "admin_area": null,
+   "country_code": "TW",
+   "lat": 24.08,
+   "lon": 120.54
+  },
+  "asia-east2": {
+   "code": "asia-east2",
+   "name": "Hong Kong",
+   "locality": "Hong Kong",
+   "admin_area": null,
+   "country_code": "HK",
+   "lat": 22.32,
+   "lon": 114.17
+  },
+  "asia-northeast1": {
+   "code": "asia-northeast1",
+   "name": "Tokyo",
+   "locality": "Tokyo",
+   "admin_area": null,
+   "country_code": "JP",
+   "lat": 35.68,
+   "lon": 139.69
+  },
+  "asia-northeast2": {
+   "code": "asia-northeast2",
+   "name": "Osaka",
+   "locality": "Osaka",
+   "admin_area": null,
+   "country_code": "JP",
+   "lat": 34.69,
+   "lon": 135.5
+  },
+  "asia-northeast3": {
+   "code": "asia-northeast3",
+   "name": "Seoul",
+   "locality": "Seoul",
+   "admin_area": null,
+   "country_code": "KR",
+   "lat": 37.57,
+   "lon": 126.98
+  },
+  "asia-south1": {
+   "code": "asia-south1",
+   "name": "Mumbai",
+   "locality": "Mumbai",
+   "admin_area": "Maharashtra",
+   "country_code": "IN",
+   "lat": 19.08,
+   "lon": 72.88
+  },
+  "asia-south2": {
+   "code": "asia-south2",
+   "name": "Delhi",
+   "locality": "Delhi",
+   "admin_area": null,
+   "country_code": "IN",
+   "lat": 28.61,
+   "lon": 77.21
+  },
+  "asia-southeast1": {
+   "code": "asia-southeast1",
+   "name": "Singapore",
+   "locality": "Jurong West",
+   "admin_area": null,
+   "country_code": "SG",
+   "lat": 1.34,
+   "lon": 103.71
+  },
+  "asia-southeast2": {
+   "code": "asia-southeast2",
+   "name": "Jakarta",
+   "locality": "Jakarta",
+   "admin_area": null,
+   "country_code": "ID",
+   "lat": -6.21,
+   "lon": 106.85
+  },
+  "australia-southeast1": {
+   "code": "australia-southeast1",
+   "name": "Sydney",
+   "locality": "Sydney",
+   "admin_area": "New South Wales",
+   "country_code": "AU",
+   "lat": -33.87,
+   "lon": 151.21
+  },
+  "australia-southeast2": {
+   "code": "australia-southeast2",
+   "name": "Melbourne",
+   "locality": "Melbourne",
+   "admin_area": "Victoria",
+   "country_code": "AU",
+   "lat": -37.81,
+   "lon": 144.96
+  },
+  "europe-central2": {
+   "code": "europe-central2",
+   "name": "Warsaw",
+   "locality": "Warsaw",
+   "admin_area": null,
+   "country_code": "PL",
+   "lat": 52.23,
+   "lon": 21.01
+  },
+  "europe-north1": {
+   "code": "europe-north1",
+   "name": "Finland",
+   "locality": "Hamina",
+   "admin_area": null,
+   "country_code": "FI",
+   "lat": 60.57,
+   "lon": 27.2
+  },
+  "europe-north2": {
+   "code": "europe-north2",
+   "name": "Stockholm",
+   "locality": "Stockholm",
+   "admin_area": null,
+   "country_code": "SE",
+   "lat": 59.33,
+   "lon": 18.07
+  },
+  "europe-southwest1": {
+   "code": "europe-southwest1",
+   "name": "Madrid",
+   "locality": "Madrid",
+   "admin_area": null,
+   "country_code": "ES",
+   "lat": 40.42,
+   "lon": -3.7
+  },
+  "europe-west1": {
+   "code": "europe-west1",
+   "name": "Belgium",
+   "locality": "Saint-Ghislain",
+   "admin_area": "Hainaut",
+   "country_code": "BE",
+   "lat": 50.45,
+   "lon": 3.82
+  },
+  "europe-west2": {
+   "code": "europe-west2",
+   "name": "London",
+   "locality": "London",
+   "admin_area": null,
+   "country_code": "GB",
+   "lat": 51.51,
+   "lon": -0.13
+  },
+  "europe-west3": {
+   "code": "europe-west3",
+   "name": "Frankfurt",
+   "locality": "Frankfurt",
+   "admin_area": "Hesse",
+   "country_code": "DE",
+   "lat": 50.11,
+   "lon": 8.68
+  },
+  "europe-west4": {
+   "code": "europe-west4",
+   "name": "Netherlands",
+   "locality": "Eemshaven",
+   "admin_area": "Groningen",
+   "country_code": "NL",
+   "lat": 53.45,
+   "lon": 6.83
+  },
+  "europe-west6": {
+   "code": "europe-west6",
+   "name": "Zurich",
+   "locality": "Zurich",
+   "admin_area": null,
+   "country_code": "CH",
+   "lat": 47.38,
+   "lon": 8.54
+  },
+  "europe-west8": {
+   "code": "europe-west8",
+   "name": "Milan",
+   "locality": "Milan",
+   "admin_area": "Lombardy",
+   "country_code": "IT",
+   "lat": 45.46,
+   "lon": 9.19
+  },
+  "europe-west9": {
+   "code": "europe-west9",
+   "name": "Paris",
+   "locality": "Paris",
+   "admin_area": null,
+   "country_code": "FR",
+   "lat": 48.86,
+   "lon": 2.35
+  },
+  "europe-west10": {
+   "code": "europe-west10",
+   "name": "Berlin",
+   "locality": "Berlin",
+   "admin_area": null,
+   "country_code": "DE",
+   "lat": 52.52,
+   "lon": 13.41
+  },
+  "europe-west12": {
+   "code": "europe-west12",
+   "name": "Turin",
+   "locality": "Turin",
+   "admin_area": "Piedmont",
+   "country_code": "IT",
+   "lat": 45.07,
+   "lon": 7.69
+  },
+  "me-central1": {
+   "code": "me-central1",
+   "name": "Doha",
+   "locality": "Doha",
+   "admin_area": null,
+   "country_code": "QA",
+   "lat": 25.29,
+   "lon": 51.53
+  },
+  "me-central2": {
+   "code": "me-central2",
+   "name": "Dammam",
+   "locality": "Dammam",
+   "admin_area": "Eastern Province",
+   "country_code": "SA",
+   "lat": 26.43,
+   "lon": 50.1
+  },
+  "me-west1": {
+   "code": "me-west1",
+   "name": "Tel Aviv",
+   "locality": "Tel Aviv",
+   "admin_area": null,
+   "country_code": "IL",
+   "lat": 32.09,
+   "lon": 34.78
+  },
+  "northamerica-northeast1": {
+   "code": "northamerica-northeast1",
+   "name": "Montreal",
+   "locality": "Montreal",
+   "admin_area": "Quebec",
+   "country_code": "CA",
+   "lat": 45.5,
+   "lon": -73.57
+  },
+  "northamerica-northeast2": {
+   "code": "northamerica-northeast2",
+   "name": "Toronto",
+   "locality": "Toronto",
+   "admin_area": "Ontario",
+   "country_code": "CA",
+   "lat": 43.65,
+   "lon": -79.38
+  },
+  "northamerica-south1": {
+   "code": "northamerica-south1",
+   "name": "Queretaro",
+   "locality": "Queretaro",
+   "admin_area": "Queretaro",
+   "country_code": "MX",
+   "lat": 20.59,
+   "lon": -100.39
+  },
+  "southamerica-east1": {
+   "code": "southamerica-east1",
+   "name": "Sao Paulo",
+   "locality": "Osasco",
+   "admin_area": "Sao Paulo",
+   "country_code": "BR",
+   "lat": -23.53,
+   "lon": -46.79
+  },
+  "southamerica-west1": {
+   "code": "southamerica-west1",
+   "name": "Santiago",
+   "locality": "Santiago",
+   "admin_area": null,
+   "country_code": "CL",
+   "lat": -33.45,
+   "lon": -70.67
+  },
+  "us-central1": {
+   "code": "us-central1",
+   "name": "Iowa",
+   "locality": "Council Bluffs",
+   "admin_area": "Iowa",
+   "country_code": "US",
+   "lat": 41.26,
+   "lon": -95.86
+  },
+  "us-east1": {
+   "code": "us-east1",
+   "name": "South Carolina",
+   "locality": "Moncks Corner",
+   "admin_area": "South Carolina",
+   "country_code": "US",
+   "lat": 33.2,
+   "lon": -80.01
+  },
+  "us-east4": {
+   "code": "us-east4",
+   "name": "Northern Virginia",
+   "locality": "Ashburn",
+   "admin_area": "Virginia",
+   "country_code": "US",
+   "lat": 39.04,
+   "lon": -77.49
+  },
+  "us-east5": {
+   "code": "us-east5",
+   "name": "Columbus",
+   "locality": "Columbus",
+   "admin_area": "Ohio",
+   "country_code": "US",
+   "lat": 39.96,
+   "lon": -83.0
+  },
+  "us-south1": {
+   "code": "us-south1",
+   "name": "Dallas",
+   "locality": "Dallas",
+   "admin_area": "Texas",
+   "country_code": "US",
+   "lat": 32.78,
+   "lon": -96.8
+  },
+  "us-west1": {
+   "code": "us-west1",
+   "name": "Oregon",
+   "locality": "The Dalles",
+   "admin_area": "Oregon",
+   "country_code": "US",
+   "lat": 45.59,
+   "lon": -121.18
+  },
+  "us-west2": {
+   "code": "us-west2",
+   "name": "Los Angeles",
+   "locality": "Los Angeles",
+   "admin_area": "California",
+   "country_code": "US",
+   "lat": 34.05,
+   "lon": -118.24
+  },
+  "us-west3": {
+   "code": "us-west3",
+   "name": "Salt Lake City",
+   "locality": "Salt Lake City",
+   "admin_area": "Utah",
+   "country_code": "US",
+   "lat": 40.76,
+   "lon": -111.89
+  },
+  "us-west4": {
+   "code": "us-west4",
+   "name": "Las Vegas",
+   "locality": "Las Vegas",
+   "admin_area": "Nevada",
+   "country_code": "US",
+   "lat": 36.17,
+   "lon": -115.14
+  },
+  "asia-southeast3": {
+   "code": "asia-southeast3",
+   "name": "Bangkok",
+   "locality": "Bangkok",
+   "admin_area": null,
+   "country_code": "TH",
+   "lat": 13.76,
+   "lon": 100.5
+  }
+ },
+ "azure": {
+  "australiacentral": {
+   "code": "australiacentral",
+   "name": "Australia Central",
+   "locality": "Canberra",
+   "admin_area": "Australian Capital Territory",
+   "country_code": "AU",
+   "lat": -35.28,
+   "lon": 149.13
+  },
+  "australiacentral2": {
+   "code": "australiacentral2",
+   "name": "Australia Central 2",
+   "locality": "Canberra",
+   "admin_area": "Australian Capital Territory",
+   "country_code": "AU",
+   "lat": -35.28,
+   "lon": 149.13
+  },
+  "australiaeast": {
+   "code": "australiaeast",
+   "name": "Australia East",
+   "locality": "Sydney",
+   "admin_area": "New South Wales",
+   "country_code": "AU",
+   "lat": -33.87,
+   "lon": 151.21
+  },
+  "australiasoutheast": {
+   "code": "australiasoutheast",
+   "name": "Australia Southeast",
+   "locality": "Melbourne",
+   "admin_area": "Victoria",
+   "country_code": "AU",
+   "lat": -37.81,
+   "lon": 144.96
+  },
+  "austriaeast": {
+   "code": "austriaeast",
+   "name": "Austria East",
+   "locality": "Vienna",
+   "admin_area": null,
+   "country_code": "AT",
+   "lat": 48.21,
+   "lon": 16.37
+  },
+  "belgiumcentral": {
+   "code": "belgiumcentral",
+   "name": "Belgium Central",
+   "locality": "Brussels",
+   "admin_area": null,
+   "country_code": "BE",
+   "lat": 50.85,
+   "lon": 4.35
+  },
+  "brazilsouth": {
+   "code": "brazilsouth",
+   "name": "Brazil South",
+   "locality": "Campinas",
+   "admin_area": "Sao Paulo",
+   "country_code": "BR",
+   "lat": -22.91,
+   "lon": -47.06
+  },
+  "brazilsoutheast": {
+   "code": "brazilsoutheast",
+   "name": "Brazil Southeast",
+   "locality": "Rio de Janeiro",
+   "admin_area": "Rio de Janeiro",
+   "country_code": "BR",
+   "lat": -22.91,
+   "lon": -43.17
+  },
+  "canadacentral": {
+   "code": "canadacentral",
+   "name": "Canada Central",
+   "locality": "Toronto",
+   "admin_area": "Ontario",
+   "country_code": "CA",
+   "lat": 43.65,
+   "lon": -79.38
+  },
+  "canadaeast": {
+   "code": "canadaeast",
+   "name": "Canada East",
+   "locality": "Quebec City",
+   "admin_area": "Quebec",
+   "country_code": "CA",
+   "lat": 46.81,
+   "lon": -71.21
+  },
+  "centralindia": {
+   "code": "centralindia",
+   "name": "Central India",
+   "locality": "Pune",
+   "admin_area": "Maharashtra",
+   "country_code": "IN",
+   "lat": 18.52,
+   "lon": 73.86
+  },
+  "centralus": {
+   "code": "centralus",
+   "name": "Central US",
+   "locality": "Des Moines",
+   "admin_area": "Iowa",
+   "country_code": "US",
+   "lat": 41.59,
+   "lon": -93.62
+  },
+  "chilecentral": {
+   "code": "chilecentral",
+   "name": "Chile Central",
+   "locality": "Santiago",
+   "admin_area": null,
+   "country_code": "CL",
+   "lat": -33.45,
+   "lon": -70.67
+  },
+  "denmarkeast": {
+   "code": "denmarkeast",
+   "name": "Denmark East",
+   "locality": "Copenhagen",
+   "admin_area": null,
+   "country_code": "DK",
+   "lat": 55.68,
+   "lon": 12.57
+  },
+  "eastasia": {
+   "code": "eastasia",
+   "name": "East Asia",
+   "locality": "Hong Kong",
+   "admin_area": null,
+   "country_code": "HK",
+   "lat": 22.32,
+   "lon": 114.17
+  },
+  "eastus": {
+   "code": "eastus",
+   "name": "East US",
+   "locality": "Boydton",
+   "admin_area": "Virginia",
+   "country_code": "US",
+   "lat": 36.67,
+   "lon": -78.39
+  },
+  "eastus2": {
+   "code": "eastus2",
+   "name": "East US 2",
+   "locality": "Richmond",
+   "admin_area": "Virginia",
+   "country_code": "US",
+   "lat": 37.54,
+   "lon": -77.43
+  },
+  "francecentral": {
+   "code": "francecentral",
+   "name": "France Central",
+   "locality": "Paris",
+   "admin_area": null,
+   "country_code": "FR",
+   "lat": 48.86,
+   "lon": 2.35
+  },
+  "francesouth": {
+   "code": "francesouth",
+   "name": "France South",
+   "locality": "Marseille",
+   "admin_area": null,
+   "country_code": "FR",
+   "lat": 43.3,
+   "lon": 5.37
+  },
+  "germanynorth": {
+   "code": "germanynorth",
+   "name": "Germany North",
+   "locality": "Berlin",
+   "admin_area": null,
+   "country_code": "DE",
+   "lat": 52.52,
+   "lon": 13.41
+  },
+  "germanywestcentral": {
+   "code": "germanywestcentral",
+   "name": "Germany West Central",
+   "locality": "Frankfurt",
+   "admin_area": "Hesse",
+   "country_code": "DE",
+   "lat": 50.11,
+   "lon": 8.68
+  },
+  "indonesiacentral": {
+   "code": "indonesiacentral",
+   "name": "Indonesia Central",
+   "locality": "Jakarta",
+   "admin_area": null,
+   "country_code": "ID",
+   "lat": -6.21,
+   "lon": 106.85
+  },
+  "israelcentral": {
+   "code": "israelcentral",
+   "name": "Israel Central",
+   "locality": "Tel Aviv",
+   "admin_area": null,
+   "country_code": "IL",
+   "lat": 32.09,
+   "lon": 34.78
+  },
+  "italynorth": {
+   "code": "italynorth",
+   "name": "Italy North",
+   "locality": "Milan",
+   "admin_area": "Lombardy",
+   "country_code": "IT",
+   "lat": 45.46,
+   "lon": 9.19
+  },
+  "japaneast": {
+   "code": "japaneast",
+   "name": "Japan East",
+   "locality": "Tokyo",
+   "admin_area": null,
+   "country_code": "JP",
+   "lat": 35.68,
+   "lon": 139.69
+  },
+  "japanwest": {
+   "code": "japanwest",
+   "name": "Japan West",
+   "locality": "Osaka",
+   "admin_area": null,
+   "country_code": "JP",
+   "lat": 34.69,
+   "lon": 135.5
+  },
+  "koreacentral": {
+   "code": "koreacentral",
+   "name": "Korea Central",
+   "locality": "Seoul",
+   "admin_area": null,
+   "country_code": "KR",
+   "lat": 37.57,
+   "lon": 126.98
+  },
+  "koreasouth": {
+   "code": "koreasouth",
+   "name": "Korea South",
+   "locality": "Busan",
+   "admin_area": null,
+   "country_code": "KR",
+   "lat": 35.18,
+   "lon": 129.08
+  },
+  "malaysiawest": {
+   "code": "malaysiawest",
+   "name": "Malaysia West",
+   "locality": "Kuala Lumpur",
+   "admin_area": null,
+   "country_code": "MY",
+   "lat": 3.14,
+   "lon": 101.69
+  },
+  "mexicocentral": {
+   "code": "mexicocentral",
+   "name": "Mexico Central",
+   "locality": "Queretaro",
+   "admin_area": "Queretaro",
+   "country_code": "MX",
+   "lat": 20.59,
+   "lon": -100.39
+  },
+  "newzealandnorth": {
+   "code": "newzealandnorth",
+   "name": "New Zealand North",
+   "locality": "Auckland",
+   "admin_area": null,
+   "country_code": "NZ",
+   "lat": -36.85,
+   "lon": 174.76
+  },
+  "northcentralus": {
+   "code": "northcentralus",
+   "name": "North Central US",
+   "locality": "Chicago",
+   "admin_area": "Illinois",
+   "country_code": "US",
+   "lat": 41.88,
+   "lon": -87.63
+  },
+  "northeurope": {
+   "code": "northeurope",
+   "name": "North Europe",
+   "locality": "Dublin",
+   "admin_area": null,
+   "country_code": "IE",
+   "lat": 53.35,
+   "lon": -6.26
+  },
+  "norwayeast": {
+   "code": "norwayeast",
+   "name": "Norway East",
+   "locality": "Oslo",
+   "admin_area": null,
+   "country_code": "NO",
+   "lat": 59.91,
+   "lon": 10.75
+  },
+  "norwaywest": {
+   "code": "norwaywest",
+   "name": "Norway West",
+   "locality": "Stavanger",
+   "admin_area": null,
+   "country_code": "NO",
+   "lat": 58.97,
+   "lon": 5.73
+  },
+  "polandcentral": {
+   "code": "polandcentral",
+   "name": "Poland Central",
+   "locality": "Warsaw",
+   "admin_area": null,
+   "country_code": "PL",
+   "lat": 52.23,
+   "lon": 21.01
+  },
+  "qatarcentral": {
+   "code": "qatarcentral",
+   "name": "Qatar Central",
+   "locality": "Doha",
+   "admin_area": null,
+   "country_code": "QA",
+   "lat": 25.29,
+   "lon": 51.53
+  },
+  "southafricanorth": {
+   "code": "southafricanorth",
+   "name": "South Africa North",
+   "locality": "Johannesburg",
+   "admin_area": "Gauteng",
+   "country_code": "ZA",
+   "lat": -26.2,
+   "lon": 28.05
+  },
+  "southafricawest": {
+   "code": "southafricawest",
+   "name": "South Africa West",
+   "locality": "Cape Town",
+   "admin_area": "Western Cape",
+   "country_code": "ZA",
+   "lat": -33.93,
+   "lon": 18.42
+  },
+  "southcentralus": {
+   "code": "southcentralus",
+   "name": "South Central US",
+   "locality": "San Antonio",
+   "admin_area": "Texas",
+   "country_code": "US",
+   "lat": 29.42,
+   "lon": -98.49
+  },
+  "southeastasia": {
+   "code": "southeastasia",
+   "name": "Southeast Asia",
+   "locality": "Singapore",
+   "admin_area": null,
+   "country_code": "SG",
+   "lat": 1.35,
+   "lon": 103.82
+  },
+  "southindia": {
+   "code": "southindia",
+   "name": "South India",
+   "locality": "Chennai",
+   "admin_area": "Tamil Nadu",
+   "country_code": "IN",
+   "lat": 13.08,
+   "lon": 80.27
+  },
+  "spaincentral": {
+   "code": "spaincentral",
+   "name": "Spain Central",
+   "locality": "Madrid",
+   "admin_area": null,
+   "country_code": "ES",
+   "lat": 40.42,
+   "lon": -3.7
+  },
+  "swedencentral": {
+   "code": "swedencentral",
+   "name": "Sweden Central",
+   "locality": "Gavle",
+   "admin_area": "Gavleborg",
+   "country_code": "SE",
+   "lat": 60.67,
+   "lon": 17.14
+  },
+  "switzerlandnorth": {
+   "code": "switzerlandnorth",
+   "name": "Switzerland North",
+   "locality": "Zurich",
+   "admin_area": null,
+   "country_code": "CH",
+   "lat": 47.38,
+   "lon": 8.54
+  },
+  "switzerlandwest": {
+   "code": "switzerlandwest",
+   "name": "Switzerland West",
+   "locality": "Geneva",
+   "admin_area": null,
+   "country_code": "CH",
+   "lat": 46.2,
+   "lon": 6.14
+  },
+  "uaecentral": {
+   "code": "uaecentral",
+   "name": "UAE Central",
+   "locality": "Abu Dhabi",
+   "admin_area": null,
+   "country_code": "AE",
+   "lat": 24.45,
+   "lon": 54.38
+  },
+  "uaenorth": {
+   "code": "uaenorth",
+   "name": "UAE North",
+   "locality": "Dubai",
+   "admin_area": null,
+   "country_code": "AE",
+   "lat": 25.2,
+   "lon": 55.27
+  },
+  "uksouth": {
+   "code": "uksouth",
+   "name": "UK South",
+   "locality": "London",
+   "admin_area": null,
+   "country_code": "GB",
+   "lat": 51.51,
+   "lon": -0.13
+  },
+  "ukwest": {
+   "code": "ukwest",
+   "name": "UK West",
+   "locality": "Cardiff",
+   "admin_area": "Wales",
+   "country_code": "GB",
+   "lat": 51.48,
+   "lon": -3.18
+  },
+  "westcentralus": {
+   "code": "westcentralus",
+   "name": "West Central US",
+   "locality": "Cheyenne",
+   "admin_area": "Wyoming",
+   "country_code": "US",
+   "lat": 41.14,
+   "lon": -104.82
+  },
+  "westeurope": {
+   "code": "westeurope",
+   "name": "West Europe",
+   "locality": "Middenmeer",
+   "admin_area": "North Holland",
+   "country_code": "NL",
+   "lat": 52.81,
+   "lon": 5.0
+  },
+  "westindia": {
+   "code": "westindia",
+   "name": "West India",
+   "locality": "Mumbai",
+   "admin_area": "Maharashtra",
+   "country_code": "IN",
+   "lat": 19.08,
+   "lon": 72.88
+  },
+  "westus": {
+   "code": "westus",
+   "name": "West US",
+   "locality": "San Jose",
+   "admin_area": "California",
+   "country_code": "US",
+   "lat": 37.34,
+   "lon": -121.89
+  },
+  "westus2": {
+   "code": "westus2",
+   "name": "West US 2",
+   "locality": "Quincy",
+   "admin_area": "Washington",
+   "country_code": "US",
+   "lat": 47.23,
+   "lon": -119.85
+  },
+  "westus3": {
+   "code": "westus3",
+   "name": "West US 3",
+   "locality": "Phoenix",
+   "admin_area": "Arizona",
+   "country_code": "US",
+   "lat": 33.45,
+   "lon": -112.07
+  },
+  "taiwannorth": {
+   "code": "taiwannorth",
+   "name": "Taiwan North",
+   "locality": "Taipei",
+   "admin_area": null,
+   "country_code": "TW",
+   "lat": 25.03,
+   "lon": 121.57
+  },
+  "swedensouth": {
+   "code": "swedensouth",
+   "name": "Sweden South",
+   "locality": "Staffanstorp",
+   "admin_area": "Skane",
+   "country_code": "SE",
+   "lat": 55.64,
+   "lon": 13.21
+  },
+  "jioindiawest": {
+   "code": "jioindiawest",
+   "name": "Jio India West",
+   "locality": "Jamnagar",
+   "admin_area": "Gujarat",
+   "country_code": "IN",
+   "lat": 22.47,
+   "lon": 70.06
+  },
+  "jioindiacentral": {
+   "code": "jioindiacentral",
+   "name": "Jio India Central",
+   "locality": "Nagpur",
+   "admin_area": "Maharashtra",
+   "country_code": "IN",
+   "lat": 21.15,
+   "lon": 79.09
+  },
+  "indiasouthcentral": {
+   "code": "indiasouthcentral",
+   "name": "India South Central",
+   "locality": "Hyderabad",
+   "admin_area": "Telangana",
+   "country_code": "IN",
+   "lat": 17.39,
+   "lon": 78.49
+  }
+ }
+}
