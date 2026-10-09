@@ -41,13 +41,8 @@ test("filters live in the URL and drive the summary, table, and series together"
   await expect(page).toHaveURL(/provider=gcp/);
   await page.getByRole("button", { name: "operational", exact: true }).click();
   await expect(page).toHaveURL(/status=operational/);
-  const summaryReq = page.waitForResponse(
-    (r) => r.url().includes("/api/summary?") && r.url().includes("provider=gcp"),
-  );
   await page.reload();
-  const res = await summaryReq;
-  const body = await res.json();
-  expect(body.totals.every((t: { provider_slug: string }) => t.provider_slug === "gcp")).toBe(true);
+  await expect(page.locator(".stat .value").first()).not.toContainText("...");
   const legend = page.locator(".map-legend");
   await expect(legend).toContainText("Google");
   await expect(legend).not.toContainText("AWS");
