@@ -1,0 +1,58 @@
+{
+  "name": "cloud-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Global datacenter capacity observatory: cited, dated, append-only evidence about cloud provider infrastructure.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite",
+    "dev:worker": "wrangler dev --port 8787 --ip 127.0.0.1",
+    "build": "vite build",
+    "preview": "npm run build && wrangler dev --port 8787 --ip 127.0.0.1",
+    "lint": "eslint src worker shared pipeline scripts tests vite.config.ts vitest.config.ts playwright.config.ts eslint.config.js --max-warnings 0",
+    "format": "prettier --write src worker shared pipeline scripts tests migrations index.html vite.config.ts vitest.config.ts playwright.config.ts eslint.config.js package.json tsconfig.json tsconfig.worker.json tsconfig.node.json wrangler.jsonc release-please-config.json README.md .github",
+    "format:check": "prettier --check src worker shared pipeline scripts tests migrations index.html vite.config.ts vitest.config.ts playwright.config.ts eslint.config.js package.json tsconfig.json tsconfig.worker.json tsconfig.node.json wrangler.jsonc release-please-config.json README.md .github",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.worker.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "size": "node scripts/size.mjs"
+  },
+  "dependencies": {
+    "d3": "^7.9.0",
+    "maplibre-gl": "^6.13.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "topojson-client": "^3.1.0",
+    "wouter": "^3.13.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261009.1",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.0",
+    "@types/d3": "^7.4.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/topojson-client": "^3.1.5",
+    "@vitejs/plugin-react": "^6.1.2",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "5.9",
+    "typescript-eslint": "^8.71.1",
+    "vite": "^8.3.4",
+    "vitest": "^4.1.11",
+    "world-atlas": "^2.0.2",
+    "wrangler": "^4.149.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "workerd@1.20261006.1": true
+  }
+}

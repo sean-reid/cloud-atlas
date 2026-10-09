@@ -1,0 +1,8 @@
+dist/
+node_modules/
+.wrangler/
+playwright-report/
+test-results/
+package-lock.json
+CHANGELOG.md
+.release-please-manifest.json
