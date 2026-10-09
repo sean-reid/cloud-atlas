@@ -1,4 +1,3 @@
-import { METRICS } from "../../shared/metrics";
 import { PROVIDERS } from "../../shared/providers";
 import type { Filters } from "../../shared/filters";
 import { DEFAULT_FILTERS } from "../../shared/filters";
@@ -47,6 +46,9 @@ export function FilterBar({ filters, update, countries }: Props) {
   const dirty =
     JSON.stringify({ ...filters, demo: false }) !==
     JSON.stringify({ ...DEFAULT_FILTERS, demo: false });
+  const advancedCount =
+    (filters.claim ? 1 : 0) + (filters.asof ? 1 : 0) + (filters.mode !== "reconstructed" ? 1 : 0);
+  const advancedOpen = advancedCount > 0;
   const active =
     filters.providers.length +
     filters.statuses.length +
@@ -110,39 +112,6 @@ export function FilterBar({ filters, update, countries }: Props) {
           </div>
         </div>
         <label className="field">
-          <span>Metric</span>
-          <select value={filters.metric} onChange={(e) => update({ metric: e.target.value })}>
-            {METRICS.filter((m) => m.family === "power" || m.family === "hardware").map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>Evidence</span>
-          <select
-            value={filters.claim}
-            onChange={(e) => update({ claim: e.target.value as Filters["claim"] })}
-          >
-            <option value="">reported and derived</option>
-            <option value="reported">reported</option>
-            <option value="derived">derived</option>
-          </select>
-        </label>
-        <label className="field">
-          <span>Source tier</span>
-          <select
-            value={filters.tier ?? ""}
-            onChange={(e) => update({ tier: e.target.value ? Number(e.target.value) : null })}
-          >
-            <option value="">any</option>
-            <option value="1">official</option>
-            <option value="2">official, public records</option>
-            <option value="3">plus research datasets</option>
-          </select>
-        </label>
-        <label className="field">
           <span>Country</span>
           <select
             value={filters.countries[0] ?? ""}
@@ -156,46 +125,6 @@ export function FilterBar({ filters, update, countries }: Props) {
             ))}
           </select>
         </label>
-        <label className="field">
-          <span>From</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            placeholder="YYYY"
-            size={7}
-            value={filters.from}
-            onChange={(e) => update({ from: e.target.value })}
-          />
-        </label>
-        <label className="field">
-          <span>to</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            placeholder="YYYY"
-            size={7}
-            value={filters.to}
-            onChange={(e) => update({ to: e.target.value })}
-          />
-        </label>
-        <label className="field">
-          <span>As of</span>
-          <input
-            type="date"
-            value={filters.asof}
-            onChange={(e) => update({ asof: e.target.value })}
-          />
-        </label>
-        <label className="field">
-          <span>Time</span>
-          <select
-            value={filters.mode}
-            onChange={(e) => update({ mode: e.target.value as Filters["mode"] })}
-          >
-            <option value="reconstructed">current reconstruction</option>
-            <option value="known">as known then</option>
-          </select>
-        </label>
         <label className="field wide">
           <span>Search</span>
           <input
@@ -205,6 +134,44 @@ export function FilterBar({ filters, update, countries }: Props) {
             onChange={(e) => update({ q: e.target.value })}
           />
         </label>
+        <details className="field more" open={advancedOpen}>
+          <summary className="cap">
+            More filters{advancedCount ? ` · ${advancedCount} active` : ""}
+          </summary>
+          <div className="filters inner">
+            <label className="field">
+              <span>Evidence</span>
+              <select
+                value={filters.claim}
+                onChange={(e) => update({ claim: e.target.value as Filters["claim"] })}
+              >
+                <option value="">reported and derived</option>
+                <option value="reported">reported</option>
+                <option value="derived">derived</option>
+              </select>
+            </label>
+
+            <label className="field">
+              <span>As of</span>
+              <input
+                type="date"
+                value={filters.asof}
+                onChange={(e) => update({ asof: e.target.value })}
+              />
+            </label>
+
+            <label className="field">
+              <span>Time</span>
+              <select
+                value={filters.mode}
+                onChange={(e) => update({ mode: e.target.value as Filters["mode"] })}
+              >
+                <option value="reconstructed">current reconstruction</option>
+                <option value="known">as known then</option>
+              </select>
+            </label>
+          </div>
+        </details>
         {dirty && (
           <button
             type="button"

@@ -60,6 +60,11 @@ export function ApiDocs() {
             </table>
           </div>
           <h2>Filters</h2>
+          <p className="small muted">
+            The site exposes provider, status, country, search, evidence class, and the time view.
+            The rest (source tier, claim-date range, metric) work in any URL and in the API but have
+            no control on the page.
+          </p>
           <div className="table-scroll">
             <table>
               <thead>

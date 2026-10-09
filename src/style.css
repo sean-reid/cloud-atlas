@@ -367,6 +367,31 @@ section.block > .lead {
   text-decoration: underline;
   padding: 0;
 }
+.filters details.more {
+  flex-basis: 100%;
+}
+.filters details.more > summary {
+  list-style: none;
+  cursor: pointer;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.filters details.more > summary::-webkit-details-marker {
+  display: none;
+}
+.filters details.more > summary::before {
+  content: "+";
+  font-family: var(--mono);
+}
+.filters details.more[open] > summary::before {
+  content: "-";
+}
+.filters .inner {
+  border: 0;
+  padding: 0.5rem 0 0;
+}
 
 /* Marks for evidence classes, never colour alone */
 .mark {
@@ -755,6 +780,9 @@ details.filters-drawer .filters {
     grid-column: 1 / -1;
     justify-self: start;
     margin-left: 0;
+  }
+  .filters details.more {
+    grid-column: 1 / -1;
   }
   .filters select,
   .filters input {
