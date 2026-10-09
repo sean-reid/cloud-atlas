@@ -120,6 +120,14 @@ test("export carries provenance for the filtered set", async ({ request }) => {
   }
 });
 
+test("api responses carry cache headers and a budget", async ({ request }) => {
+  const res = await request.get("/api/meta");
+  expect(res.ok()).toBe(true);
+  expect(res.headers()["cache-control"]).toContain("max-age=300");
+  const again = await request.get("/api/meta");
+  expect(again.ok()).toBe(true);
+});
+
 test("demo mode is visibly separate", async ({ page }) => {
   await page.goto("/?demo=1");
   await expect(page.locator(".banner")).toContainText("Demo mode");

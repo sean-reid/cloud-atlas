@@ -26,4 +26,4 @@ GitHub Actions runs the hourly adapters every hour and everything daily, writing
 
 ## How it runs
 
-One Cloudflare Worker serves the built site and a read-only JSON API over D1. The API is documented at `/api/openapi.json` and `/api`. Deploys happen from GitHub Actions when CI is green on main; the deploy creates the D1 database on first run and applies migrations.
+One Cloudflare Worker serves the built site and a read-only JSON API over D1, rate limited to 300 requests a minute per client and cached at the edge for five minutes. The API is documented at `/api/openapi.json` and `/api`. Deploys happen from GitHub Actions when CI is green on main; the deploy creates the D1 database on first run and applies migrations.
