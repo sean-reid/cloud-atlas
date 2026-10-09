@@ -1,0 +1,90 @@
+@font-face {
+  font-family: "TEXT_FACE";
+  src: url("/fonts/text-face.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+  --paper: #f4efe6;
+  --ink: #1b1a17;
+  --ink-soft: #625c51;
+  --rule: #c9c1b1;
+  --shade: #e8e1d3;
+  --accent: #b3301b;
+  --serif: "TEXT_FACE", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #161513;
+    --ink: #ebe5d9;
+    --ink-soft: #a29b8d;
+    --rule: #3a3731;
+    --shade: #22201c;
+    --accent: #e0553c;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #161513;
+  --ink: #ebe5d9;
+  --ink-soft: #a29b8d;
+  --rule: #3a3731;
+  --shade: #22201c;
+  --accent: #e0553c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+  min-height: 44px;
+  accent-color: var(--accent);
+}
+
+button {
+  background: none;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 0 0.75rem;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
