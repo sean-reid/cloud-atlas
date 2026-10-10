@@ -1,6 +1,6 @@
 {
   "name": "cloud-atlas",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Global datacenter capacity observatory: cited, dated, append-only evidence about cloud provider infrastructure.",
   "license": "MIT",
