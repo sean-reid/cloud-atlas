@@ -83,6 +83,15 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
       "Spot interruption frequency band per instance type and region over the trailing month.",
   },
   {
+    id: "news-feeds",
+    title: "Provider news feeds",
+    publisher: "Amazon, Google, Microsoft, Alibaba",
+    mode: "automated",
+    schedule: "hourly",
+    measures:
+      "Power and investment figures matched by rule in the providers' own news feeds; a one-figure sentence on a tracked site is accepted, everything else waits for review.",
+  },
+  {
     id: "gcp-gpu-zones",
     title: "Google Cloud GPU zones",
     publisher: "Google Cloud",

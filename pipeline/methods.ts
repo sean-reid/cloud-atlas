@@ -65,6 +65,15 @@ export const METHODS: readonly Method[] = [
       "Reclaim rate reflects pressure on the spot pool; a low band can also mean low spot usage of that type.",
   },
   {
+    id: "feed-sentence.v1",
+    version: 1,
+    title: "Figure read from a provider news feed",
+    description:
+      "A power or investment figure matched by rule in one sentence of a provider's own news feed; the sentence is the excerpt and the entry link is the locator. Accepted without review only when the sentence holds one figure, a status word, and a place that resolves to a site already tracked for that provider. Every other figure waits in the review queue.",
+    assumptions:
+      "The figure describes the place named in the same sentence; the entry's publication date is the claim date.",
+  },
+  {
     id: "lead-time-days.v1",
     version: 1,
     title: "Capacity Block lead time",

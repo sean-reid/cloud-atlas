@@ -113,6 +113,14 @@ const STATES: Record<string, string> = {
 
 const FOLD: Record<string, string> = { ø: "o", æ: "ae", å: "a", ß: "ss", ð: "d", þ: "th", ł: "l" };
 
+// US states named in free text, as postal abbreviations.
+export function statesNamed(text: string): string[] {
+  const t = ` ${foldText(text)} `;
+  return Object.entries(STATES)
+    .filter(([name, abbr]) => t.includes(` ${name} `) || t.includes(` ${abbr.toLowerCase()} `))
+    .map(([, abbr]) => abbr);
+}
+
 export function foldText(s: string): string {
   return s
     .normalize("NFKD")
@@ -141,16 +149,20 @@ export function resolveAddress(
     hits.push({ key, place, len: city.length, at });
   }
   if (!hits.length) return null;
-  const distinct = new Map(hits.map((h) => [`${h.place.lat},${h.place.lon}`, h]));
+  // "West Memphis" also contains "Memphis": a name inside a longer matched name is not a hit.
+  const outer = hits.filter(
+    (h) => !hits.some((g) => g.len > h.len && g.at <= h.at && g.at + g.len >= h.at + h.len),
+  );
+  const distinct = new Map(outer.map((h) => [`${h.place.lat},${h.place.lon}`, h]));
   if (distinct.size === 1) {
-    const h = hits.sort((a, b) => b.len - a.len)[0]!;
+    const h = outer.sort((a, b) => b.len - a.len)[0]!;
     return { key: h.key, place: h.place };
   }
   // "street, city, state": the city is the match nearest the end of the address.
-  const last = hits.sort((a, b) => b.at - a.at || b.len - a.len)[0]!;
-  if (hits.filter((h) => h.at === last.at).length === 1)
+  const last = outer.sort((a, b) => b.at - a.at || b.len - a.len)[0]!;
+  if (outer.filter((h) => h.at === last.at).length === 1)
     return { key: last.key, place: last.place };
-  const byState = hits.filter((h) => {
+  const byState = outer.filter((h) => {
     const abbr = h.place.admin_area?.toLowerCase();
     if (!abbr) return false;
     const full = Object.entries(STATES).find(([, v]) => v.toLowerCase() === abbr)?.[0];

@@ -71,8 +71,15 @@ export function Methodology() {
       </ul>
       <p>
         Hand-transcribed observations enter through a reviewed CSV import that validates every field
-        and sends anything ambiguous to a review queue. No capacity figure is extracted from prose
-        automatically.
+        and sends anything ambiguous to a review queue.
+      </p>
+      <p>
+        A feed watcher reads the providers&apos; own news feeds every hour and looks for power and
+        investment figures sentence by sentence. It accepts a figure on its own only when one
+        sentence holds exactly one figure, a status word, and a place name that resolves to a site
+        already tracked for that provider; the sentence is kept as the excerpt and the entry link as
+        the locator. Every other figure waits in the review queue, where accepting it creates the
+        site and the observation. Trade press is not read.
       </p>
 
       <h2>Provenance on every observation</h2>

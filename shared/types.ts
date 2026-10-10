@@ -126,6 +126,17 @@ export interface AvailabilitySignal {
   detail: string | null;
 }
 
+export type FeedOutcome = "ignored" | "lead" | "candidate" | "accepted";
+
+export interface FeedItem {
+  link: string;
+  feed: string;
+  title: string;
+  published: string | null;
+  seen_at: string;
+  outcome: FeedOutcome;
+}
+
 export interface ReviewItem {
   id: string;
   created_at: string;

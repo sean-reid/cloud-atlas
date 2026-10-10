@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:sy="http://purl.org/rss/1.0/modules/syndication/" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
+<channel>
+	<title>Blog - Microsoft Local</title>
+	<atom:link href="https://local.microsoft.com/blog/feed/" rel="self" type="application/rss+xml" />
+	<link>https://local.microsoft.com/blog/</link>
+	<item>
+		<title>Press release: Mount Pleasant delivers tax relief after Microsoft forgoes datacenter incentives</title>
+		<link>https://www.mtpleasantwi.gov/m/newsflash/home/detail/639</link>
+		<pubDate>Mon, 28 Sep 2026 23:06:02 +0000</pubDate>
+		<category><![CDATA[Wisconsin]]></category>
+		<guid isPermaLink="false">https://local.microsoft.com/?p=9141</guid>
+		<description>&lt;p&gt;The post &lt;a href="https://www.mtpleasantwi.gov/m/newsflash/home/detail/639"&gt;Press release: Mount Pleasant delivers tax relief after Microsoft forgoes datacenter incentives&lt;/a&gt; appeared first on &lt;a href="https://local.microsoft.com"&gt;Microsoft Local&lt;/a&gt;.&lt;/p&gt;</description>
+	</item>
+	<item>
+		<title>Silver Springs datacenter construction update</title>
+		<link>https://local.microsoft.com/blog/silver-springs-datacenter-construction-update/</link>
+		<pubDate>Mon, 28 Sep 2026 21:15:43 +0000</pubDate>
+		<category><![CDATA[Nevada]]></category>
+		<guid isPermaLink="false">https://local.microsoft.com/?p=9120</guid>
+		<description>&lt;p&gt;Microsoft is beginning early construction work at its datacenter site in Silver Springs, Nevada.&lt;/p&gt;</description>
+		<content:encoded>&lt;h1&gt;Silver Springs datacenter construction update&lt;/h1&gt;
+&lt;p&gt;Microsoft is beginning early construction work at its datacenter site in Silver Springs, Nevada. We are committed to keeping the community informed as work progresses and to reducing construction-related impacts where possible.&lt;/p&gt;
+&lt;h2&gt;Why datacenters are needed&lt;/h2&gt;
+&lt;p&gt;Datacenters provide the physical infrastructure that supports the technology people use every day.&lt;/p&gt;</content:encoded>
+	</item>
+	<item>
+		<title>Microsoft&#8217;s datacenter economic impact in Johor Bahru &#8211; English</title>
+		<link>https://local.microsoft.com/wp-content/uploads/2026/09/Economic-Impact_Malaysia_English_FY26_Q4.pdf#new_tab</link>
+		<pubDate>Wed, 09 Sep 2026 18:09:28 +0000</pubDate>
+		<category><![CDATA[Malaysia]]></category>
+		<guid isPermaLink="false">https://local.microsoft.com/?p=8990</guid>
+		<description>&lt;p&gt;The post &lt;a href="https://local.microsoft.com/wp-content/uploads/2026/09/Economic-Impact_Malaysia_English_FY26_Q4.pdf#new_tab"&gt;Microsoft&#8217;s datacenter economic impact in Johor Bahru &#8211; English&lt;/a&gt; appeared first on &lt;a href="https://local.microsoft.com"&gt;Microsoft Local&lt;/a&gt;.&lt;/p&gt;</description>
+	</item>
+</channel>
+</rss>

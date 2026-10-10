@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:slash="http://purl.org/rss/1.0/modules/slash/" xmlns:sy="http://purl.org/rss/1.0/modules/syndication/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" version="2.0">
+<channel>
+<title>AWS News Blog</title>
+<atom:link href="https://aws.amazon.com/blogs/aws/feed/" rel="self" type="application/rss+xml"/>
+<link>https://aws.amazon.com/blogs/aws/</link>
+<item>
+<title>New low-cost burstable Amazon EC2 T8i instances are generally available</title>
+<link>https://aws.amazon.com/blogs/aws/new-low-cost-burstable-amazon-ec2-t8i-instances-are-generally-available/</link>
+<pubDate>Thu, 17 Sep 2026 21:11:48 +0000</pubDate>
+<guid isPermaLink="false">https://aws.amazon.com/blogs/aws/?p=104201</guid>
+<content:encoded>&lt;p&gt;Today, we&#8217;re announcing the general availability of new low-cost burstable Amazon EC2 T8i instances powered by custom sixth generation Intel Xeon Scalable Processors (Granite Rapids), available only on AWS. T8i instances are among the lowest-cost EC2 instances and deliver up to 30% better price performance over previous generation T3 instances.&lt;/p&gt;</content:encoded>
+</item>
+<item>
+<title>Amazon EC2 R9g and R9gd instances powered by AWS Graviton5 processors are now generally available</title>
+<link>https://aws.amazon.com/blogs/aws/amazon-ec2-r9g-and-r9gd-instances-powered-by-aws-graviton5-processors-are-now-generally-available/</link>
+<pubDate>Mon, 31 Aug 2026 19:53:34 +0000</pubDate>
+<guid isPermaLink="false">https://aws.amazon.com/blogs/aws/?p=103988</guid>
+<content:encoded>&lt;p&gt;Today, Amazon EC2 R9g and R9gd instances are generally available, powered by AWS Graviton5 processors. R9g instances are memory-optimized and deliver up to 25% better compute performance compared to Graviton4-based R8g instances, powered by the most energy efficient processor AWS has ever built.&lt;/p&gt;</content:encoded>
+</item>
+</channel>
+</rss>
