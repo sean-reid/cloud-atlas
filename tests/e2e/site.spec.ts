@@ -21,6 +21,10 @@ test("health endpoint answers", async ({ request }) => {
 });
 
 test("overview shows tracked totals, the map, charts, and the feed", async ({ page }) => {
+  const violations: string[] = [];
+  page.on("console", (msg) => {
+    if (/Content Security Policy|Refused to/.test(msg.text())) violations.push(msg.text());
+  });
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Cloud datacenter capacity");
   await expect(page.getByText("Tracked operational IT power")).toBeVisible();
@@ -30,7 +34,9 @@ test("overview shows tracked totals, the map, charts, and the feed", async ({ pa
     page.getByRole("img", { name: "Tracked operational IT power by provider" }),
   ).toBeVisible();
   await expect(page.locator(".feed li").first()).toBeVisible();
+  await expect(page.locator(".maplibregl-canvas")).toBeVisible();
   await shot(page, "overview");
+  expect(violations).toEqual([]);
 });
 
 test("filters live in the URL and drive the summary, table, and series together", async ({
@@ -117,6 +123,7 @@ test("export carries provenance for the filtered set", async ({ request }) => {
     expect(line).toContain(",oracle,");
     expect(line).toContain("https://");
     expect(line).toContain(",reported,");
+    expect(line).not.toMatch(/(^|,)[=+@]/);
   }
 });
 
@@ -126,6 +133,50 @@ test("api responses carry cache headers and a budget", async ({ request }) => {
   expect(res.headers()["cache-control"]).toContain("max-age=300");
   const again = await request.get("/api/meta");
   expect(again.ok()).toBe(true);
+});
+
+test("every response carries the security headers and assets cache for a year", async ({
+  request,
+}) => {
+  for (const path of ["/api/meta", "/", "/sites"]) {
+    const res = await request.get(path);
+    expect(res.ok(), path).toBe(true);
+    const h = res.headers();
+    expect(h["x-content-type-options"], path).toBe("nosniff");
+    expect(h["x-frame-options"], path).toBe("DENY");
+    expect(h["referrer-policy"], path).toBe("strict-origin-when-cross-origin");
+    expect(h["content-security-policy"], path).toContain("frame-ancestors 'none'");
+    expect(h["content-security-policy"], path).not.toContain("unsafe");
+  }
+  const html = await (await request.get("/")).text();
+  const script = /src="(\/assets\/[^"]+\.js)"/.exec(html)?.[1] as string;
+  expect(script).toBeDefined();
+  expect((await request.get(script)).headers()["cache-control"]).toBe(
+    "public, max-age=31536000, immutable",
+  );
+  expect((await request.get("/fonts/newsreader-latin.woff2")).headers()["cache-control"]).toBe(
+    "public, max-age=31536000",
+  );
+  expect((await request.get("/")).headers()["cache-control"]).toBe("no-cache");
+});
+
+test("bad query parameters answer 400 with a plain message, never 500", async ({ request }) => {
+  const cases: [string, RegExp][] = [
+    ["/api/feed?limit=abc", /limit must be a whole number/],
+    ["/api/feed?limit=0", /limit must be a whole number/],
+    ["/api/availability/history?provider=aws&family=p5&days=1e3", /days must be a whole number/],
+    ["/api/availability/series?provider=aws&region=us-east-1&sku=x&days=-1", /days must be/],
+    ["/api/sites?asof=yesterday", /asof must be YYYY/],
+    ["/api/summary?from=2025-6-1", /from must be YYYY/],
+    ["/api/export.csv?to=soon", /to must be YYYY/],
+  ];
+  for (const [path, message] of cases) {
+    const res = await request.get(path);
+    expect(res.status(), path).toBe(400);
+    expect((await res.json()).error, path).toMatch(message);
+  }
+  const fine = await request.get("/api/sites?asof=2025-06&limit=5&utm_source=x");
+  expect(fine.status()).toBe(200);
 });
 
 test("availability history answers per day and per hour", async ({ request }) => {
