@@ -576,11 +576,19 @@ const availability: Handler = async (_req, env, url) => {
             baseline: null,
           };
         } else {
-          entry.signals[r.signal] = {
-            value: r.value,
-            detail,
-            baseline: base.get(`${r.region_code}|${r.sku}|${r.signal}`) ?? null,
-          };
+          // Probes that ask for several sizes land as one row each; the smallest ask is what most buyers feel.
+          const prev = entry.signals[r.signal];
+          const askOf = (d: Record<string, unknown> | null | undefined) =>
+            Number(d?.target_capacity ?? d?.instance_count ?? Infinity);
+          const prevAsk = askOf(prev?.detail as Record<string, unknown> | null);
+          const ask = askOf(detail);
+          if (!prev || ask < prevAsk) {
+            entry.signals[r.signal] = {
+              value: r.value,
+              detail,
+              baseline: base.get(`${r.region_code}|${r.sku}|${r.signal}`) ?? null,
+            };
+          }
         }
         byRegion.set(key, entry);
       }

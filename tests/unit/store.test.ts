@@ -1,24 +1,8 @@
-import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { applyMigrations, SqliteDb } from "../../pipeline/db";
 import { ensureSource } from "../../pipeline/entities";
 import { Store } from "../../pipeline/store";
-import { PROVIDERS } from "../../shared/providers";
 import type { Entity, Observation, Source } from "../../shared/types";
-
-const MIGRATIONS = join(__dirname, "..", "..", "migrations");
-
-export async function memoryDb(): Promise<SqliteDb> {
-  const db = new SqliteDb(":memory:");
-  await applyMigrations(db, MIGRATIONS);
-  await db.exec(
-    PROVIDERS.map(
-      (p) =>
-        `INSERT INTO provider (slug,name,short_name,company,category,color) VALUES ('${p.slug}','${p.name}','${p.shortName}','${p.company}','${p.category}','${p.color}');`,
-    ).join("\n"),
-  );
-  return db;
-}
+import { memoryDb } from "./db";
 
 const entity: Entity = {
   id: "ent_a",

@@ -85,6 +85,16 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
     schedule: "daily",
     measures: "GPU machine types offered per zone, from the documentation. Offering only.",
   },
+  {
+    id: "aws-ec2-probes",
+    title: "AWS placement scores and Capacity Blocks",
+    publisher: "Amazon Web Services",
+    mode: "automated",
+    schedule: "hourly",
+    measures:
+      "Spot placement score per instance type and region for 8 and 64 units, and days until the earliest 24 hour Capacity Block for p5.48xlarge and p5en.48xlarge.",
+    credentials: ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"],
+  },
 ];
 
 export const adapterMeta = (id: string): AdapterMeta | undefined =>
