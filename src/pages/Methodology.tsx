@@ -107,11 +107,11 @@ export function Methodology() {
       <h2>How totals are built</h2>
       <p>
         A total is the sum of selected operational IT power figures over physical sites, with one
-        guard: a site counts only if no parent of it already counts the same metric at the same
-        status. A campus total replaces its buildings; a campus without a total is the sum of its
-        buildings. Sites with only a facility power figure are shown in a separate facility-only
-        total. Provider-wide statements (&quot;400 datacenters&quot;) are shown as such and never
-        added to site totals.
+        guard: a site counts only if no parent of it already counts a power figure at the same
+        status. A campus total replaces its buildings, whichever power metric each reports; a campus
+        without a total is the sum of its buildings. Sites with only a facility power figure are
+        shown in a separate facility-only total. Provider-wide statements (&quot;400
+        datacenters&quot;) are shown as such and never added to site totals.
       </p>
       <p>
         Totals are <em>tracked</em> capacity: the sum over sites we can document. Unknown is not

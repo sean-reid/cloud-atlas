@@ -155,6 +155,25 @@ describe("aggregation without double counting", () => {
     expect(t.pipeline_it_power_mw.announced).toBe(900);
     expect(t.pipeline_it_power_mw.operational).toBe(0);
   });
+  test("a campus with an IT figure covers a building that reports facility power", () => {
+    const rows = [
+      c({ id: "cit", entity_id: "campus", value: 300 }),
+      c({ id: "bfac", entity_id: "b1", metric: "facility_power_mw", value: 120 }),
+      c({
+        id: "bplan",
+        entity_id: "b2",
+        metric: "facility_power_mw",
+        value: 80,
+        status: "announced",
+      }),
+    ];
+    const t = providerTotals(entities, selectSites(entities, rows, null, "known"))[0]!;
+    expect(t.it_power_mw).toBe(300);
+    expect(t.it_sites).toBe(1);
+    expect(t.facility_only_power_mw).toBe(0);
+    expect(t.facility_only_sites).toBe(0);
+    expect(t.pipeline_facility_only_power_mw.announced).toBe(80);
+  });
   test("unknown is not zero: an entity without observations adds nothing and is not counted as a site", () => {
     const t = providerTotals(
       entities,
