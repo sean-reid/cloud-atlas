@@ -157,6 +157,8 @@ test("availability history shows the whole window and switches it", async ({ pag
   await expect(history.locator(".signal-chart").first()).toBeVisible();
   await history.getByRole("tab", { name: "7d" }).click();
   await expect(history.locator(".ribbon-head.day")).toHaveCount(7);
+  await history.locator(".ribbon-region.on").click();
+  await expect(history.locator(".signal-lines")).toHaveCount(0);
   await shot(page, "availability-history");
 });
 
