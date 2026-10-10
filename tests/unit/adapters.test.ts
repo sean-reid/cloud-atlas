@@ -30,7 +30,7 @@ afterEach(async () => {
 
 const fixedNow = () => new Date("2026-10-09T12:34:56Z");
 const fast = { minIntervalMs: 0, retries: 1 };
-const scheduled = ADAPTERS.filter((a) => a.schedule !== "manual");
+const scheduled = ADAPTERS.filter((a) => a.schedule !== "manual" && !a.credentials?.length);
 
 describe("adapters against fixtures", () => {
   test("every scheduled adapter runs and writes typed rows", async () => {

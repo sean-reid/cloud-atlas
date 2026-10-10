@@ -1,0 +1,14 @@
+{
+  "SpotPlacementScores": [
+    { "Region": "us-east-1", "Score": 7 },
+    { "Region": "us-east-2", "Score": 8 },
+    { "Region": "us-west-2", "Score": 9 },
+    { "Region": "eu-west-1", "Score": 6 },
+    { "Region": "eu-central-1", "Score": 7 },
+    { "Region": "eu-north-1", "Score": 3 },
+    { "Region": "ap-northeast-1", "Score": 5 },
+    { "Region": "ap-south-1", "Score": 4 },
+    { "Region": "ca-central-1", "Score": 2 },
+    { "Region": "sa-east-1", "Score": 1 }
+  ]
+}

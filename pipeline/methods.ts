@@ -55,6 +55,15 @@ export const METHODS: readonly Method[] = [
     assumptions:
       "Reclaim rate reflects pressure on the spot pool; a low band can also mean low spot usage of that type.",
   },
+  {
+    id: "lead-time-days.v1",
+    version: 1,
+    title: "Capacity Block lead time",
+    description:
+      "Whole days from the probe time to the earliest start date AWS offers for one instance for 24 hours within the next 14 days. 0 means a start within 24 hours; 999 means no offering came back.",
+    assumptions:
+      "The earliest offered start is the soonest a new customer could get the instance type; the account's own reservations do not change what is offered.",
+  },
 ];
 
 export async function ensureMethods(store: Store): Promise<void> {
