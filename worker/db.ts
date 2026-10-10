@@ -22,7 +22,7 @@ export async function one<T>(
   return res ?? null;
 }
 
-const placeholders = (n: number) => Array.from({ length: n }, () => "?").join(",");
+export const placeholders = (n: number) => Array.from({ length: n }, () => "?").join(",");
 
 // Physical entities and their candidate observations for the current filters. Selection and
 // aggregation happen in TypeScript so the same rules serve the API, the export, and tests.

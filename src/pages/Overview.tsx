@@ -23,7 +23,8 @@ export function Overview() {
   const feed = useApi<{ items: FeedItem[] }>("/api/feed?limit=12");
 
   const t = summary.data?.tracked;
-  const failing = meta.data?.freshness.filter((f) => !f.ok) ?? [];
+  const failing =
+    meta.data?.freshness.filter((f) => !f.ok && !f.error?.startsWith("waiting for ")) ?? [];
   const latestRun =
     meta.data?.freshness
       .map((f) => f.last_success)
@@ -245,7 +246,7 @@ export function Overview() {
           </p>
           <p>
             Deepest for AWS, Microsoft, Google, Oracle, and CoreWeave in the United States. Alibaba,
-            Tencent, Huawei, and IBM are provider-level only; Baidu and OVHcloud have no evidence
+            Tencent, Huawei, and IBM are mostly provider-level; Baidu and OVHcloud have no evidence
             yet. The <Link href="/methodology">methodology</Link> has the rules and the coverage
             matrix.
           </p>

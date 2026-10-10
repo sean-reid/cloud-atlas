@@ -61,9 +61,9 @@ export function ApiDocs() {
           </div>
           <h2>Filters</h2>
           <p className="small muted">
-            The site exposes provider, status, country, search, evidence class, and the time view.
-            The rest (source tier, claim-date range, metric) work in any URL and in the API but have
-            no control on the page.
+            The site exposes provider, status, country, search, evidence class, the time view, and
+            the as-of date. Source tier, claim-date range, and location precision work in any URL
+            and in the API but have no control on the page; the metric only changes the map.
           </p>
           <div className="table-scroll">
             <table>

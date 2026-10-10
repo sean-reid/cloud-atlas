@@ -19,7 +19,7 @@ import type {
   Observation,
   Source,
 } from "../shared/types";
-import { all, loadSites, one } from "./db";
+import { all, loadSites, one, placeholders } from "./db";
 
 export interface Env {
   DB: D1Database;
@@ -509,12 +509,10 @@ const sources: Handler = async (_req, env) => {
 
 // Levels are relative within one provider and SKU family at the latest observation hour,
 // never across providers, because each signal measures something different.
-// Levels are relative within one provider and SKU family at the latest observation hour,
-// never across providers, because each signal measures something different.
 const availability: Handler = async (_req, env, url) => {
-  const provider = url.searchParams.get("provider");
-  const where = provider ? "WHERE provider_slug = ?" : "";
-  const params = provider ? [provider] : [];
+  const slugs = (url.searchParams.get("provider") ?? "").split(",").filter(Boolean);
+  const where = slugs.length ? `WHERE provider_slug IN (${placeholders(slugs.length)})` : "";
+  const params = slugs;
   const latest = await all<{ provider_slug: string; observed_at: string }>(
     env.DB,
     `SELECT provider_slug, MAX(observed_at) AS observed_at FROM availability_signal ${where} GROUP BY provider_slug`,
@@ -828,7 +826,7 @@ const openapi: Handler = async (_req, _env, url) => {
       name: "tier",
       in: "query",
       schema: { type: "integer", minimum: 1, maximum: 4 },
-      description: "Best source tier to include (1 official, 4 reporting)",
+      description: "Worst source tier to admit: 1 keeps official sources only, 4 keeps everything",
     },
     {
       name: "from",
@@ -921,7 +919,9 @@ const openapi: Handler = async (_req, _env, url) => {
       "/feed": {
         get: {
           summary: "Recent evidence, newest recorded first",
-          parameters: [{ name: "limit", in: "query", schema: { type: "integer", maximum: 200 } }],
+          parameters: [
+            { name: "limit", in: "query", schema: { type: "integer", maximum: 200, default: 40 } },
+          ],
           responses: { "200": { description: "Feed" } },
         },
       },
@@ -936,6 +936,44 @@ const openapi: Handler = async (_req, _env, url) => {
           summary: "Latest availability signals with relative levels per provider and SKU family",
           parameters: filterParams.slice(0, 1),
           responses: { "200": { description: "Signals" } },
+        },
+      },
+      "/availability/history": {
+        get: {
+          summary:
+            "Daily level per region and SKU for one provider and family, worst hour of each day",
+          parameters: [
+            { name: "provider", in: "query", required: true, schema: { type: "string" } },
+            { name: "family", in: "query", required: true, schema: { type: "string" } },
+            {
+              name: "days",
+              in: "query",
+              schema: { type: "integer", minimum: 1, maximum: 180, default: 30 },
+            },
+          ],
+          responses: {
+            "200": { description: "Daily cells" },
+            "400": { description: "Missing provider or family" },
+          },
+        },
+      },
+      "/availability/series": {
+        get: {
+          summary: "Hourly readings for one region and SKU, one point per signal and probe",
+          parameters: [
+            { name: "provider", in: "query", required: true, schema: { type: "string" } },
+            { name: "region", in: "query", required: true, schema: { type: "string" } },
+            { name: "sku", in: "query", required: true, schema: { type: "string" } },
+            {
+              name: "days",
+              in: "query",
+              schema: { type: "integer", minimum: 1, maximum: 180, default: 30 },
+            },
+          ],
+          responses: {
+            "200": { description: "Readings" },
+            "400": { description: "Missing provider, region, or sku" },
+          },
         },
       },
       "/export.csv": {

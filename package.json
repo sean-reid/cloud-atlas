@@ -24,6 +24,8 @@
     "import": "tsx pipeline/cli.ts import",
     "review": "tsx pipeline/cli.ts review",
     "health": "tsx pipeline/cli.ts health",
+    "sources": "tsx pipeline/cli.ts sources",
+    "retain": "tsx pipeline/cli.ts retain",
     "setup": "npm run migrate && npm run import && npm run ingest",
     "migrate": "tsx pipeline/cli.ts migrate",
     "seed:offline": "npm run migrate && npm run import && tsx pipeline/cli.ts ingest --fixtures"
