@@ -3,6 +3,7 @@ import { applyMigrations, SqliteDb } from "../../pipeline/db";
 import { PROVIDERS } from "../../shared/providers";
 
 export const FIX = join(__dirname, "..", "fixtures");
+export const FIXTURES = FIX;
 export const DATA = join(__dirname, "..", "..", "data");
 export const fixedNow = () => new Date("2026-10-09T12:34:56Z");
 export const fast = { minIntervalMs: 0, retries: 1 };

@@ -1,0 +1,23 @@
+{
+  "Response": {
+    "TotalCount": 3,
+    "RegionSet": [
+      {
+        "Region": "ap-guangzhou",
+        "RegionName": "South China (Guangzhou)",
+        "RegionState": "AVAILABLE"
+      },
+      {
+        "Region": "ap-singapore",
+        "RegionName": "Southeast Asia (Singapore)",
+        "RegionState": "AVAILABLE"
+      },
+      {
+        "Region": "ap-shanghai-fsi",
+        "RegionName": "East China (Shanghai Finance)",
+        "RegionState": "UNAVAILABLE"
+      }
+    ],
+    "RequestId": "3c140219-cfe9-470e-b241-907877d6fb03"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "compartmentId": "ocid1.tenancy.oc1..aaaaaaaafixturetenancy",
+  "availabilityDomain": "Uocm:US-ASHBURN-AD-1",
+  "timeCreated": "2026-10-09T12:34:57.113Z",
+  "shapeAvailabilities": [
+    {
+      "instanceShape": "BM.GPU.H100.8",
+      "instanceShapeConfig": null,
+      "faultDomain": null,
+      "availableCount": 0,
+      "availabilityStatus": "OUT_OF_HOST_CAPACITY"
+    },
+    {
+      "instanceShape": "BM.GPU.H200.8",
+      "instanceShapeConfig": null,
+      "faultDomain": null,
+      "availableCount": 3,
+      "availabilityStatus": "AVAILABLE"
+    },
+    {
+      "instanceShape": "BM.GPU.A100-v2.8",
+      "instanceShapeConfig": null,
+      "faultDomain": null,
+      "availableCount": 0,
+      "availabilityStatus": "OUT_OF_HOST_CAPACITY"
+    },
+    {
+      "instanceShape": "VM.GPU.A10.1",
+      "instanceShapeConfig": null,
+      "faultDomain": null,
+      "availableCount": null,
+      "availabilityStatus": "HARDWARE_NOT_SUPPORTED"
+    },
+    {
+      "instanceShape": "VM.Standard.E5.Flex",
+      "instanceShapeConfig": {
+        "ocpus": 2.0,
+        "memoryInGBs": 24.0
+      },
+      "faultDomain": null,
+      "availableCount": 1120,
+      "availabilityStatus": "AVAILABLE"
+    }
+  ]
+}

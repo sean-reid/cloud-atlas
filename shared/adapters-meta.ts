@@ -105,6 +105,34 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
       "Days until Compute Engine can start a 24-hour block of 1 or 8 A3 or A4 GPU VMs per region, from the calendar-mode advice API.",
     credentials: ["GCP_PROJECT", "GCP_SERVICE_ACCOUNT_JSON"],
   },
+  {
+    id: "oci-capacity-report",
+    title: "Oracle Cloud capacity reports",
+    publisher: "Oracle",
+    mode: "automated",
+    schedule: "hourly",
+    measures:
+      "Capacity report verdict per GPU shape and availability domain across the tenancy's subscribed regions.",
+    credentials: ["OCI_TENANCY", "OCI_USER", "OCI_FINGERPRINT", "OCI_PRIVATE_KEY", "OCI_REGION"],
+  },
+  {
+    id: "alibaba-available-resource",
+    title: "Alibaba Cloud available resources",
+    publisher: "Alibaba Cloud",
+    mode: "automated",
+    schedule: "hourly",
+    measures: "Sell status per GPU instance type and zone from the ECS available resource check.",
+    credentials: ["ALIBABA_ACCESS_KEY_ID", "ALIBABA_ACCESS_KEY_SECRET"],
+  },
+  {
+    id: "tencent-zone-config",
+    title: "Tencent Cloud zone instance configs",
+    publisher: "Tencent Cloud",
+    mode: "automated",
+    schedule: "hourly",
+    measures: "Sell status per GPU instance type and zone from the CVM zone configuration listing.",
+    credentials: ["TENCENT_SECRET_ID", "TENCENT_SECRET_KEY"],
+  },
 ];
 
 export const adapterMeta = (id: string): AdapterMeta | undefined =>
