@@ -9,6 +9,7 @@ import { fixtureFetch } from "./fixtures";
 import { loadGeo } from "./geo";
 import { log } from "./log";
 import { ensureMethods } from "./methods";
+import { HOURLY_DAYS, pruneSignals } from "./retention";
 import { runAdapters } from "./run";
 import { Store } from "./store";
 
@@ -155,6 +156,13 @@ async function main(argv: string[]): Promise<number> {
       console.log(`${sub}ed ${id}`);
       return 0;
     }
+    case "retain": {
+      const db = await openDb(args);
+      const removed = await pruneSignals(db, new Date());
+      await db.close();
+      console.log(`removed ${removed} hourly signal rows older than ${HOURLY_DAYS} days`);
+      return 0;
+    }
     case "health": {
       const db = await openDb(args);
       const store = await Store.open(db, "live");
@@ -171,7 +179,7 @@ async function main(argv: string[]): Promise<number> {
     }
     default:
       console.log(
-        "usage: cli <sources|migrate|ingest [adapter...] [--fixtures]|import [file.csv...]|review ...|health> [--remote] [--dataset live|demo]",
+        "usage: cli <sources|migrate|ingest [adapter...] [--fixtures]|import [file.csv...]|review ...|retain|health> [--remote] [--dataset live|demo]",
       );
       return cmd === "help" ? 0 : 2;
   }
