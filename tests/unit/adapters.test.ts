@@ -8,26 +8,14 @@ import type { Adapter } from "../../pipeline/adapters/types";
 import { fixtureFetch } from "../../pipeline/fixtures";
 import { runAdapters } from "../../pipeline/run";
 import { Store } from "../../pipeline/store";
-import { applyMigrations, SqliteDb } from "../../pipeline/db";
-import { PROVIDERS } from "../../shared/providers";
+import type { SqliteDb } from "../../pipeline/db";
 import { loadGeo } from "../../pipeline/geo";
 import { ensureMethods } from "../../pipeline/methods";
+import { memoryDb } from "./db";
 
 const FIX = join(__dirname, "..", "fixtures");
 const fakeFetch = (overrides: Record<string, () => Response> = {}) => fixtureFetch(FIX, overrides);
 const DATA = join(__dirname, "..", "..", "data");
-
-async function memoryDb(): Promise<SqliteDb> {
-  const db = new SqliteDb(":memory:");
-  await applyMigrations(db, join(__dirname, "..", "..", "migrations"));
-  await db.exec(
-    PROVIDERS.map(
-      (p) =>
-        `INSERT INTO provider (slug,name,short_name,company,category,color) VALUES ('${p.slug}','${p.name}','${p.shortName}','${p.company}','${p.category}','${p.color}');`,
-    ).join("\n"),
-  );
-  return db;
-}
 
 let cache = "";
 let db: SqliteDb;
