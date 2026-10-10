@@ -11,11 +11,9 @@ import { Store } from "../../pipeline/store";
 import type { SqliteDb } from "../../pipeline/db";
 import { loadGeo } from "../../pipeline/geo";
 import { ensureMethods } from "../../pipeline/methods";
-import { memoryDb } from "./db";
+import { DATA, FIX, fast, fixedNow, memoryDb } from "./helpers";
 
-const FIX = join(__dirname, "..", "fixtures");
 const fakeFetch = (overrides: Record<string, () => Response> = {}) => fixtureFetch(FIX, overrides);
-const DATA = join(__dirname, "..", "..", "data");
 
 let cache = "";
 let db: SqliteDb;
@@ -28,8 +26,7 @@ afterEach(async () => {
   await db.close();
 });
 
-const fixedNow = () => new Date("2026-10-09T12:34:56Z");
-const fast = { minIntervalMs: 0, retries: 1 };
+// Adapters that need an account run against recorded responses in their own test files.
 const scheduled = ADAPTERS.filter((a) => a.schedule !== "manual" && !a.credentials?.length);
 
 describe("adapters against fixtures", () => {

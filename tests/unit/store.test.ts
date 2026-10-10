@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { ensureSource } from "../../pipeline/entities";
 import { Store } from "../../pipeline/store";
 import type { Entity, Observation, Source } from "../../shared/types";
-import { memoryDb } from "./db";
+import { memoryDb } from "./helpers";
 
 const entity: Entity = {
   id: "ent_a",
