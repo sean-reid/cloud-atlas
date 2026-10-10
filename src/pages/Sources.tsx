@@ -1,12 +1,12 @@
 import { ADAPTER_META } from "../../shared/adapters-meta";
-import type { FetchRun, ReviewItem, Source } from "../../shared/types";
+import type { FetchRun, Source } from "../../shared/types";
 import { useApi } from "../lib/api";
 import { fmtAgo, fmtDate, tierLabel } from "../lib/format";
 
 interface Data {
   sources: (Source & { n: number; latest_effective: string | null })[];
   runs: FetchRun[];
-  review: ReviewItem[];
+  review_open: number;
 }
 
 const UNSUPPORTED = [
@@ -34,7 +34,6 @@ export function Sources() {
     if (!latest.has(r.adapter)) latest.set(r.adapter, r);
     if (r.ok && !latestOk.has(r.adapter)) latestOk.set(r.adapter, r);
   }
-  const open = (data?.review ?? []).filter((r) => !r.resolved_at);
   return (
     <>
       <section className="block" style={{ paddingTop: "0.5rem" }}>
@@ -161,23 +160,16 @@ export function Sources() {
         </div>
       </section>
       <section className="block">
-        <h2>Review queue</h2>
+        <h2>Awaiting review</h2>
         <p className="muted small">
-          Ambiguous matches, unresolved places, and pre-launch region codes wait here until a
-          maintainer acts.
+          {data
+            ? data.review_open
+              ? `${data.review_open} item${data.review_open === 1 ? "" : "s"}`
+              : "Nothing"
+            : "..."}{" "}
+          waiting for a maintainer: ambiguous site matches, unresolved places, candidate figures
+          from feeds. Pending items never appear on the public pages.
         </p>
-        {open.length ? (
-          <ul>
-            {open.map((r) => (
-              <li key={r.id}>
-                <span className="mono small">{r.adapter}</span> · {r.reason}{" "}
-                <span className="faint small">({fmtDate(r.created_at.slice(0, 10))})</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="muted">Nothing waiting.</p>
-        )}
       </section>
     </>
   );
