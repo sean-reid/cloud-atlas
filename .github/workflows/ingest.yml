@@ -49,6 +49,9 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # The cron and a deploy can overlap; applying migrations here means an ingest never meets a
+      # table its code expects and the database lacks.
+      - uses: ./.github/actions/d1-migrate
       - name: pick adapters for this hour
         id: pick
         env:
