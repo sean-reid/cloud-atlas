@@ -164,7 +164,7 @@ export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }
           "circle-radius": ["to-number", ["coalesce", ["get", "r"], 2.6]],
           "circle-color": [
             "to-color",
-            ["coalesce", ["get", "color"], dark ? "#a29b8d" : "#8f887a"],
+            ["coalesce", ["get", "fill"], ["get", "color"], dark ? "#a29b8d" : "#8f887a"],
           ],
           "circle-opacity": ["to-number", ["coalesce", ["get", "opacity"], 0.9]],
           "circle-stroke-color": ["to-color", ["coalesce", ["get", "color"], "rgba(0,0,0,0)"]],
@@ -283,10 +283,11 @@ export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }
           id: r.id,
           ...(variant === "availability" && r.level
             ? {
-                r: r.level === "tight" ? 9 : 7,
+                r: r.level === "tight" ? 8 : 7,
                 color: LEVEL_COLOR[r.level] ?? "#8f887a",
+                fill: r.level === "tight" ? (dark ? "#161513" : "#f6f2ea") : null,
                 opacity: r.level === "offered" ? 0.5 : 0.9,
-                stroke: r.level === "tight" ? 2 : 0,
+                stroke: r.level === "tight" ? 2.5 : 0,
               }
             : {}),
           tip: `<strong>${escapeHtml(r.name)}</strong><br>${escapeHtml(providerBySlug(r.provider_slug)?.shortName ?? r.provider_slug)} region${r.code ? ` <span class="mono">${escapeHtml(r.code)}</span>` : ""}${
@@ -298,7 +299,7 @@ export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }
       type: "FeatureCollection",
       features: regionFeatures,
     });
-  }, [sites, regions, metric, ready, variant]);
+  }, [sites, regions, metric, ready, variant, dark]);
 
   return (
     <div className="map-wrap">
@@ -321,13 +322,16 @@ export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }
             .filter(([k]) => k !== "unknown")
             .map(([k, c]) => (
               <span key={k}>
-                <span className="mark" style={{ ["--c" as string]: c }} />
+                <span
+                  className={k === "tight" ? "mark ring" : "mark"}
+                  style={{ ["--c" as string]: c }}
+                />
                 {k === "offered" ? "offered, no spot signal" : k}
               </span>
             ))}
           <span className="faint">
-            Region centroids, worst SKU in the family. Shape and label carry the level, not colour
-            alone.
+            Region centroids, worst SKU in the family. Tight regions are rings; the grid below names
+            every level.
           </span>
         </div>
       ) : (

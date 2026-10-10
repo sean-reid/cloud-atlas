@@ -31,6 +31,10 @@ export const fmtMetric = (
   return fmtNum(value);
 };
 
+// A source's own figure, formatted like the normalized value when it is a bare number.
+export const fmtOriginal = (metric: string, raw: string): string =>
+  /^-?\d+(\.\d+)?$/.test(raw.trim()) ? fmtMetric(metric, Number(raw), null, null) : raw;
+
 export const fmtDate = (iso: string | null | undefined): string => {
   if (!iso) return "undated";
   if (iso.length === 4) return iso;

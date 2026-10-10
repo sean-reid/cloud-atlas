@@ -4,7 +4,15 @@ import { providerBySlug } from "../../shared/providers";
 import type { Entity, Method, Observation, Status } from "../../shared/types";
 import { countryName } from "../components/FilterBar";
 import { useApi } from "../lib/api";
-import { fmtAgo, fmtDate, fmtMetric, precisionLabel, statusLabel, tierLabel } from "../lib/format";
+import {
+  fmtAgo,
+  fmtDate,
+  fmtMetric,
+  fmtOriginal,
+  precisionLabel,
+  statusLabel,
+  tierLabel,
+} from "../lib/format";
 
 type Obs = Observation & {
   tier: number;
@@ -134,6 +142,10 @@ export function EntityDetail() {
                 <tbody>
                   {group.observations.map((o) => {
                     const superseded = group.observations.some((x) => x.supersedes_id === o.id);
+                    const shown = fmtMetric(metric, o.value, o.value_low, o.value_high);
+                    const original = o.value_original
+                      ? fmtOriginal(metric, o.value_original)
+                      : null;
                     return (
                       <tr key={o.id} style={{ opacity: superseded ? 0.6 : 1 }}>
                         <td className="num lead-cell">
@@ -142,9 +154,9 @@ export function EntityDetail() {
                               ▸{" "}
                             </span>
                           )}
-                          {fmtMetric(metric, o.value, o.value_low, o.value_high)}
-                          {o.value_original && o.value_original !== String(o.value) && (
-                            <div className="faint small">as written: {o.value_original}</div>
+                          {shown}
+                          {original && original !== shown && (
+                            <div className="faint small">as written: {original}</div>
                           )}
                         </td>
                         <td className={`status-${o.status}`} data-label="Status">

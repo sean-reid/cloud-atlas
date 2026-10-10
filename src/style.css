@@ -19,7 +19,7 @@
   --paper-2: #efe9dd;
   --ink: #1b1a17;
   --ink-soft: #625c51;
-  --ink-faint: #8f887a;
+  --ink-faint: #6d6657;
   --rule: #cfc7b6;
   --rule-soft: #e3dccd;
   --shade: #e8e1d3;
@@ -37,7 +37,7 @@
     --paper-2: #1d1b18;
     --ink: #ebe5d9;
     --ink-soft: #a29b8d;
-    --ink-faint: #6f685c;
+    --ink-faint: #8f877a;
     --rule: #3d3932;
     --rule-soft: #2a2723;
     --shade: #22201c;
@@ -51,7 +51,7 @@
   --paper-2: #1d1b18;
   --ink: #ebe5d9;
   --ink-soft: #a29b8d;
-  --ink-faint: #6f685c;
+  --ink-faint: #8f877a;
   --rule: #3d3932;
   --rule-soft: #2a2723;
   --shade: #22201c;
@@ -302,9 +302,10 @@ section.block > .lead {
   margin: 0.25rem 0 0.35rem;
 }
 .stat .value small {
-  font-size: 0.45em;
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
   color: var(--ink-soft);
-  margin-left: 0.3rem;
 }
 .stat .note {
   color: var(--ink-soft);
@@ -403,7 +404,8 @@ section.block > .lead {
   border-radius: 50%;
   background: var(--c, var(--ink));
 }
-.mark.derived {
+.mark.derived,
+.mark.ring {
   background: transparent;
   border: 1.5px solid var(--c, var(--ink));
 }
@@ -860,8 +862,6 @@ details.filters-drawer .filters {
     font-size: 1.9rem;
   }
   .stat .value small {
-    display: block;
-    margin: 0.2rem 0 0;
     font-size: 0.8rem;
   }
   .stat .note {
