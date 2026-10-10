@@ -1,3 +1,4 @@
+import { ProbeUnavailable } from "./adapters/types";
 import { createHash } from "node:crypto";
 import type { Dataset, FetchRun } from "../shared/types";
 import type { Adapter, AdapterContext, AdapterResult } from "./adapters/types";
@@ -124,7 +125,12 @@ export async function runAdapters(
       outcomes.push({ adapter: adapter.id, ok: true, skipped: false, result, error: null });
       log("info", "adapter.done", { adapter: adapter.id, ...result, changed: anyChanged });
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
+      const waiting = err instanceof ProbeUnavailable;
+      const message = waiting
+        ? `waiting for access: ${err.message}`
+        : err instanceof Error
+          ? err.message
+          : String(err);
       await store.appendFetchRun({
         adapter: adapter.id,
         url: adapter.url,
@@ -140,11 +146,14 @@ export async function runAdapters(
       outcomes.push({
         adapter: adapter.id,
         ok: false,
-        skipped: false,
+        skipped: waiting,
         result: null,
         error: message,
       });
-      log("error", "adapter.failed", { adapter: adapter.id, error: message });
+      log(waiting ? "warn" : "error", waiting ? "adapter.waiting" : "adapter.failed", {
+        adapter: adapter.id,
+        error: message,
+      });
     }
     await store.flush();
   }
