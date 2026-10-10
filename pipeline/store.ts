@@ -39,6 +39,7 @@ export class Store {
   readonly observations = new Map<string, Observation>();
   readonly review = new Map<string, ReviewItem>();
   readonly signalIds = new Set<string>();
+  readonly regionProvidersAtOpen = new Set<string>();
   aliases = new Map<string, string>();
   decisions = new Map<string, string>();
   fetchRuns: FetchRun[] = [];
@@ -67,8 +68,11 @@ export class Store {
       );
     }
     await s.batch.flush();
-    for (const r of await db.query("SELECT * FROM entity WHERE dataset = ?", [dataset]))
-      s.entities.set(String(r.id), row<Entity>(r));
+    for (const r of await db.query("SELECT * FROM entity WHERE dataset = ?", [dataset])) {
+      const e = row<Entity>(r);
+      s.entities.set(e.id, e);
+      if (e.type === "region") s.regionProvidersAtOpen.add(e.provider_slug);
+    }
     for (const r of await db.query("SELECT * FROM source"))
       s.sources.set(String(r.id), row<Source>(r));
     for (const r of await db.query("SELECT * FROM method"))
