@@ -70,5 +70,5 @@ jobs:
             return 1
           }
           check https://cloud-atlas.seanreid.workers.dev/api/health '"ok":true' 6 5
-          check https://cloud-atlas.dwainosaur.com/ cloud-atlas 18 10
+          check https://cloud-atlas.dwainosaur.com/ 'Cloud Atlas' 18 10
           check https://cloud-atlas.dwainosaur.com/api/health '"ok":true' 6 5
