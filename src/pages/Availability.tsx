@@ -8,7 +8,7 @@ import {
   type Level,
   type Readings,
 } from "../../shared/availability";
-import { providerBySlug } from "../../shared/providers";
+import { PROVIDERS, providerBySlug } from "../../shared/providers";
 import type { AvailabilitySignalKind } from "../../shared/types";
 import type { RegionMarker } from "../components/Map";
 import { AvailabilityHistory } from "../components/AvailabilityHistory";
@@ -64,7 +64,7 @@ const describe = (c: Cell) =>
 
 export function Availability() {
   const { data } = useApi<Data>("/api/availability");
-  const providers = Object.keys(data?.providers ?? {});
+  const providers = PROVIDERS.map((x) => x.slug).filter((slug) => data?.providers[slug]);
   const [active, setActive] = useState<string | null>(null);
   const [family, setFamily] = useState<string | null>(null);
   const slug = active ?? providers[0] ?? null;
