@@ -257,9 +257,7 @@ describe("oci-capacity-report", () => {
     const { calls, factory } = replay(ociRoute);
     const { outcomes, store } = await run([makeOci(factory, instant)]);
     expect(outcomes[0]!.skipped).toBe(true);
-    expect(store.fetchRuns[0]!.error).toBe(
-      "waiting for credentials: OCI_TENANCY, OCI_USER, OCI_FINGERPRINT, OCI_PRIVATE_KEY, OCI_REGION",
-    );
+    expect(store.fetchRuns[0]!.error).toBe("waiting for credentials");
     expect(calls).toHaveLength(0);
   });
 });
@@ -381,9 +379,7 @@ describe("alibaba-available-resource", () => {
     const { calls, factory } = replay(acsRoute);
     const { outcomes, store } = await run([makeAlibaba(factory, instant)]);
     expect(outcomes[0]!.skipped).toBe(true);
-    expect(store.fetchRuns[0]!.error).toBe(
-      "waiting for credentials: ALIBABA_ACCESS_KEY_ID, ALIBABA_ACCESS_KEY_SECRET",
-    );
+    expect(store.fetchRuns[0]!.error).toBe("waiting for credentials");
     expect(calls).toHaveLength(0);
   });
 });
@@ -515,9 +511,7 @@ describe("tencent-zone-config", () => {
     const { calls, factory } = replay(tc3Route);
     const { outcomes, store } = await run([makeTencent(factory, instant)]);
     expect(outcomes[0]!.skipped).toBe(true);
-    expect(store.fetchRuns[0]!.error).toBe(
-      "waiting for credentials: TENCENT_SECRET_ID, TENCENT_SECRET_KEY",
-    );
+    expect(store.fetchRuns[0]!.error).toBe("waiting for credentials");
     expect(calls).toHaveLength(0);
   });
 });

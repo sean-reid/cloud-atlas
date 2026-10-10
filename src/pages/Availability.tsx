@@ -120,7 +120,12 @@ export function Availability() {
         level: w.level,
       };
     });
-  const waiting = ADAPTER_META.filter((a) => a.credentials?.length);
+  const uncovered = ADAPTER_META.filter(
+    (a) =>
+      a.provider &&
+      a.signals &&
+      !a.signals.some((s) => data?.providers[a.provider!]?.signals.includes(s)),
+  );
 
   return (
     <>
@@ -272,9 +277,9 @@ export function Availability() {
         {!providers.length && <p className="muted">No availability signals recorded yet.</p>}
         <h2 style={{ marginTop: "2rem" }}>Not yet covered</h2>
         <ul className="small muted" style={{ marginTop: "0.5rem" }}>
-          {waiting.map((a) => (
+          {uncovered.map((a) => (
             <li key={a.id}>
-              {a.title}: {a.measures} Waiting for {a.credentials!.join(", ")}.
+              {a.title}: {a.measures}
             </li>
           ))}
           <li>Huawei Cloud marks sold-out flavors per zone behind an IAM token.</li>
