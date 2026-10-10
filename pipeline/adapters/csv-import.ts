@@ -17,7 +17,7 @@ import type {
 import type { EntityInput } from "../entities";
 import { csvRecords } from "../csv";
 import { ensureEntity, ensureSource, findSite, makeObservation, providerEntity } from "../entities";
-import { resolveAddress } from "../geo";
+import { regionGeo, resolveAddress } from "../geo";
 import { emptyResult, meta, type Adapter, type AdapterContext, type AdapterResult } from "./types";
 
 const STATUSES = new Set<Status>([
@@ -171,7 +171,17 @@ export async function importCsv(
             resolveAddress(ctx.places, `${entityName} ${placeText}`, countryCode));
       const match = type === "region" ? null : findSite(store, provider, entityName, [type]);
       const geo: Partial<EntityInput> = {};
-      if (lat !== null && lon !== null) {
+      // A region row names a code; its centroid comes from data/geo/regions.json, never from the row.
+      const region = type === "region" ? regionGeo(ctx.geo, provider, entityName) : null;
+      if (region) {
+        geo.lat = region.lat;
+        geo.lon = region.lon;
+        geo.location_precision = "region_centroid";
+        geo.locality = region.locality;
+        geo.admin_area = region.admin_area;
+        geo.country_code = region.country_code;
+        geo.name = region.name;
+      } else if (lat !== null && lon !== null) {
         geo.lat = lat;
         geo.lon = lon;
         geo.location_precision =
@@ -187,6 +197,7 @@ export async function importCsv(
         provider,
         name: match?.kind === "same" ? match.entity.name : entityName,
         ...(match?.kind === "same" ? { slug: match.entity.slug } : {}),
+        ...(type === "region" ? { slug: entityName } : {}),
         code: type === "region" ? entityName : null,
         parent_id: parentId,
         country_code: row.country_code || place?.place.country_code || null,
