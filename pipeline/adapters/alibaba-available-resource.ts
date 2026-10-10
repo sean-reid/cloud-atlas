@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { stableId } from "../../shared/ids";
-import { ensureSource } from "../entities";
+import { ensureSource, providerEntity } from "../entities";
+import { ensureRegion } from "../regions";
 import { log } from "../log";
 import {
   canonicalQuery,
@@ -178,9 +179,25 @@ export function makeAdapter(
         return JSON.parse(res.body) as T;
       };
 
-      const regions = (
-        await call<RegionsResponse>(REGION_LIST_HOST, "DescribeRegions", {})
-      ).Regions.Region.map((r) => r.RegionId);
+      const listed = (
+        await call<RegionsResponse>(REGION_LIST_HOST, "DescribeRegions", {
+          AcceptLanguage: "en-US",
+        })
+      ).Regions.Region;
+      const parent = await providerEntity(ctx.store, "alibaba", "Alibaba Cloud", ctx.dataset);
+      for (const r of listed) {
+        const placed = await ensureRegion(ctx, this, {
+          provider: "alibaba",
+          code: r.RegionId,
+          name: r.LocalName,
+          parent,
+          source,
+        });
+        result.entities++;
+        result.observations += placed.observations;
+        result.review += placed.review;
+      }
+      const regions = listed.map((r) => r.RegionId);
       let failed = 0;
       for (const region of regions) {
         try {
