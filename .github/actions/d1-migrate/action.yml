@@ -1,0 +1,16 @@
+name: Pin and migrate the D1 database
+description: Creates the cloud-atlas D1 database if missing, writes its id into wrangler.jsonc, and applies pending migrations.
+runs:
+  using: composite
+  steps:
+    - name: ensure the D1 database exists and pin its id
+      shell: bash
+      run: |
+        id=$(npx wrangler d1 list --json | jq -r '.[] | select(.name == "cloud-atlas") | .uuid')
+        if [ -z "$id" ]; then
+          npx wrangler d1 create cloud-atlas >/dev/null
+          id=$(npx wrangler d1 list --json | jq -r '.[] | select(.name == "cloud-atlas") | .uuid')
+        fi
+        sed -i "s/00000000-0000-0000-0000-000000000000/$id/" wrangler.jsonc
+    - shell: bash
+      run: npx wrangler d1 migrations apply cloud-atlas --remote

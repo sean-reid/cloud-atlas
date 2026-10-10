@@ -45,15 +45,7 @@ jobs:
             exit 1
           fi
       - run: npm run build
-      - name: ensure the D1 database exists and pin its id
-        run: |
-          id=$(npx wrangler d1 list --json | jq -r '.[] | select(.name == "cloud-atlas") | .uuid')
-          if [ -z "$id" ]; then
-            npx wrangler d1 create cloud-atlas >/dev/null
-            id=$(npx wrangler d1 list --json | jq -r '.[] | select(.name == "cloud-atlas") | .uuid')
-          fi
-          sed -i "s/00000000-0000-0000-0000-000000000000/$id/" wrangler.jsonc
-      - run: npx wrangler d1 migrations apply cloud-atlas --remote
+      - uses: ./.github/actions/d1-migrate
       - run: npx wrangler deploy
       - name: smoke
         run: |
