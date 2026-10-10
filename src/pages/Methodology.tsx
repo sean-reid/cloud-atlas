@@ -158,8 +158,8 @@ export function Methodology() {
         Accepted observations per provider and metric family, live dataset. A dash means no evidence
         yet.
       </p>
-      <div className="table-scroll">
-        <table className="matrix">
+      <div className="table-scroll wide">
+        <table className="matrix stack">
           <thead>
             <tr>
               <th>Provider</th>
@@ -171,13 +171,13 @@ export function Methodology() {
           <tbody>
             {PROVIDERS.map((p) => (
               <tr key={p.slug}>
-                <td>
+                <td className="lead-cell">
                   <Link href={`/providers/${p.slug}`}>{p.shortName}</Link>
                 </td>
                 {FAMILIES.map(([label, metrics]) => {
                   const n = count(p.slug, metrics);
                   return (
-                    <td key={label} className={n ? "" : "faint"}>
+                    <td key={label} className={n ? "" : "faint"} data-label={label}>
                       {n || "-"}
                     </td>
                   );

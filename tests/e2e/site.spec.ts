@@ -100,7 +100,7 @@ test("provider, methodology, sources, availability, and API pages render", async
   await expect(page.locator(".matrix tbody tr")).toHaveCount(14);
   await shot(page, "methodology");
   await page.goto("/sources");
-  await expect(page.getByText("Last attempted")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ingestion paths" })).toBeVisible();
   await expect(page.locator("table").first().locator("tbody tr")).toHaveCount(ADAPTER_META.length);
   await shot(page, "sources");
   await page.goto("/availability");
@@ -226,7 +226,7 @@ test("availability history shows the whole window and switches it", async ({ pag
   const history = page.locator(".history");
   await expect(history.locator(".ribbon-head.day")).toHaveCount(30);
   await expect(history.locator(".signal-chart").first()).toBeVisible();
-  await history.getByRole("tab", { name: "7d" }).click();
+  await history.getByRole("button", { name: "7d" }).click();
   await expect(history.locator(".ribbon-head.day")).toHaveCount(7);
   await history.locator(".ribbon-region.on").click();
   await expect(history.locator(".signal-lines")).toHaveCount(0);
@@ -237,4 +237,72 @@ test("demo mode is visibly separate", async ({ page }) => {
   await page.goto("/?demo=1");
   await expect(page.locator(".banner")).toContainText("Demo mode");
   await expect(page.locator(".stat .value").first()).toContainText("0 MW");
+});
+
+test("demo mode keeps the feed and the regions chart on the demo dataset", async ({
+  page,
+  request,
+}) => {
+  const live = await (await request.get("/api/feed?limit=12")).json();
+  expect(live.items.length).toBeGreaterThan(0);
+  const demo = await (await request.get("/api/feed?limit=12&demo=1")).json();
+  expect(demo.items.every((i: { dataset: string }) => i.dataset === "demo")).toBe(true);
+  const regions = await (await request.get("/api/regions?demo=1")).json();
+  await page.goto("/?demo=1");
+  await expect(page.getByRole("status")).toContainText("Demo mode");
+  await page.waitForLoadState("networkidle");
+  await expect(page.locator(".feed li")).toHaveCount(demo.items.length);
+  await expect(page.getByText(/cloud regions as centroids/)).toContainText(
+    `${regions.regions.length} cloud regions`,
+  );
+  if (!regions.regions.length)
+    await expect(page.getByText("No dated region launches")).toBeVisible();
+});
+
+test("no route scrolls sideways", async ({ page, request }) => {
+  const { sites } = await (await request.get("/api/sites")).json();
+  const routes = [
+    "/",
+    "/sites",
+    `/sites/${sites[0].id}`,
+    "/providers/azure",
+    "/availability",
+    "/methodology",
+    "/sources",
+    "/api",
+    "/?demo=1",
+    "/missing",
+  ];
+  for (const route of routes) {
+    await page.goto(route);
+    await page.waitForLoadState("networkidle");
+    const [scroll, inner] = await page.evaluate(() => [
+      document.documentElement.scrollWidth,
+      window.innerWidth,
+    ]);
+    expect(scroll, route).toBeLessThanOrEqual(inner);
+  }
+});
+
+test("availability shows a loading state until the signals arrive", async ({ page }) => {
+  await page.route("**/api/availability", async (route) => {
+    await new Promise((r) => setTimeout(r, 1500));
+    await route.continue();
+  });
+  await page.goto("/availability");
+  await expect(page.getByText("Loading availability signals")).toBeVisible();
+  await expect(page.getByText("No availability signals recorded yet.")).toHaveCount(0);
+  await expect(page.locator(".avail-grid").first()).toBeVisible();
+  await expect(page.getByText("Loading availability signals")).toHaveCount(0);
+});
+
+test("a ribbon region keeps a visible focus ring", async ({ page }) => {
+  await page.goto("/availability");
+  const row = page.locator(".ribbon-region").first();
+  await expect(row).toBeVisible();
+  await page.getByRole("button", { name: "90d" }).focus();
+  await page.keyboard.press("Tab");
+  await expect(row).toBeFocused();
+  expect(await row.evaluate((el) => getComputedStyle(el).outlineStyle)).not.toBe("none");
+  await expect(page.getByRole("rowheader").first()).toContainText(await row.innerText());
 });

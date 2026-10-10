@@ -19,7 +19,7 @@
   --paper-2: #efe9dd;
   --ink: #1b1a17;
   --ink-soft: #625c51;
-  --ink-faint: #8f887a;
+  --ink-faint: #6d6657;
   --rule: #cfc7b6;
   --rule-soft: #e3dccd;
   --shade: #e8e1d3;
@@ -37,7 +37,7 @@
     --paper-2: #1d1b18;
     --ink: #ebe5d9;
     --ink-soft: #a29b8d;
-    --ink-faint: #6f685c;
+    --ink-faint: #8f877a;
     --rule: #3d3932;
     --rule-soft: #2a2723;
     --shade: #22201c;
@@ -51,7 +51,7 @@
   --paper-2: #1d1b18;
   --ink: #ebe5d9;
   --ink-soft: #a29b8d;
-  --ink-faint: #6f685c;
+  --ink-faint: #8f877a;
   --rule: #3d3932;
   --rule-soft: #2a2723;
   --shade: #22201c;
@@ -302,9 +302,10 @@ section.block > .lead {
   margin: 0.25rem 0 0.35rem;
 }
 .stat .value small {
-  font-size: 0.45em;
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
   color: var(--ink-soft);
-  margin-left: 0.3rem;
 }
 .stat .note {
   color: var(--ink-soft);
@@ -403,7 +404,8 @@ section.block > .lead {
   border-radius: 50%;
   background: var(--c, var(--ink));
 }
-.mark.derived {
+.mark.derived,
+.mark.ring {
   background: transparent;
   border: 1.5px solid var(--c, var(--ink));
 }
@@ -483,6 +485,16 @@ section.block > .lead {
 }
 .maplibregl-ctrl-attrib a {
   color: inherit !important;
+}
+.maplibregl-ctrl-attrib-button {
+  filter: var(--ctrl-filter, none);
+  background-color: transparent !important;
+}
+.maplibregl-ctrl-group button:focus-visible,
+.maplibregl-ctrl-attrib-button:focus-visible {
+  outline: 2px solid var(--ink) !important;
+  outline-offset: -3px;
+  box-shadow: none !important;
 }
 .maplibregl-ctrl-group {
   border-radius: 0 !important;
@@ -600,11 +612,25 @@ blockquote {
   font-style: italic;
   font-size: 0.92rem;
 }
-.table-scroll {
+.table-scroll,
+.ribbon-scroll {
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
 }
-.prose {
+.table-scroll::-webkit-scrollbar,
+.ribbon-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.table-scroll::-webkit-scrollbar-thumb,
+.ribbon-scroll::-webkit-scrollbar-thumb {
+  background: var(--rule);
+}
+.prose > * {
   max-width: 70ch;
+}
+.prose > .wide {
+  max-width: none;
 }
 .prose h2 {
   margin: 2rem 0 0.6rem;
@@ -621,6 +647,10 @@ blockquote {
 .matrix td,
 .matrix th {
   text-align: center;
+}
+.matrix th {
+  white-space: normal;
+  vertical-align: bottom;
 }
 .matrix td:first-child,
 .matrix th:first-child {
@@ -667,6 +697,13 @@ blockquote {
 .avail-grid .cell.rowhead {
   border: 0;
   border-bottom: 1px solid var(--rule-soft);
+}
+.avail-grid .cell.rowhead,
+.avail-grid .cell.head:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--paper);
 }
 .avail-grid .cell.mark-cell {
   justify-content: flex-start;
@@ -806,19 +843,9 @@ details.filters-drawer .filters {
   }
   nav.primary {
     width: 100%;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    gap: 1rem;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    margin-left: -0.25rem;
-    padding-left: 0.25rem;
-  }
-  nav.primary::-webkit-scrollbar {
-    display: none;
+    gap: 0 1.1rem;
   }
   nav.primary a {
-    white-space: nowrap;
     padding: 0.4rem 0;
   }
   main {
@@ -835,8 +862,6 @@ details.filters-drawer .filters {
     font-size: 1.9rem;
   }
   .stat .value small {
-    display: block;
-    margin: 0.2rem 0 0;
     font-size: 0.8rem;
   }
   .stat .note {
@@ -868,12 +893,10 @@ details.filters-drawer .filters {
     padding: 0.75rem 0;
     border-bottom: 1px solid var(--rule);
   }
+  /* The label floats into the cell's left padding, so several inline children share one line box */
   table.stack td {
     border: 0;
-    padding: 0.15rem 0;
-    display: grid;
-    grid-template-columns: 7.5rem 1fr;
-    gap: 0.75rem;
+    padding: 0.15rem 0 0.15rem 7.5rem;
     text-align: left;
   }
   table.stack td.num {
@@ -883,25 +906,40 @@ details.filters-drawer .filters {
   }
   table.stack td::before {
     content: attr(data-label);
+    float: left;
+    width: 7rem;
+    margin-left: -7.5rem;
+    padding-top: 0.2rem;
     font-size: 0.74rem;
+    line-height: 1.2;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--ink-soft);
-    padding-top: 0.2rem;
+  }
+  table.stack td::after {
+    content: "";
+    display: block;
+    clear: both;
   }
   table.stack td.lead-cell {
-    display: block;
+    padding-left: 0;
     font-size: 1.05rem;
     margin-bottom: 0.25rem;
   }
   table.stack td.lead-cell::before {
     display: none;
   }
+  table.stack td.full-cell {
+    padding-left: 0;
+  }
+  table.stack td.full-cell::before {
+    float: none;
+    display: block;
+    width: auto;
+    margin: 0 0 0.15rem;
+  }
   table.stack td:empty {
     display: none;
-  }
-  .table-scroll {
-    overflow: visible;
   }
   blockquote {
     font-size: 0.9rem;
@@ -954,7 +992,6 @@ details.filters-drawer .filters {
   margin-bottom: 0.5rem;
 }
 .ribbon-scroll {
-  overflow-x: auto;
   margin-top: 0.75rem;
 }
 .ribbon {
@@ -969,12 +1006,16 @@ details.filters-drawer .filters {
     --cell-min: 7px;
   }
 }
-.ribbon > .ribbon-head:first-child,
-.ribbon-region {
+.ribbon-head:first-child,
+.ribbon-rowhead {
   position: sticky;
   left: 0;
   z-index: 1;
   background: var(--paper);
+}
+.ribbon-rowhead {
+  display: flex;
+  align-self: stretch;
 }
 .ribbon-head {
   font-size: 0.7rem;
@@ -987,13 +1028,17 @@ details.filters-drawer .filters {
 }
 .ribbon-head.day {
   position: relative;
-  height: 1.4rem;
+  height: 2.3rem;
 }
 .ribbon-head.day .tick {
   position: absolute;
   left: 50%;
   bottom: 0.3rem;
   transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
   font-family: var(--mono);
   letter-spacing: 0;
   text-transform: none;
@@ -1002,8 +1047,14 @@ details.filters-drawer .filters {
 .ribbon-head.day .tick.first {
   left: 0;
   transform: none;
+  align-items: flex-start;
 }
+/* The last column is narrow on phones; anchoring its tick right keeps the strip inside the scroller */
 .ribbon-head.day.today .tick {
+  left: auto;
+  right: 0;
+  transform: none;
+  align-items: flex-end;
   color: var(--ink);
 }
 .ribbon-head.day .month {
@@ -1014,6 +1065,9 @@ details.filters-drawer .filters {
 }
 .ribbon-region {
   all: unset;
+  box-sizing: border-box;
+  flex: 1;
+  font-family: var(--mono);
   cursor: pointer;
   min-height: 26px;
   display: flex;
@@ -1022,14 +1076,18 @@ details.filters-drawer .filters {
   border-bottom: 1px solid var(--rule-soft);
   white-space: nowrap;
 }
-.ribbon-region:hover {
-  color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
+.ribbon-region:hover,
 .ribbon-region.on {
   text-decoration: underline;
   text-underline-offset: 0.2em;
+}
+.ribbon-region:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+.ribbon-region.on:focus-visible {
+  outline-color: var(--paper);
+  outline-offset: -3px;
 }
 .ribbon-cell {
   display: flex;

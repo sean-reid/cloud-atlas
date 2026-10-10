@@ -63,7 +63,7 @@ const describe = (c: Cell) =>
   `${c.sku}: ${LEVEL_LABEL[c.level]}${measureFor(c.signals) ? `, ${measureFor(c.signals)}` : ""}`;
 
 export function Availability() {
-  const { data } = useApi<Data>("/api/availability");
+  const { data, error } = useApi<Data>("/api/availability");
   const providers = PROVIDERS.map((x) => x.slug).filter((slug) => data?.providers[slug]);
   const [active, setActive] = useState<string | null>(null);
   const [family, setFamily] = useState<string | null>(null);
@@ -166,14 +166,12 @@ export function Availability() {
           <>
             <div className="lead" style={{ marginTop: "1.25rem" }}>
               <h2>Where is {fam} available?</h2>
-              <div className="chips" role="tablist" aria-label="SKU family">
+              <div className="chips" role="group" aria-label="SKU family">
                 {families.map((f) => (
                   <button
                     key={f}
                     type="button"
-                    role="tab"
                     className="chip"
-                    aria-selected={f === fam}
                     aria-pressed={f === fam}
                     onClick={() => setFamily(f)}
                   >
@@ -228,14 +226,16 @@ export function Availability() {
                 role="table"
                 aria-label="Availability level by region and SKU family"
               >
-                <div className="cell head" role="columnheader">
-                  region
-                </div>
-                {families.map((f) => (
-                  <div key={f} className="cell head" role="columnheader">
-                    {f}
+                <div style={{ display: "contents" }} role="row">
+                  <div className="cell head" role="columnheader">
+                    region
                   </div>
-                ))}
+                  {families.map((f) => (
+                    <div key={f} className="cell head" role="columnheader">
+                      {f}
+                    </div>
+                  ))}
+                </div>
                 {regions.map((r) => (
                   <div key={r} style={{ display: "contents" }} role="row">
                     <div className="cell mono rowhead" role="rowheader">
@@ -274,7 +274,15 @@ export function Availability() {
             </ul>
           </>
         )}
-        {!providers.length && <p className="muted">No availability signals recorded yet.</p>}
+        {!data && !error && (
+          <p className="muted" aria-busy="true">
+            Loading availability signals...
+          </p>
+        )}
+        {error && <p className="muted">Availability signals could not be loaded: {error}</p>}
+        {data && !providers.length && (
+          <p className="muted">No availability signals recorded yet.</p>
+        )}
         <h2 style={{ marginTop: "2rem" }}>Not yet covered</h2>
         <ul className="small muted" style={{ marginTop: "0.5rem" }}>
           {uncovered.map((a) => (

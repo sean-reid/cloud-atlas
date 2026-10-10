@@ -467,6 +467,7 @@ const providerDetail: Handler = async (_req, env, url, params) => {
 };
 
 const feed: Handler = async (_req, env, url) => {
+  const f = queryFilters(url.searchParams);
   const limit = intParam(url.searchParams, "limit", 40, 1, 200);
   const rows = await all<
     Observation & {
@@ -482,9 +483,9 @@ const feed: Handler = async (_req, env, url) => {
     env.DB,
     `SELECT o.*, s.tier, s.publisher, s.title, s.url, e.name AS entity_name, e.type AS entity_type, e.provider_slug
      FROM observation o JOIN source s ON s.id = o.source_id JOIN entity e ON e.id = o.entity_id
-     WHERE o.dataset = 'live' AND o.review_status = 'accepted' AND e.type <> 'zone'
+     WHERE o.dataset = ? AND o.review_status = 'accepted' AND e.type <> 'zone'
      ORDER BY o.recorded_at DESC, o.effective_date DESC LIMIT ?`,
-    [limit * 3],
+    [f.demo ? "demo" : "live", limit * 3],
   );
   const kind = (o: (typeof rows)[number]) => {
     if (o.supersedes_id) return "revision";
@@ -899,6 +900,12 @@ const openapi: Handler = async (_req, _env, url) => {
           summary: "Recent evidence, newest recorded first",
           parameters: [
             { name: "limit", in: "query", schema: { type: "integer", maximum: 200, default: 40 } },
+            {
+              name: "demo",
+              in: "query",
+              schema: { type: "string", enum: ["1"] },
+              description: "Read the labelled demo dataset instead of live evidence",
+            },
           ],
           responses: { "200": { description: "Feed" } },
         },
@@ -976,7 +983,7 @@ const ROUTES: [RegExp, Handler, readonly string[]][] = [
   [/^\/api\/timeseries$/, timeseries, FILTER_PARAMS],
   [/^\/api\/entities\/(?<id>[a-z0-9_]+)$/, entityDetail, NONE],
   [/^\/api\/providers\/(?<slug>[a-z0-9-]+)$/, providerDetail, FILTER_PARAMS],
-  [/^\/api\/feed$/, feed, ["limit"]],
+  [/^\/api\/feed$/, feed, ["limit", "demo"]],
   [/^\/api\/sources$/, sources, NONE],
   [/^\/api\/availability$/, availability, ["provider"]],
   [/^\/api\/availability\/history$/, availabilityHistory, ["provider", "family", "days"]],

@@ -1,4 +1,4 @@
-import { Route, Switch } from "wouter";
+import { Link, Route, Switch } from "wouter";
 import { Layout } from "./components/Layout";
 import { ApiDocs } from "./pages/ApiDocs";
 import { Availability } from "./pages/Availability";
@@ -24,7 +24,9 @@ export function App() {
         <Route>
           <section className="block">
             <h1>Not found</h1>
-            <p className="muted">That page does not exist.</p>
+            <p className="muted">
+              That page does not exist. <Link href="/">Back to the overview</Link>
+            </p>
           </section>
         </Route>
       </Switch>

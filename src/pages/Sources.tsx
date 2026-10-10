@@ -46,7 +46,7 @@ export function Sources() {
       <section className="block">
         <h2>Ingestion paths</h2>
         <div className="table-scroll" style={{ marginTop: "0.75rem" }}>
-          <table>
+          <table className="stack">
             <thead>
               <tr>
                 <th>Source</th>
@@ -66,18 +66,18 @@ export function Sources() {
                 const waiting = !!r?.error?.startsWith("waiting for ");
                 return (
                   <tr key={id}>
-                    <td>
+                    <td className="lead-cell">
                       {a.title}
                       <div className="faint small mono">{id}</div>
                     </td>
-                    <td>
+                    <td data-label="Mode">
                       {a.mode.replace("_", " ")}
                       {a.credentials?.length ? (
                         <div className="faint small">needs an account</div>
                       ) : null}
                     </td>
-                    <td>{a.schedule}</td>
-                    <td>
+                    <td data-label="Schedule">{a.schedule}</td>
+                    <td data-label="Last attempted">
                       {r ? (
                         <>
                           <span title={r.started_at}>{fmtAgo(r.started_at)}</span>
@@ -100,15 +100,17 @@ export function Sources() {
                         </span>
                       )}
                     </td>
-                    <td>
+                    <td data-label="Last successful">
                       {ok ? (
                         <span title={ok.finished_at}>{fmtAgo(ok.finished_at)}</span>
                       ) : (
                         <span className="faint">{id === "csv-import" ? "" : "never"}</span>
                       )}
                     </td>
-                    <td>{r ? (r.changed ? "yes" : "no") : ""}</td>
-                    <td className="small muted">{a.measures}</td>
+                    <td data-label="Changed">{r ? (r.changed ? "yes" : "no") : ""}</td>
+                    <td className="small muted full-cell" data-label="Measures">
+                      {a.measures}
+                    </td>
                   </tr>
                 );
               })}
@@ -127,7 +129,7 @@ export function Sources() {
       <section className="block">
         <h2>Cited sources</h2>
         <div className="table-scroll" style={{ marginTop: "0.75rem" }}>
-          <table>
+          <table className="stack">
             <thead>
               <tr>
                 <th>Publisher</th>
@@ -142,23 +144,29 @@ export function Sources() {
             <tbody>
               {(data?.sources ?? []).map((s) => (
                 <tr key={s.id}>
-                  <td>{s.publisher}</td>
-                  <td>
+                  <td className="lead-cell">{s.publisher}</td>
+                  <td className="full-cell" data-label="Title">
                     <a href={s.url} rel="noopener">
                       {s.title}
                     </a>
                   </td>
-                  <td>{tierLabel[s.tier]}</td>
-                  <td className="num">{s.n}</td>
-                  <td>{s.latest_effective ? fmtDate(s.latest_effective) : ""}</td>
-                  <td>
+                  <td data-label="Tier">{tierLabel[s.tier]}</td>
+                  <td className="num" data-label="Observations">
+                    {s.n}
+                  </td>
+                  <td data-label="Latest claim">
+                    {s.latest_effective ? fmtDate(s.latest_effective) : ""}
+                  </td>
+                  <td data-label="Published">
                     {s.published_date ? (
                       fmtDate(s.published_date)
                     ) : (
                       <span className="faint">undated</span>
                     )}
                   </td>
-                  <td className="small muted">{s.license ?? ""}</td>
+                  <td className="small muted" data-label="Licence">
+                    {s.license ?? ""}
+                  </td>
                 </tr>
               ))}
             </tbody>

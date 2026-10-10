@@ -17,10 +17,20 @@ export function Overview() {
   const summary = useApi<Summary>(api("summary", query));
   const sites = useApi<{ sites: SiteRow[] }>(api("sites", query));
   const regions = useApi<{ regions: RegionMarker[] }>(
-    api("regions", filters.providers.length ? `provider=${filters.providers.join(",")}` : ""),
+    api(
+      "regions",
+      [
+        filters.providers.length ? `provider=${filters.providers.join(",")}` : "",
+        filters.demo ? "demo=1" : "",
+      ]
+        .filter(Boolean)
+        .join("&"),
+    ),
   );
   const series = useApi<{ series: Record<string, SeriesPoint[]> }>(api("timeseries", query));
-  const feed = useApi<{ items: FeedItem[] }>("/api/feed?limit=12");
+  const feed = useApi<{ items: FeedItem[] }>(
+    api("feed", filters.demo ? "limit=12&demo=1" : "limit=12"),
+  );
 
   const t = summary.data?.tracked;
   const failing =
