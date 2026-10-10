@@ -16,6 +16,15 @@ export interface AdapterContext {
   places: Gazetteer;
 }
 
+// Thrown by a probe whose account the provider has not admitted to the API it needs. The runner
+// records the run as waiting, like missing credentials, instead of as a failure.
+export class ProbeUnavailable extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ProbeUnavailable";
+  }
+}
+
 export interface AdapterResult {
   observations: number;
   entities: number;

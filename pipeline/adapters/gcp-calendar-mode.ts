@@ -4,7 +4,7 @@ import { ensureSource } from "../entities";
 import { assertAllowed, retryDelayMs, USER_AGENT } from "../fetch";
 import { log } from "../log";
 import { GPU_ZONES_URL, gpuZoneRows } from "./gcp-gpu-zones";
-import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
+import { emptyResult, meta, ProbeUnavailable, type Adapter, type AdapterContext } from "./types";
 
 const API_HOST = "compute.googleapis.com";
 const DOC =
@@ -134,6 +134,8 @@ export function leadTimeDays(start: string | undefined, now: Date): number {
   return Math.max(0, Math.round((day(new Date(t)) - day(now)) / 86_400_000));
 }
 
+const GATED = /not available for this project/i;
+
 export function regionsByType(html: string): Map<string, string[]> {
   const out = new Map<string, Set<string>>();
   for (const row of gpuZoneRows(html)) {
@@ -235,6 +237,7 @@ export function makeAdapter(
       const client = clientFactory(serviceAccountJson);
       const token = await client.token();
       let calls = 0;
+      let gated = 0;
       for (const type of CALENDAR_TYPES) {
         for (const region of regions.get(type.sku) ?? []) {
           for (const count of PROBE_COUNTS) {
@@ -255,6 +258,11 @@ export function makeAdapter(
                 status: advice.status,
                 error: advice.error,
               });
+              // Google admits accounts to calendar mode one by one; a project outside it gets
+              // the same answer in every region, so four in a row with nothing accepted is the
+              // whole story.
+              if (GATED.test(advice.error) && ++gated >= 4 && result.signals === 0)
+                throw new ProbeUnavailable("calendar mode is not enabled for this project");
               continue;
             }
             const rec = advice.rec;

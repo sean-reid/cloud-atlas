@@ -63,7 +63,7 @@ export function Sources() {
                 const id = a.id;
                 const r = latest.get(id);
                 const ok = latestOk.get(id);
-                const waiting = !!r?.error?.startsWith("waiting for credentials");
+                const waiting = !!r?.error?.startsWith("waiting for ");
                 return (
                   <tr key={id}>
                     <td>
@@ -86,7 +86,13 @@ export function Sources() {
                               failed: {r.error}
                             </div>
                           )}
-                          {waiting && <div className="small faint">no account yet</div>}
+                          {waiting && (
+                            <div className="small faint">
+                              {r.error!.startsWith("waiting for credentials")
+                                ? "no account yet"
+                                : r.error!.replace("waiting for access: ", "")}
+                            </div>
+                          )}
                         </>
                       ) : (
                         <span className="faint">

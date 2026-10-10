@@ -225,6 +225,36 @@ describe("gcp calendar-mode lead times", () => {
     expect(store.fetchRuns.filter((r) => r.ok)).toHaveLength(1);
   });
 
+  test("a project outside calendar mode stops after four refusals and waits", async () => {
+    const calls: Call[] = [];
+    const gated: CalendarClientFactory = () => ({
+      token: async () => "fake-token",
+      post: async (url, token, body) => {
+        calls.push({ url, token, body });
+        return {
+          status: 400,
+          body: JSON.stringify({
+            error: {
+              code: 400,
+              message: "The service is not available for this project.",
+              status: "FAILED_PRECONDITION",
+            },
+          }),
+          retryAfter: null,
+        };
+      },
+    });
+    const { outcomes, store } = await run(gated);
+    expect(calls).toHaveLength(4);
+    expect(outcomes[0]!.ok).toBe(false);
+    expect(outcomes[0]!.skipped).toBe(true);
+    expect(outcomes[0]!.error).toBe(
+      "waiting for access: calendar mode is not enabled for this project",
+    );
+    expect(store.fetchRuns.at(-1)!.error).toMatch(/^waiting for access/);
+    expect(await signals()).toHaveLength(0);
+  });
+
   test("a second run in the same hour adds nothing", async () => {
     const first = await run(fakeClient([], []));
     expect(first.outcomes[0]!.result!.signals).toBeGreaterThan(0);
