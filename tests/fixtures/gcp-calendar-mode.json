@@ -1,0 +1,29 @@
+{
+  "recommendations": [
+    {
+      "recommendationsPerSpec": {
+        "spec": {
+          "recommendationId": "a21a2fa0-72c7-4105-8179-88de5409890b",
+          "recommendationType": "FUTURE_RESERVATION",
+          "startTime": "2026-10-09T00:00:00Z",
+          "endTime": "2026-10-10T00:00:00Z",
+          "otherLocations": {
+            "zones/us-central1-a": {
+              "status": "RECOMMENDED",
+              "details": "Recommendation in this zone is possible."
+            },
+            "zones/us-central1-c": {
+              "status": "NO_CAPACITY",
+              "details": "Temporarily no free capacity in this zone in the requested time window."
+            },
+            "zones/us-central1-f": {
+              "status": "NOT_SUPPORTED",
+              "details": "This machine family is not supported in this zone."
+            }
+          },
+          "location": "zones/us-central1-b"
+        }
+      }
+    }
+  ]
+}
