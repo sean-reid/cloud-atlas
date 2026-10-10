@@ -324,6 +324,36 @@ describe("csv import validation", () => {
 });
 
 describe("regions that appear after the seed run", () => {
+  test("regions imported from CSV before the first adapter run get no first-seen date", async () => {
+    const store = await Store.open(db, "live");
+    await ensureMethods(store);
+    const geo = loadGeo(DATA);
+    const ctx = {
+      store,
+      dataset: "live" as const,
+      now: fixedNow,
+      geo: geo.regions,
+      places: geo.places,
+      fetch: async () => {
+        throw new Error("no fetch");
+      },
+    };
+    await importCsv(ctx, join(DATA, "imports", "region-launches.csv"), "csv-import");
+    await store.flush();
+    expect([...store.entities.values()].some((e) => e.type === "region")).toBe(true);
+    const { store: after } = await runAdapters([adapterById("gcp-regions") as Adapter], {
+      db,
+      dataRoot: DATA,
+      dataset: "live",
+      cacheDir: cache,
+      now: fixedNow,
+      fetchDefaults: fast,
+      fetchImpl: fakeFetch(),
+    });
+    const dated = [...after.observations.values()].filter((o) => o.method_id === "first-seen.v1");
+    expect(dated).toHaveLength(0);
+  });
+
   test("a new region code gets a first-seen launch date; the seed run records none", async () => {
     const gcp = adapterById("gcp-regions") as Adapter;
     const first = await runAdapters([gcp], {
