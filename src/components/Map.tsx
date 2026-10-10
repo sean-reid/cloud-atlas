@@ -8,6 +8,7 @@ import type { Topology, GeometryCollection } from "topojson-specification";
 import { useLocation } from "wouter";
 import { providerBySlug, PROVIDERS } from "../../shared/providers";
 import { fmtMw, precisionLabel, statusLabel } from "../lib/format";
+import { escapeHtml } from "../lib/html";
 import type { SiteRow } from "../lib/types";
 
 export interface RegionMarker {
@@ -250,11 +251,10 @@ export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }
           Object.values(s.metrics)[0];
         const color = providerBySlug(s.provider_slug)?.color ?? "#1b1a17";
         const value = m?.value ?? null;
-        const tip = `<strong>${s.name}</strong><br>${providerBySlug(s.provider_slug)?.shortName ?? s.provider_slug} · ${
-          m
-            ? `${m.claim_type === "derived" ? "estimated " : ""}${metric.endsWith("_mw") || !s.metrics[metric] ? fmtMw(value) : String(value)}${m.status ? `, ${statusLabel[m.status]}` : ""}`
-            : "no figure"
-        }<br><span class="muted">${precisionLabel[s.location_precision]}</span>`;
+        const figure = m
+          ? `${m.claim_type === "derived" ? "estimated " : ""}${metric.endsWith("_mw") || !s.metrics[metric] ? fmtMw(value) : String(value)}${m.status ? `, ${statusLabel[m.status] ?? escapeHtml(m.status)}` : ""}`
+          : "no figure";
+        const tip = `<strong>${escapeHtml(s.name)}</strong><br>${escapeHtml(providerBySlug(s.provider_slug)?.shortName ?? s.provider_slug)} · ${figure}<br><span class="muted">${precisionLabel[s.location_precision] ?? escapeHtml(s.location_precision)}</span>`;
         return {
           type: "Feature",
           geometry: { type: "Point", coordinates: [s.lon as number, s.lat as number] },
@@ -289,9 +289,9 @@ export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }
                 stroke: r.level === "tight" ? 2 : 0,
               }
             : {}),
-          tip: `<strong>${r.name}</strong><br>${providerBySlug(r.provider_slug)?.shortName ?? r.provider_slug} region${r.code ? ` <span class="mono">${r.code}</span>` : ""}${
-            r.az_count ? `<br>${r.az_count} availability zones` : ""
-          }${r.opened ? `<br>opened ${r.opened}` : ""}<br><span class="muted">region centroid, not a facility</span>`,
+          tip: `<strong>${escapeHtml(r.name)}</strong><br>${escapeHtml(providerBySlug(r.provider_slug)?.shortName ?? r.provider_slug)} region${r.code ? ` <span class="mono">${escapeHtml(r.code)}</span>` : ""}${
+            r.az_count ? `<br>${escapeHtml(r.az_count)} availability zones` : ""
+          }${r.opened ? `<br>opened ${escapeHtml(r.opened)}` : ""}<br><span class="muted">region centroid, not a facility</span>`,
         },
       }));
     (map.getSource("regions") as maplibregl.GeoJSONSource).setData({
