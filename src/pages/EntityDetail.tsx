@@ -1,7 +1,7 @@
 import { Link, useParams } from "wouter";
 import { metricById } from "../../shared/metrics";
 import { providerBySlug } from "../../shared/providers";
-import type { Entity, Method, Observation, ReviewItem } from "../../shared/types";
+import type { Entity, Method, Observation } from "../../shared/types";
 import { countryName } from "../components/FilterBar";
 import { useApi } from "../lib/api";
 import { fmtAgo, fmtDate, fmtMetric, precisionLabel, statusLabel, tierLabel } from "../lib/format";
@@ -20,7 +20,6 @@ interface Detail {
   children: Entity[];
   metrics: Record<string, { selected: string | null; observations: Obs[] }>;
   methods: Method[];
-  review: ReviewItem[];
 }
 
 export function EntityDetail() {
@@ -124,10 +123,7 @@ export function EntityDetail() {
                   {group.observations.map((o) => {
                     const superseded = group.observations.some((x) => x.supersedes_id === o.id);
                     return (
-                      <tr
-                        key={o.id}
-                        style={{ opacity: superseded || o.review_status !== "accepted" ? 0.6 : 1 }}
-                      >
+                      <tr key={o.id} style={{ opacity: superseded ? 0.6 : 1 }}>
                         <td className="num">
                           {o.id === group.selected && (
                             <span title="selected for the dashboard">▸ </span>
@@ -150,9 +146,6 @@ export function EntityDetail() {
                           <div className="faint small">{tierLabel[o.tier]}</div>
                           {o.method_id && <div className="faint small">method {o.method_id}</div>}
                           {superseded && <div className="faint small">superseded</div>}
-                          {o.review_status !== "accepted" && (
-                            <div className="faint small">{o.review_status} review</div>
-                          )}
                         </td>
                         <td>
                           <a href={o.url} rel="noopener">
@@ -200,26 +193,6 @@ export function EntityDetail() {
               <p className="muted small">Assumptions: {m.assumptions}</p>
             </div>
           ))}
-        </section>
-      )}
-
-      {data.review.length > 0 && (
-        <section className="block">
-          <h2>Review notes</h2>
-          <ul>
-            {data.review.map((r) => (
-              <li key={r.id}>
-                {r.reason}
-                {r.resolved_at ? (
-                  <span className="muted"> · resolved: {r.resolution}</span>
-                ) : (
-                  <span className="tag" style={{ marginLeft: "0.4rem" }}>
-                    open
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
         </section>
       )}
     </>

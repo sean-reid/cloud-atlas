@@ -11,7 +11,6 @@ import type {
   FetchRun,
   Method,
   Observation,
-  ReviewItem,
   Source,
 } from "../shared/types";
 import { all, loadSites, one } from "./db";
@@ -382,7 +381,7 @@ const entityDetail: Handler = async (_req, env, _url, params) => {
   >(
     env.DB,
     `SELECT o.*, s.tier, s.publisher, s.title, s.url, s.published_date FROM observation o JOIN source s ON s.id = o.source_id
-     WHERE o.entity_id = ? ORDER BY o.metric, o.effective_date DESC, o.recorded_at DESC`,
+     WHERE o.entity_id = ? AND o.review_status = 'accepted' ORDER BY o.metric, o.effective_date DESC, o.recorded_at DESC`,
     [e.id],
   );
   const methodIds = [...new Set(obs.map((o) => o.method_id).filter((m): m is string => !!m))];
@@ -393,11 +392,6 @@ const entityDetail: Handler = async (_req, env, _url, params) => {
         methodIds,
       )
     : [];
-  const review = await all<ReviewItem>(
-    env.DB,
-    "SELECT * FROM review_item WHERE payload LIKE ? ORDER BY created_at DESC",
-    [`%${e.id}%`],
-  );
   const byMetric: Record<string, { selected: string | null; observations: typeof obs }> = {};
   for (const o of obs) {
     (byMetric[o.metric] ??= { selected: null, observations: [] }).observations.push(o);
@@ -406,7 +400,7 @@ const entityDetail: Handler = async (_req, env, _url, params) => {
     const sel = selectObservation(group.observations, null, "reconstructed");
     byMetric[metric]!.selected = sel?.pick.id ?? null;
   }
-  return json({ entity: e, ancestors: chain, children, metrics: byMetric, methods, review });
+  return json({ entity: e, ancestors: chain, children, metrics: byMetric, methods });
 };
 
 const providerDetail: Handler = async (_req, env, url, params) => {
@@ -498,11 +492,11 @@ const sources: Handler = async (_req, env) => {
     env.DB,
     "SELECT * FROM fetch_run ORDER BY started_at DESC LIMIT 300",
   );
-  const review = await all<ReviewItem>(
+  const open = await one<{ n: number }>(
     env.DB,
-    "SELECT * FROM review_item ORDER BY created_at DESC",
+    "SELECT COUNT(*) AS n FROM review_item WHERE resolved_at IS NULL",
   );
-  return json({ sources: list, runs, review });
+  return json({ sources: list, runs, review_open: open?.n ?? 0 });
 };
 
 // Levels are relative within one provider and SKU family at the latest observation hour,
@@ -912,7 +906,7 @@ const openapi: Handler = async (_req, _env, url) => {
       },
       "/entities/{id}": {
         get: {
-          summary: "One entity with every observation, source, method, and review item",
+          summary: "One entity with every accepted observation, its sources, and methods",
           parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
           responses: { "200": { description: "Entity" }, "404": { description: "Unknown id" } },
         },
@@ -933,7 +927,7 @@ const openapi: Handler = async (_req, _env, url) => {
       },
       "/sources": {
         get: {
-          summary: "Sources, fetch runs, and the review queue",
+          summary: "Sources, fetch runs, and the count of items awaiting review",
           responses: { "200": { description: "Sources" } },
         },
       },
