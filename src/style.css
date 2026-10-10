@@ -610,11 +610,25 @@ blockquote {
   font-style: italic;
   font-size: 0.92rem;
 }
-.table-scroll {
+.table-scroll,
+.ribbon-scroll {
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule) transparent;
 }
-.prose {
+.table-scroll::-webkit-scrollbar,
+.ribbon-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.table-scroll::-webkit-scrollbar-thumb,
+.ribbon-scroll::-webkit-scrollbar-thumb {
+  background: var(--rule);
+}
+.prose > * {
   max-width: 70ch;
+}
+.prose > .wide {
+  max-width: none;
 }
 .prose h2 {
   margin: 2rem 0 0.6rem;
@@ -631,6 +645,10 @@ blockquote {
 .matrix td,
 .matrix th {
   text-align: center;
+}
+.matrix th {
+  white-space: normal;
+  vertical-align: bottom;
 }
 .matrix td:first-child,
 .matrix th:first-child {
@@ -677,6 +695,13 @@ blockquote {
 .avail-grid .cell.rowhead {
   border: 0;
   border-bottom: 1px solid var(--rule-soft);
+}
+.avail-grid .cell.rowhead,
+.avail-grid .cell.head:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--paper);
 }
 .avail-grid .cell.mark-cell {
   justify-content: flex-start;
@@ -816,19 +841,9 @@ details.filters-drawer .filters {
   }
   nav.primary {
     width: 100%;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    gap: 1rem;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    margin-left: -0.25rem;
-    padding-left: 0.25rem;
-  }
-  nav.primary::-webkit-scrollbar {
-    display: none;
+    gap: 0 1.1rem;
   }
   nav.primary a {
-    white-space: nowrap;
     padding: 0.4rem 0;
   }
   main {
@@ -878,12 +893,10 @@ details.filters-drawer .filters {
     padding: 0.75rem 0;
     border-bottom: 1px solid var(--rule);
   }
+  /* The label floats into the cell's left padding, so several inline children share one line box */
   table.stack td {
     border: 0;
-    padding: 0.15rem 0;
-    display: grid;
-    grid-template-columns: 7.5rem 1fr;
-    gap: 0.75rem;
+    padding: 0.15rem 0 0.15rem 7.5rem;
     text-align: left;
   }
   table.stack td.num {
@@ -893,25 +906,40 @@ details.filters-drawer .filters {
   }
   table.stack td::before {
     content: attr(data-label);
+    float: left;
+    width: 7rem;
+    margin-left: -7.5rem;
+    padding-top: 0.2rem;
     font-size: 0.74rem;
+    line-height: 1.2;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--ink-soft);
-    padding-top: 0.2rem;
+  }
+  table.stack td::after {
+    content: "";
+    display: block;
+    clear: both;
   }
   table.stack td.lead-cell {
-    display: block;
+    padding-left: 0;
     font-size: 1.05rem;
     margin-bottom: 0.25rem;
   }
   table.stack td.lead-cell::before {
     display: none;
   }
+  table.stack td.full-cell {
+    padding-left: 0;
+  }
+  table.stack td.full-cell::before {
+    float: none;
+    display: block;
+    width: auto;
+    margin: 0 0 0.15rem;
+  }
   table.stack td:empty {
     display: none;
-  }
-  .table-scroll {
-    overflow: visible;
   }
   blockquote {
     font-size: 0.9rem;
@@ -964,7 +992,6 @@ details.filters-drawer .filters {
   margin-bottom: 0.5rem;
 }
 .ribbon-scroll {
-  overflow-x: auto;
   margin-top: 0.75rem;
 }
 .ribbon {
@@ -1001,13 +1028,17 @@ details.filters-drawer .filters {
 }
 .ribbon-head.day {
   position: relative;
-  height: 1.4rem;
+  height: 2.3rem;
 }
 .ribbon-head.day .tick {
   position: absolute;
   left: 50%;
   bottom: 0.3rem;
   transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
   font-family: var(--mono);
   letter-spacing: 0;
   text-transform: none;
@@ -1016,8 +1047,14 @@ details.filters-drawer .filters {
 .ribbon-head.day .tick.first {
   left: 0;
   transform: none;
+  align-items: flex-start;
 }
+/* The last column is narrow on phones; anchoring its tick right keeps the strip inside the scroller */
 .ribbon-head.day.today .tick {
+  left: auto;
+  right: 0;
+  transform: none;
+  align-items: flex-end;
   color: var(--ink);
 }
 .ribbon-head.day .month {

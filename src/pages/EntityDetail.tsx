@@ -119,7 +119,7 @@ export function EntityDetail() {
               )}
             </div>
             <div className="table-scroll">
-              <table>
+              <table className="stack">
                 <thead>
                   <tr>
                     <th className="num">Value</th>
@@ -136,7 +136,7 @@ export function EntityDetail() {
                     const superseded = group.observations.some((x) => x.supersedes_id === o.id);
                     return (
                       <tr key={o.id} style={{ opacity: superseded ? 0.6 : 1 }}>
-                        <td className="num">
+                        <td className="num lead-cell">
                           {selectedIds.has(o.id) && (
                             <span title={`selected for the dashboard as ${statusLabel[o.status]}`}>
                               ▸{" "}
@@ -147,21 +147,21 @@ export function EntityDetail() {
                             <div className="faint small">as written: {o.value_original}</div>
                           )}
                         </td>
-                        <td className={`status-${o.status}`}>
+                        <td className={`status-${o.status}`} data-label="Status">
                           {statusLabel[o.status]}
                           <div className="faint small">{o.scope.replace("_", " ")}</div>
                         </td>
-                        <td>
+                        <td data-label="Claim dated">
                           {fmtDate(o.effective_date)}
                           <div className="faint small">{o.effective_kind.replace("_", " ")}</div>
                         </td>
-                        <td>
+                        <td data-label="Evidence">
                           <span className={`tag ${o.claim_type}`}>{o.claim_type}</span>
                           <div className="faint small">{tierLabel[o.tier]}</div>
                           {o.method_id && <div className="faint small">method {o.method_id}</div>}
                           {superseded && <div className="faint small">superseded</div>}
                         </td>
-                        <td>
+                        <td data-label="Source">
                           <a href={o.url} rel="noopener">
                             {o.publisher}
                           </a>
@@ -170,13 +170,13 @@ export function EntityDetail() {
                             {o.published_date ? `, ${fmtDate(o.published_date)}` : ""}
                           </div>
                         </td>
-                        <td>
+                        <td data-label="Recorded">
                           <span title={o.recorded_at}>{fmtAgo(o.recorded_at)}</span>
                           <div className="faint small">
                             retrieved {fmtDate(o.retrieved_at.slice(0, 10))}
                           </div>
                         </td>
-                        <td style={{ minWidth: 260 }}>
+                        <td className="full-cell" data-label="Excerpt" style={{ minWidth: 260 }}>
                           {o.excerpt && <blockquote>{o.excerpt}</blockquote>}
                           {o.notes && (
                             <div className="small muted" style={{ marginTop: "0.3rem" }}>

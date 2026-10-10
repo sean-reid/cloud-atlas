@@ -90,7 +90,7 @@ export function ProviderDetail() {
         </div>
         {data.stated.length ? (
           <div className="table-scroll">
-            <table>
+            <table className="stack">
               <thead>
                 <tr>
                   <th>Metric</th>
@@ -105,22 +105,24 @@ export function ProviderDetail() {
               <tbody>
                 {data.stated.map((o) => (
                   <tr key={o.id}>
-                    <td>{metricById(o.metric)?.label ?? o.metric}</td>
-                    <td className="num">
+                    <td className="lead-cell">{metricById(o.metric)?.label ?? o.metric}</td>
+                    <td className="num" data-label="Value">
                       {fmtMetric(o.metric, o.value, o.value_low, o.value_high)}
                     </td>
-                    <td className={`status-${o.status}`}>{statusLabel[o.status]}</td>
-                    <td>{fmtDate(o.effective_date)}</td>
-                    <td>
+                    <td className={`status-${o.status}`} data-label="Status">
+                      {statusLabel[o.status]}
+                    </td>
+                    <td data-label="Claim dated">{fmtDate(o.effective_date)}</td>
+                    <td data-label="Evidence">
                       <span className={`tag ${o.claim_type}`}>{o.claim_type}</span>{" "}
                       <span className="faint small">{tierLabel[o.tier]}</span>
                     </td>
-                    <td>
+                    <td data-label="Source">
                       <a href={o.url} rel="noopener">
                         {o.publisher}
                       </a>
                     </td>
-                    <td style={{ minWidth: 240 }}>
+                    <td className="full-cell" data-label="Excerpt" style={{ minWidth: 240 }}>
                       {o.excerpt && <blockquote>{o.excerpt}</blockquote>}
                       {o.notes && <div className="small muted">{o.notes}</div>}
                     </td>

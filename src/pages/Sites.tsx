@@ -130,14 +130,14 @@ export function SitesTable({
                     {p?.shortName}
                   </td>
                 )}
-                <td>
+                <td data-label="Country">
                   {s.country_code ? (
                     countryName(s.country_code)
                   ) : (
                     <span className="faint">unknown</span>
                   )}
                 </td>
-                <td className={`status-${m?.status ?? "unknown"}`}>
+                <td className={`status-${m?.status ?? "unknown"}`} data-label="Status">
                   {m ? statusLabel[m.status] : "unknown"}
                 </td>
                 <td className="num" data-label="IT power">
@@ -171,7 +171,7 @@ export function SitesTable({
                     <span className="faint">unknown</span>
                   )}
                 </td>
-                <td>
+                <td data-label="Evidence">
                   {m && (
                     <span
                       className={`tag ${m.claim_type}`}
@@ -194,7 +194,10 @@ export function SitesTable({
                   )}
                 </td>
                 {!compact && (
-                  <td className={s.location_precision === "unknown" ? "faint" : ""}>
+                  <td
+                    className={s.location_precision === "unknown" ? "faint" : ""}
+                    data-label="Location"
+                  >
                     {precisionLabel[s.location_precision]}
                   </td>
                 )}
