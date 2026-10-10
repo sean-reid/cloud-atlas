@@ -2,6 +2,7 @@ import { POWER_METRICS } from "./metrics";
 import {
   groupByEntityMetric,
   selectObservation,
+  statusRank,
   type Candidate,
   type Selection,
   type TimeMode,
@@ -56,6 +57,19 @@ export function selectSites(
     if (selection) out.push({ entity, metric, selection });
   }
   return out;
+}
+
+// One pick per entity and metric for a table row: the operational figure when there is one,
+// else the earliest pipeline stage, so the row agrees with the totals above it.
+export function rowPicks(picks: readonly SitePick[]): SitePick[] {
+  const best = new Map<string, SitePick>();
+  for (const p of picks) {
+    const key = `${p.entity.id}|${p.metric}`;
+    const cur = best.get(key);
+    if (!cur || statusRank(p.selection.pick.status) < statusRank(cur.selection.pick.status))
+      best.set(key, p);
+  }
+  return [...best.values()];
 }
 
 function ancestors(entity: Entity, byId: Map<string, Entity>): Entity[] {

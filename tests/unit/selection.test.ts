@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { providerTotals, selectSites } from "../../shared/aggregate";
-import { selectObservation, type Candidate } from "../../shared/selection";
+import { providerTotals, rowPicks, selectSites } from "../../shared/aggregate";
+import { selectByStatus, selectObservation, type Candidate } from "../../shared/selection";
 import type { Entity } from "../../shared/types";
 
 const base: Candidate = {
@@ -173,6 +173,41 @@ describe("aggregation without double counting", () => {
     expect(t.facility_only_power_mw).toBe(0);
     expect(t.facility_only_sites).toBe(0);
     expect(t.pipeline_facility_only_power_mw.announced).toBe(80);
+  });
+  test("a site row carries the operational pick whatever order the rows arrive in", () => {
+    const rows = [
+      c({ id: "op", entity_id: "campus", value: 100, effective_date: "2025" }),
+      c({
+        id: "plan",
+        entity_id: "campus",
+        value: 900,
+        status: "announced",
+        effective_date: "2028",
+      }),
+      c({
+        id: "ofac",
+        entity_id: "other",
+        metric: "facility_power_mw",
+        value: 50,
+        status: "announced",
+      }),
+      c({
+        id: "ouc",
+        entity_id: "other",
+        metric: "facility_power_mw",
+        value: 60,
+        status: "under_construction",
+      }),
+    ];
+    for (const ordered of [rows, [...rows].reverse()]) {
+      const picks = selectSites(entities, ordered, null, "reconstructed");
+      expect(picks).toHaveLength(4);
+      const row = rowPicks(picks).map((p) => [p.entity.id, p.metric, p.selection.pick.id]);
+      expect(row).toHaveLength(2);
+      expect(row).toContainEqual(["campus", "it_power_mw", "op"]);
+      expect(row).toContainEqual(["other", "facility_power_mw", "ouc"]);
+      expect(providerTotals(entities, picks)[0]!.it_power_mw).toBe(100);
+    }
   });
   test("unknown is not zero: an entity without observations adds nothing and is not counted as a site", () => {
     const t = providerTotals(

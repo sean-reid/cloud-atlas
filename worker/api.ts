@@ -1,4 +1,4 @@
-import { providerTotals, selectSites, type SitePick } from "../shared/aggregate";
+import { providerTotals, rowPicks, selectSites, type SitePick } from "../shared/aggregate";
 import { dateFloor, daysBetween } from "../shared/dates";
 import { METRICS } from "../shared/metrics";
 import { PROVIDERS } from "../shared/providers";
@@ -94,7 +94,7 @@ function siteRows(entities: Entity[], picks: SitePick[], rows: Candidate[], now:
     counts.set(r.entity_id, c);
   }
   const today = now.toISOString().slice(0, 10);
-  for (const p of picks) {
+  for (const p of rowPicks(picks)) {
     const e = p.entity;
     let row = byEntity.get(e.id);
     if (!row) {
