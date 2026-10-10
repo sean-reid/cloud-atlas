@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Uocm:US-ASHBURN-AD-1",
+    "id": "ocid1.availabilitydomain.oc1..aaaaaaaafixturead1",
+    "compartmentId": "ocid1.tenancy.oc1..aaaaaaaafixturetenancy"
+  },
+  {
+    "name": "Uocm:US-ASHBURN-AD-2",
+    "id": "ocid1.availabilitydomain.oc1..aaaaaaaafixturead2",
+    "compartmentId": "ocid1.tenancy.oc1..aaaaaaaafixturetenancy"
+  }
+]

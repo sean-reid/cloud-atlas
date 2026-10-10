@@ -105,6 +105,16 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
       "Days until Compute Engine can start a 24-hour block of 1 or 8 A3 or A4 GPU VMs per region, from the calendar-mode advice API.",
     credentials: ["GCP_PROJECT", "GCP_SERVICE_ACCOUNT_JSON"],
   },
+  {
+    id: "oci-capacity-report",
+    title: "Oracle Cloud capacity reports",
+    publisher: "Oracle",
+    mode: "automated",
+    schedule: "hourly",
+    measures:
+      "Capacity report verdict per GPU shape and availability domain across the tenancy's subscribed regions.",
+    credentials: ["OCI_TENANCY", "OCI_USER", "OCI_FINGERPRINT", "OCI_PRIVATE_KEY", "OCI_REGION"],
+  },
 ];
 
 export const adapterMeta = (id: string): AdapterMeta | undefined =>

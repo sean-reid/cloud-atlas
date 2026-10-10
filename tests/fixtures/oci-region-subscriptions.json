@@ -1,0 +1,20 @@
+[
+  {
+    "regionKey": "IAD",
+    "regionName": "us-ashburn-1",
+    "status": "READY",
+    "isHomeRegion": true
+  },
+  {
+    "regionKey": "PHX",
+    "regionName": "us-phoenix-1",
+    "status": "READY",
+    "isHomeRegion": false
+  },
+  {
+    "regionKey": "FRA",
+    "regionName": "eu-frankfurt-1",
+    "status": "IN_PROGRESS",
+    "isHomeRegion": false
+  }
+]

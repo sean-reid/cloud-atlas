@@ -275,10 +275,6 @@ export function Availability() {
             </li>
           ))}
           <li>
-            Oracle Cloud publishes a capacity report per shape and availability domain, but only to
-            an account.
-          </li>
-          <li>
             Alibaba Cloud and Tencent Cloud return sold-out status per instance type and zone, but
             only to an account.
           </li>
