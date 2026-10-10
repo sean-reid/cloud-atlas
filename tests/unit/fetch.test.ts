@@ -92,6 +92,59 @@ describe("safeFetch", () => {
     });
   });
 
+  test("follows a redirect inside the allow-list and keeps the original cache key", async () => {
+    dir = mkdtempSync(join(tmpdir(), "ca-fetch-"));
+    const f = fakeFetch([
+      { status: 301, headers: { location: "https://cdn.example.com/moved" } },
+      { status: 302, headers: { location: "/final" } },
+      { status: 200, body: "landed", headers: { etag: '"z"' } },
+      { status: 304 },
+    ]);
+    const res = await safeFetch("https://example.com/start", base(dir, f.impl));
+    expect(res.body).toBe("landed");
+    expect(res.url).toBe("https://example.com/start");
+    expect(f.calls.map((c) => c.url)).toEqual([
+      "https://example.com/start",
+      "https://cdn.example.com/moved",
+      "https://cdn.example.com/final",
+    ]);
+    const again = await safeFetch("https://example.com/start", base(dir, f.impl));
+    expect(again.fromCache).toBe(true);
+    expect(f.calls[3]?.headers["if-none-match"]).toBe('"z"');
+  });
+
+  test("refuses a redirect to a host outside the allow-list without retrying", async () => {
+    dir = mkdtempSync(join(tmpdir(), "ca-fetch-"));
+    const f = fakeFetch([
+      { status: 302, headers: { location: "https://evil.example.org/steal" } },
+      { status: 200, body: "never read" },
+    ]);
+    await expect(safeFetch("https://example.com/r", base(dir, f.impl))).rejects.toMatchObject({
+      status: 302,
+      message: /redirect refused: host evil.example.org is not allowed/,
+    });
+    expect(f.calls.length).toBe(1);
+  });
+
+  test("refuses a redirect that downgrades to http", async () => {
+    dir = mkdtempSync(join(tmpdir(), "ca-fetch-"));
+    const f = fakeFetch([{ status: 307, headers: { location: "http://example.com/plain" } }]);
+    await expect(safeFetch("https://example.com/r", base(dir, f.impl))).rejects.toMatchObject({
+      message: /redirect refused: refusing non-https/,
+    });
+    expect(f.calls.length).toBe(1);
+  });
+
+  test("gives up after five redirect hops", async () => {
+    dir = mkdtempSync(join(tmpdir(), "ca-fetch-"));
+    const hop = (n: number) => ({ status: 302, headers: { location: `https://example.com/${n}` } });
+    const f = fakeFetch([hop(1), hop(2), hop(3), hop(4), hop(5), hop(6), { status: 200 }]);
+    await expect(safeFetch("https://example.com/0", base(dir, f.impl))).rejects.toMatchObject({
+      message: /more than 5 redirects/,
+    });
+    expect(f.calls.length).toBe(6);
+  });
+
   test("a 404 is not retried", async () => {
     dir = mkdtempSync(join(tmpdir(), "ca-fetch-"));
     const f = fakeFetch([{ status: 404 }]);

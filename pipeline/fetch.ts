@@ -90,6 +90,9 @@ export function retryDelayMs(attempt: number, retryAfter: string | null): number
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+const MAX_REDIRECTS = 5;
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+
 export async function safeFetch(url: string, opts: FetchOptions): Promise<FetchResult> {
   const u = assertAllowed(url, opts.allowHosts);
   const now = opts.now ?? (() => new Date());
@@ -117,7 +120,36 @@ export async function safeFetch(url: string, opts: FetchOptions): Promise<FetchR
       };
       if (cached?.etag) headers["if-none-match"] = cached.etag;
       if (cached?.lastModified) headers["if-modified-since"] = cached.lastModified;
-      const res = await doFetch(u, { headers, signal: controller.signal, redirect: "follow" });
+      // Redirects are followed by hand so every hop passes the same host check as the first.
+      let target = u;
+      let hops = 0;
+      let res = await doFetch(target, { headers, signal: controller.signal, redirect: "manual" });
+      while (REDIRECT_STATUSES.has(res.status)) {
+        const location = res.headers.get("location");
+        const finishedAt = now().toISOString();
+        if (!location)
+          throw new FetchError(
+            `http ${res.status} without a location`,
+            res.status,
+            startedAt,
+            finishedAt,
+          );
+        if (++hops > MAX_REDIRECTS)
+          throw new FetchError(
+            `more than ${MAX_REDIRECTS} redirects`,
+            res.status,
+            startedAt,
+            finishedAt,
+          );
+        try {
+          target = assertAllowed(new URL(location, target).toString(), opts.allowHosts);
+        } catch (err) {
+          const why = err instanceof Error ? err.message : String(err);
+          throw new FetchError(`redirect refused: ${why}`, res.status, startedAt, finishedAt);
+        }
+        log("info", "fetch.redirect", { adapter: opts.adapter, url, to: target.toString() });
+        res = await doFetch(target, { headers, signal: controller.signal, redirect: "manual" });
+      }
       clearTimeout(timer);
       if (res.status === 304 && cached) {
         log("info", "fetch.not_modified", { adapter: opts.adapter, url });
