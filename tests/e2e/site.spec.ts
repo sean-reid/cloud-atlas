@@ -201,6 +201,15 @@ test("availability history answers per day and per hour", async ({ request }) =>
   ).json();
   expect(history.days.length).toBeGreaterThan(0);
   expect(history.series[0].days[0]).toHaveProperty("level");
+  // The seed holds one hour, so the ribbon's latest day must read as the latest view does.
+  for (const entry of latest.providers[provider].families[family]) {
+    const s = history.series.find(
+      (x: { region_code: string; sku: string }) =>
+        x.region_code === entry.region_code && x.sku === entry.sku,
+    );
+    expect(s, `${entry.region_code} ${entry.sku}`).toBeTruthy();
+    expect(s.days.at(-1).level, `${entry.region_code} ${entry.sku}`).toBe(entry.level);
+  }
   const first = history.series[0];
   const series = await (
     await request.get(

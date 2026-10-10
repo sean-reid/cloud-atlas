@@ -3,9 +3,12 @@ import { dateFloor, daysBetween } from "../shared/dates";
 import { METRICS } from "../shared/metrics";
 import { PROVIDERS } from "../shared/providers";
 import {
-  dayCells,
+  HISTORY_DAY_SQL,
+  historyCells,
   levelFor,
   mergeReading,
+  spotTerciles,
+  type HistoryRow,
   type Level,
   type Readings,
 } from "../shared/availability";
@@ -561,12 +564,9 @@ const availability: Handler = async (_req, env, url) => {
     const byFamily = new Map<string, AvailabilitySignal[]>();
     for (const r of rows) byFamily.set(r.sku_family, [...(byFamily.get(r.sku_family) ?? []), r]);
     for (const [family, list] of byFamily) {
-      const ratios = list
-        .filter((r) => r.signal === "spot_ratio")
-        .map((r) => r.value)
-        .sort((a, b) => a - b);
-      const q = (p: number) => ratios[Math.min(ratios.length - 1, Math.floor(p * ratios.length))];
-      const terciles = ratios.length ? { q33: q(0.33)!, q66: q(0.66)! } : null;
+      const terciles = spotTerciles(
+        list.filter((r) => r.signal === "spot_ratio").map((r) => r.value),
+      );
       const byRegion = new Map<
         string,
         { region_code: string; sku: string; offered: boolean; signals: Readings; level: Level }
@@ -627,53 +627,18 @@ const availabilityHistory: Handler = async (_req, env, url) => {
     });
   const days = intParam(url.searchParams, "days", 30, 1, 180);
   const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
-  const rows = await all<{
-    region_code: string;
-    sku: string;
-    signal: AvailabilitySignal["signal"];
-    day: string;
-    min: number;
-    max: number;
-    samples: number;
-    detail: string | null;
-  }>(
+  const rows = await all<Omit<HistoryRow, "detail"> & { detail: string | null }>(
     env.DB,
-    `SELECT region_code, sku, signal, substr(observed_at, 1, 10) AS day, MIN(value) AS min, MAX(value) AS max, COUNT(*) AS samples, MAX(detail) AS detail
-     FROM availability_signal WHERE provider_slug = ? AND sku_family = ? AND observed_at >= ?
-     GROUP BY region_code, sku, signal, day ORDER BY region_code, sku, day`,
+    HISTORY_DAY_SQL,
     [provider, family, since],
   );
-  const ratios = rows
-    .filter((r) => r.signal === "spot_ratio")
-    .map((r) => r.max)
-    .sort((a, b) => a - b);
-  const q = (p: number) => ratios[Math.min(ratios.length - 1, Math.floor(p * ratios.length))];
-  const terciles = ratios.length ? { q33: q(0.33)!, q66: q(0.66)! } : null;
-  const grouped = new Map<string, typeof rows>();
-  for (const r of rows)
-    grouped.set(`${r.region_code}|${r.sku}`, [
-      ...(grouped.get(`${r.region_code}|${r.sku}`) ?? []),
-      r,
-    ]);
+  const series = historyCells(
+    rows.map((r) => ({
+      ...r,
+      detail: r.detail ? (JSON.parse(r.detail) as Record<string, unknown>) : null,
+    })),
+  );
   const allDays = [...new Set(rows.map((r) => r.day))].sort();
-  const series = [...grouped.entries()].map(([key, list]) => {
-    const [region_code, sku] = key.split("|") as [string, string];
-    return {
-      region_code,
-      sku,
-      days: dayCells(
-        list.map((r) => ({
-          day: r.day,
-          signal: r.signal,
-          min: r.min,
-          max: r.max,
-          samples: r.samples,
-          detail: r.detail ? (JSON.parse(r.detail) as Record<string, unknown>) : null,
-        })),
-        terciles,
-      ),
-    };
-  });
   return json({ provider, family, since, days: allDays, series });
 };
 
