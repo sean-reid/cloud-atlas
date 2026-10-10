@@ -200,8 +200,9 @@ export function Methodology() {
           supplier-operated and flagged in notes.
         </li>
         <li>
-          Availability probes needing credentials (AWS placement scores, Oracle capacity reports,
-          Alibaba and Tencent sold-out flags) are designed but not yet live.
+          The AWS placement score and Capacity Block probe runs only once read-only account keys are
+          set. The Oracle capacity report and Alibaba and Tencent sold-out probes are designed but
+          not yet written.
         </li>
         <li>The metrics tracked here: {METRICS.map((m) => m.label.toLowerCase()).join("; ")}.</li>
       </ul>
