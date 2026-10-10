@@ -1,6 +1,7 @@
 import { createSign } from "node:crypto";
 import { stableId } from "../../shared/ids";
-import { ensureSource } from "../entities";
+import { ensureSource, providerEntity } from "../entities";
+import { ensureRegion } from "../regions";
 import { log } from "../log";
 import {
   DEFAULT_RETRY,
@@ -169,6 +170,24 @@ export function makeAdapter(
         `https://identity.${creds.region}.oci.oraclecloud.com/${API_VERSION}/tenancies/${creds.tenancy}/regionSubscriptions`,
       );
       const regions = subs.filter((s) => s.status === "READY").map((s) => s.regionName);
+      const parent = await providerEntity(
+        ctx.store,
+        "oracle",
+        "Oracle Cloud Infrastructure",
+        ctx.dataset,
+      );
+      for (const code of regions) {
+        const placed = await ensureRegion(ctx, this, {
+          provider: "oracle",
+          code,
+          name: null,
+          parent,
+          source,
+        });
+        result.entities++;
+        result.observations += placed.observations;
+        result.review += placed.review;
+      }
       let failed = 0;
       for (const region of regions) {
         try {

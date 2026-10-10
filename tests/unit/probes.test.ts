@@ -208,6 +208,13 @@ describe("oci-capacity-report", () => {
     expect(rows.every((r) => r.signal === "capacity_report" && r.provider_slug === "oracle")).toBe(
       true,
     );
+    const regions = (await db.query(
+      "SELECT code, locality, lat FROM entity WHERE type = 'region' AND provider_slug = 'oracle' ORDER BY code",
+    )) as { code: string; locality: string; lat: number }[];
+    expect(regions).toEqual([
+      { code: "us-ashburn-1", locality: "Ashburn", lat: 39.04 },
+      { code: "us-phoenix-1", locality: "Phoenix", lat: 33.45 },
+    ]);
     expect(new Set(rows.map((r) => r.region_code))).toEqual(
       new Set(["us-ashburn-1", "us-phoenix-1"]),
     );
@@ -346,6 +353,20 @@ describe("alibaba-available-resource", () => {
       true,
     );
     expect(acsSellValue("Limited")).toBe(0.5);
+    const regions = (await db.query(
+      "SELECT code, name, lat, lon, country_code FROM entity WHERE type = 'region' AND provider_slug = 'alibaba' ORDER BY code",
+    )) as { code: string; name: string; lat: number; lon: number; country_code: string }[];
+    expect(regions).toEqual([
+      { code: "ap-southeast-1", name: "Singapore", lat: 1.35, lon: 103.82, country_code: "SG" },
+      {
+        code: "cn-hangzhou",
+        name: "China (Hangzhou)",
+        lat: 30.27,
+        lon: 120.15,
+        country_code: "CN",
+      },
+    ]);
+    expect(outcomes[0]!.result!.entities).toBe(2);
   });
 
   test("a second run in the same hour adds nothing", async () => {
