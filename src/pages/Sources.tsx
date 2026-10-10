@@ -86,7 +86,7 @@ export function Sources() {
                               failed: {r.error}
                             </div>
                           )}
-                          {waiting && <div className="small faint">{r.error}</div>}
+                          {waiting && <div className="small faint">no account yet</div>}
                         </>
                       ) : (
                         <span className="faint">

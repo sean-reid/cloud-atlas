@@ -276,9 +276,7 @@ describe("aws-ec2-probes", () => {
     const { outcomes, store } = await run(fakeEc2(calls));
     expect(outcomes[0]!.ok).toBe(false);
     expect(outcomes[0]!.skipped).toBe(true);
-    expect(outcomes[0]!.error).toBe(
-      "waiting for credentials: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY",
-    );
+    expect(outcomes[0]!.error).toBe("waiting for credentials");
     expect(store.fetchRuns.at(-1)!.error).toMatch(/^waiting for credentials/);
     expect(store.signalIds.size).toBe(0);
     expect(calls).toHaveLength(0);

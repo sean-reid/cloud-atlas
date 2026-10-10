@@ -251,11 +251,11 @@ describe("gcp calendar-mode lead times", () => {
     const keys: string[] = [];
     const { outcomes, store } = await run(fakeClient([], keys));
     expect(outcomes[0]!.skipped).toBe(true);
-    expect(outcomes[0]!.error).toBe("waiting for credentials: GCP_PROJECT");
+    expect(outcomes[0]!.error).toBe("waiting for credentials");
     expect(keys).toHaveLength(0);
     expect(store.fetchRuns).toHaveLength(1);
     expect(store.fetchRuns[0]!.ok).toBe(false);
-    expect(store.fetchRuns[0]!.error).toBe("waiting for credentials: GCP_PROJECT");
+    expect(store.fetchRuns[0]!.error).toBe("waiting for credentials");
     expect(await signals()).toHaveLength(0);
   });
 });

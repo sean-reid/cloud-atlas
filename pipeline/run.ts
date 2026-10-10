@@ -53,7 +53,8 @@ export async function runAdapters(
     const startedAt = now().toISOString();
     const missing = missingCredentials(adapter);
     if (missing.length) {
-      // Not a failure: the probe waits until the account exists. The sources page shows it as waiting.
+      // Not a failure: the probe waits until the account exists. The sources page shows it as
+      // waiting; the variable names stay in the log and out of the public record.
       await store.appendFetchRun({
         adapter: adapter.id,
         url: adapter.url,
@@ -64,14 +65,14 @@ export async function runAdapters(
         content_hash: null,
         changed: false,
         observations: 0,
-        error: `waiting for credentials: ${missing.join(", ")}`,
+        error: "waiting for credentials",
       });
       outcomes.push({
         adapter: adapter.id,
         ok: false,
         skipped: true,
         result: null,
-        error: `waiting for credentials: ${missing.join(", ")}`,
+        error: "waiting for credentials",
       });
       log("info", "adapter.skipped", { adapter: adapter.id, missing: missing.join(",") });
       await store.flush();

@@ -1,3 +1,6 @@
+import type { ProviderSlug } from "./providers";
+import type { AvailabilitySignalKind } from "./types";
+
 export type IngestMode = "automated" | "manual_review" | "unsupported";
 export type Schedule = "hourly" | "daily" | "weekly" | "manual";
 
@@ -9,6 +12,8 @@ export interface AdapterMeta {
   schedule: Schedule;
   measures: string;
   credentials?: readonly string[];
+  provider?: ProviderSlug;
+  signals?: readonly AvailabilitySignalKind[];
 }
 
 // One list for the pipeline, the sources page, and the methodology page. An adapter that
@@ -94,6 +99,8 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
     measures:
       "Spot placement score per instance type and region for 8 and 64 units, and days until the earliest 24 hour Capacity Block for p5.48xlarge and p5en.48xlarge.",
     credentials: ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"],
+    provider: "aws",
+    signals: ["placement_score", "lead_time_days"],
   },
   {
     id: "gcp-calendar-mode",
@@ -104,6 +111,8 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
     measures:
       "Days until Compute Engine can start a 24-hour block of 1 or 8 A3 or A4 GPU VMs per region, from the calendar-mode advice API.",
     credentials: ["GCP_PROJECT", "GCP_SERVICE_ACCOUNT_JSON"],
+    provider: "gcp",
+    signals: ["lead_time_days"],
   },
   {
     id: "oci-capacity-report",
@@ -114,6 +123,8 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
     measures:
       "Capacity report verdict per GPU shape and availability domain across the tenancy's subscribed regions.",
     credentials: ["OCI_TENANCY", "OCI_USER", "OCI_FINGERPRINT", "OCI_PRIVATE_KEY", "OCI_REGION"],
+    provider: "oracle",
+    signals: ["capacity_report"],
   },
   {
     id: "alibaba-available-resource",
@@ -123,6 +134,8 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
     schedule: "hourly",
     measures: "Sell status per GPU instance type and zone from the ECS available resource check.",
     credentials: ["ALIBABA_ACCESS_KEY_ID", "ALIBABA_ACCESS_KEY_SECRET"],
+    provider: "alibaba",
+    signals: ["sell_status"],
   },
   {
     id: "tencent-zone-config",
@@ -132,6 +145,8 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
     schedule: "hourly",
     measures: "Sell status per GPU instance type and zone from the CVM zone configuration listing.",
     credentials: ["TENCENT_SECRET_ID", "TENCENT_SECRET_KEY"],
+    provider: "tencent",
+    signals: ["sell_status"],
   },
 ];
 
