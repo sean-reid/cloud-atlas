@@ -3,7 +3,13 @@ import { dateFloor, daysBetween } from "../shared/dates";
 import { parseFilters } from "../shared/filters";
 import { METRICS } from "../shared/metrics";
 import { PROVIDERS } from "../shared/providers";
-import { dayCells, levelFor, type Level, type Readings } from "../shared/availability";
+import {
+  dayCells,
+  levelFor,
+  mergeReading,
+  type Level,
+  type Readings,
+} from "../shared/availability";
 import { selectObservation, type Candidate } from "../shared/selection";
 import type {
   AvailabilitySignal,
@@ -572,19 +578,11 @@ const availability: Handler = async (_req, env, url) => {
             baseline: null,
           };
         } else {
-          // Probes that ask for several sizes land as one row each; the smallest ask is what most buyers feel.
-          const prev = entry.signals[r.signal];
-          const askOf = (d: Record<string, unknown> | null | undefined) =>
-            Number(d?.target_capacity ?? d?.instance_count ?? Infinity);
-          const prevAsk = askOf(prev?.detail as Record<string, unknown> | null);
-          const ask = askOf(detail);
-          if (!prev || ask < prevAsk) {
-            entry.signals[r.signal] = {
-              value: r.value,
-              detail,
-              baseline: base.get(`${r.region_code}|${r.sku}|${r.signal}`) ?? null,
-            };
-          }
+          entry.signals[r.signal] = mergeReading(
+            entry.signals[r.signal],
+            { signal: r.signal, value: r.value, detail, zone_code: r.zone_code },
+            base.get(`${r.region_code}|${r.sku}|${r.signal}`) ?? null,
+          );
         }
         byRegion.set(key, entry);
       }

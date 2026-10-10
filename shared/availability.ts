@@ -67,18 +67,26 @@ export function levelFor(r: Readings, spotTerciles: { q33: number; q66: number }
   return "unknown";
 }
 
+// A verdict folded from several zones names the zone it came from and how many were asked.
+const zoned = (text: string, r: SignalReading): string =>
+  typeof r.detail?.zones === "number" && r.detail.zones > 1
+    ? `${text} in ${String(r.detail.zone)}, ${r.detail.zones} zones`
+    : text;
+
 // The provider's own number behind a level, for the cell text and tooltips.
 export function measureFor(r: Readings): string {
   if (r.capacity_report)
-    return r.capacity_report.value >= 1
-      ? "capacity available"
-      : String(r.capacity_report.detail?.status ?? "out of host capacity");
+    return zoned(
+      r.capacity_report.value >= 1
+        ? "capacity available"
+        : String(r.capacity_report.detail?.status ?? "out of host capacity"),
+      r.capacity_report,
+    );
   if (r.sell_status)
-    return r.sell_status.value >= 1
-      ? "in stock"
-      : r.sell_status.value > 0
-        ? "low stock"
-        : "sold out";
+    return zoned(
+      r.sell_status.value >= 1 ? "in stock" : r.sell_status.value > 0 ? "low stock" : "sold out",
+      r.sell_status,
+    );
   if (r.placement_score) return `score ${r.placement_score.value}/10`;
   if (r.lead_time_days) {
     const d = r.lead_time_days.value;
@@ -121,6 +129,43 @@ export const HIGHER_IS_WORSE = new Set<AvailabilitySignalKind>([
 
 export function worstOfDay(signal: AvailabilitySignalKind, min: number, max: number): number {
   return HIGHER_IS_WORSE.has(signal) ? max : min;
+}
+
+const askOf = (d: Record<string, unknown> | null | undefined): number =>
+  Number(d?.target_capacity ?? d?.instance_count ?? Infinity);
+
+// Folds one more row for a region and SKU into the reading shown for it. Probes that ask for
+// several sizes land as one row each, and the smallest ask is what most buyers feel; zone
+// verdicts at the same ask collapse to the worst zone, carrying the zone count.
+export function mergeReading(
+  prev: SignalReading | undefined,
+  next: {
+    signal: AvailabilitySignalKind;
+    value: number;
+    detail: Record<string, unknown> | null;
+    zone_code: string | null;
+  },
+  baseline: number | null,
+): SignalReading {
+  const zones =
+    (typeof prev?.detail?.zones === "number" ? (prev.detail.zones as number) : 0) +
+    (next.zone_code ? 1 : 0);
+  const ask = askOf(next.detail);
+  const prevAsk = askOf(prev?.detail);
+  const worse =
+    !!prev &&
+    ask === prevAsk &&
+    (HIGHER_IS_WORSE.has(next.signal) ? next.value > prev.value : next.value < prev.value);
+  if (!prev || ask < prevAsk || worse)
+    return {
+      value: next.value,
+      detail: {
+        ...(next.detail ?? {}),
+        ...(next.zone_code ? { zone: next.zone_code, zones } : {}),
+      },
+      baseline,
+    };
+  return next.zone_code ? { ...prev, detail: { ...(prev.detail ?? {}), zones } } : prev;
 }
 
 export interface DayCell {
