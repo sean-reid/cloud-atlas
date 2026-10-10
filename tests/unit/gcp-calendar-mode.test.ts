@@ -7,11 +7,13 @@ import {
   leadTimeDays,
   makeAdapter,
   regionsByType,
+  regionsFromSignals,
   type AdviceRequest,
   type AdviceResponse,
   type CalendarClientFactory,
 } from "../../pipeline/adapters/gcp-calendar-mode";
 import type { SqliteDb } from "../../pipeline/db";
+import { gcpGpuZones } from "../../pipeline/adapters/gcp-gpu-zones";
 import { fixtureFetch } from "../../pipeline/fixtures";
 import { runAdapters } from "../../pipeline/run";
 import type { AvailabilitySignal } from "../../shared/types";
@@ -125,6 +127,37 @@ describe("gcp calendar-mode lead times", () => {
     ]);
     expect(regions.get("a3-highgpu-8g")).toContain("asia-east1");
     expect(regions.get("a3-megagpu-8g")).toContain("us-west1");
+  });
+
+  test("without the zones table, regions come from recent GPU zone signals", async () => {
+    expect((await regionsFromSignals(db, fixedNow())).size).toBe(0);
+    await runAdapters([gcpGpuZones], {
+      db,
+      dataRoot: DATA,
+      dataset: "live",
+      cacheDir: cache,
+      now: fixedNow,
+      fetchDefaults: fast,
+      fetchImpl: fixtureFetch(FIX),
+    });
+    expect(await regionsFromSignals(db, fixedNow())).toEqual(regionsByType(zonesPage));
+
+    const calls: Call[] = [];
+    const blank = async () => new Response("<html><body>moved</body></html>", { status: 200 });
+    const { outcomes } = await runAdapters(
+      [makeAdapter(fakeClient(calls, []), { gapMs: 0, sleep: async () => {} })],
+      {
+        db,
+        dataRoot: DATA,
+        dataset: "live",
+        cacheDir: cache,
+        now: fixedNow,
+        fetchDefaults: fast,
+        fetchImpl: blank as unknown as typeof fetch,
+      },
+    );
+    expect(outcomes[0]!.ok, outcomes[0]!.error ?? "").toBe(true);
+    expect(calls.length).toBeGreaterThan(0);
   });
 
   test("the request matches the documented calendarMode body", () => {
