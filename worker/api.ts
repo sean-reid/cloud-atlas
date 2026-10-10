@@ -1,6 +1,5 @@
 import { providerTotals, selectSites, type SitePick } from "../shared/aggregate";
 import { dateFloor, daysBetween } from "../shared/dates";
-import { parseFilters } from "../shared/filters";
 import { METRICS } from "../shared/metrics";
 import { PROVIDERS } from "../shared/providers";
 import {
@@ -20,6 +19,7 @@ import type {
   Source,
 } from "../shared/types";
 import { all, loadSites, one, placeholders } from "./db";
+import { BadRequest, intParam, queryFilters } from "./params";
 
 export interface Env {
   DB: D1Database;
@@ -179,7 +179,7 @@ const meta: Handler = async (_req, env) => {
 };
 
 const summary: Handler = async (_req, env, url) => {
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   const { entities, rows } = await loadSites(env.DB, f);
   const picks = selectSites(entities, rows, f.asof || null, f.mode);
   const totals = providerTotals(entities, picks);
@@ -233,14 +233,14 @@ const summary: Handler = async (_req, env, url) => {
 };
 
 const sites: Handler = async (_req, env, url) => {
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   const { entities, rows } = await loadSites(env.DB, f);
   const picks = selectSites(entities, rows, f.asof || null, f.mode);
   return json({ filters: f, sites: siteRows(entities, picks, rows, new Date()) });
 };
 
 const regions: Handler = async (_req, env, url) => {
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   const where = ["e.dataset = ?", "e.type = 'region'"];
   const params: unknown[] = [f.demo ? "demo" : "live"];
   if (f.providers.length) {
@@ -312,7 +312,7 @@ interface SeriesPoint {
 // recorded by then; "reconstructed" uses the dates the claims describe. The per-step site
 // difference separates newly tracked sites from revisions of sites already tracked.
 const timeseries: Handler = async (_req, env, url) => {
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   const { entities, rows } = await loadSites(env.DB, f);
   if (!rows.length) return json({ filters: f, series: {} });
   const dates = rows.map((r) =>
@@ -414,7 +414,7 @@ const entityDetail: Handler = async (_req, env, _url, params) => {
 const providerDetail: Handler = async (_req, env, url, params) => {
   const provider = PROVIDERS.find((p) => p.slug === params.slug);
   if (!provider) return notFound();
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   f.providers = [provider.slug];
   const { entities, rows } = await loadSites(env.DB, f);
   const picks = selectSites(entities, rows, f.asof || null, f.mode);
@@ -447,7 +447,7 @@ const providerDetail: Handler = async (_req, env, url, params) => {
 };
 
 const feed: Handler = async (_req, env, url) => {
-  const limit = Math.min(Number(url.searchParams.get("limit") ?? 40), 200);
+  const limit = intParam(url.searchParams, "limit", 40, 1, 200);
   const rows = await all<
     Observation & {
       tier: number;
@@ -607,7 +607,7 @@ const availabilityHistory: Handler = async (_req, env, url) => {
     return json({ error: "provider and family are required" }, 400, {
       "cache-control": "no-store",
     });
-  const days = Math.min(Math.max(Number(url.searchParams.get("days") ?? 30), 1), 180);
+  const days = intParam(url.searchParams, "days", 30, 1, 180);
   const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
   const rows = await all<{
     region_code: string;
@@ -668,7 +668,7 @@ const availabilitySeries: Handler = async (_req, env, url) => {
     return json({ error: "provider, region, and sku are required" }, 400, {
       "cache-control": "no-store",
     });
-  const days = Math.min(Math.max(Number(url.searchParams.get("days") ?? 30), 1), 180);
+  const days = intParam(url.searchParams, "days", 30, 1, 180);
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
   const rows = await all<{
     signal: string;
@@ -689,7 +689,7 @@ const availabilitySeries: Handler = async (_req, env, url) => {
 };
 
 const exportCsv: Handler = async (_req, env, url) => {
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   const { entities, rows } = await loadSites(env.DB, f);
   const byId = new Map(entities.map((e) => [e.id, e]));
   const sourceIds = [...new Set(rows.map((r) => r.source_id))];
@@ -1038,9 +1038,10 @@ export async function handleApi(
           ctx.waitUntil(caches.default.put(request, res.clone()));
         return res;
       } catch (err) {
-        return json({ error: err instanceof Error ? err.message : "internal error" }, 500, {
-          "cache-control": "no-store",
-        });
+        if (err instanceof BadRequest)
+          return json({ error: err.message }, 400, { "cache-control": "no-store" });
+        console.error("api.failed", url.pathname, err);
+        return json({ error: "internal error" }, 500, { "cache-control": "no-store" });
       }
     }
   }
