@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
@@ -320,5 +320,57 @@ describe("csv import validation", () => {
     expect(dup).toBeDefined();
     const again = await importCsv(ctx, file, "csv-import");
     expect(again.observations).toBe(0);
+  });
+});
+
+describe("regions that appear after the seed run", () => {
+  test("a new region code gets a first-seen launch date; the seed run records none", async () => {
+    const gcp = adapterById("gcp-regions") as Adapter;
+    const first = await runAdapters([gcp], {
+      db,
+      dataRoot: DATA,
+      dataset: "live",
+      cacheDir: cache,
+      now: fixedNow,
+      fetchDefaults: fast,
+      fetchImpl: fakeFetch(),
+    });
+    const firstSeen = (s: Store) =>
+      [...s.observations.values()].filter((o) => o.method_id === "first-seen.v1");
+    expect(firstSeen(first.store)).toHaveLength(0);
+
+    const page = readFileSync(join(FIX, "gcp-zones.html"), "utf8");
+    const extra = `<tr><td>europe-west99-a</td><td>Nowhere, Atlantis</td><td>E2</td><td>Intel</td><td></td><td></td></tr></table>`;
+    const grown = fakeFetch({
+      "https://docs.cloud.google.com/compute/docs/regions-zones": () =>
+        new Response(page.replace("</table>", extra), { status: 200 }),
+    });
+    const later = () => new Date("2026-10-12T09:00:00Z");
+    const second = await runAdapters([gcp], {
+      db,
+      dataRoot: DATA,
+      dataset: "live",
+      cacheDir: cache,
+      now: later,
+      fetchDefaults: fast,
+      fetchImpl: grown,
+    });
+    const seen = firstSeen(second.store);
+    expect(seen).toHaveLength(1);
+    expect(seen[0]!.effective_date).toBe("2026-10-12");
+    expect(seen[0]!.effective_kind).toBe("opened");
+    expect(seen[0]!.claim_type).toBe("derived");
+    const region = second.store.entities.get(seen[0]!.entity_id)!;
+    expect(region.code).toBe("europe-west99");
+    const third = await runAdapters([gcp], {
+      db,
+      dataRoot: DATA,
+      dataset: "live",
+      cacheDir: cache,
+      now: later,
+      fetchDefaults: fast,
+      fetchImpl: grown,
+    });
+    expect(firstSeen(third.store)).toHaveLength(1);
   });
 });

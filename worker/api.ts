@@ -265,7 +265,9 @@ const regions: Handler = async (_req, env, url) => {
       f.asof || null,
       f.mode,
     );
-    const opened = mine.find((o) => o.effective_kind === "opened");
+    const opened = mine
+      .filter((o) => o.effective_kind === "opened")
+      .sort((a, b) => (a.effective_date < b.effective_date ? -1 : 1))[0];
     return {
       id: e.id,
       code: e.code,
