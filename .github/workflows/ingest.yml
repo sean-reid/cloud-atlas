@@ -55,11 +55,11 @@ jobs:
           REQUESTED: ${{ github.event.inputs.adapters }}
         run: |
           if [ -n "$REQUESTED" ]; then echo "adapters=$REQUESTED" >> "$GITHUB_OUTPUT"; exit 0; fi
-          # A manual run with no list means everything; the hourly cron runs the fast probes except at 05:00 UTC.
+          # A manual run with no list means everything; the cron runs the hourly adapters except at 05:00 UTC.
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$(date -u +%H)" = "05" ]; then
             echo "adapters=" >> "$GITHUB_OUTPUT"
           else
-            echo "adapters=azure-retail-prices aws-spot-advisor" >> "$GITHUB_OUTPUT"
+            echo "adapters=--schedule hourly" >> "$GITHUB_OUTPUT"
           fi
       - name: import reviewed CSVs
         if: github.event.inputs.import == 'true' || steps.pick.outputs.adapters == ''

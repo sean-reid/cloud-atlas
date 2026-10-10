@@ -72,9 +72,13 @@ async function main(argv: string[]): Promise<number> {
     }
     case "ingest": {
       const only = args.filter((a) => !a.startsWith("--") && adapterById(a));
+      const schedule = flag(args, "schedule");
       const selected = only.length
         ? ADAPTERS.filter((a) => only.includes(a.id))
-        : ADAPTERS.filter((a) => a.schedule !== "manual");
+        : schedule
+          ? ADAPTERS.filter((a) => a.schedule === schedule)
+          : ADAPTERS.filter((a) => a.schedule !== "manual");
+      if (!selected.length) throw new Error(`no adapters match ${only.join(" ") || schedule}`);
       const db = await openDb(args);
       const offline = has(args, "fixtures");
       const { outcomes } = await runAdapters(selected, {
@@ -179,7 +183,7 @@ async function main(argv: string[]): Promise<number> {
     }
     default:
       console.log(
-        "usage: cli <sources|migrate|ingest [adapter...] [--fixtures]|import [file.csv...]|review ...|retain|health> [--remote] [--dataset live|demo]",
+        "usage: cli <sources|migrate|ingest [adapter...] [--schedule hourly|daily|weekly] [--fixtures]|import [file.csv...]|review ...|retain|health> [--remote] [--dataset live|demo]",
       );
       return cmd === "help" ? 0 : 2;
   }
