@@ -121,3 +121,68 @@ describe("daily history cells", () => {
     expect(cells[0]!.measure).toBe("score 2/10");
   });
 });
+
+describe("merging rows for one region and SKU", () => {
+  test("the smallest ask wins, then the worst zone, and the zone count rides along", async () => {
+    const { mergeReading } = await import("../../shared/availability");
+    const big = mergeReading(
+      undefined,
+      { signal: "placement_score", value: 3, detail: { target_capacity: 64 }, zone_code: null },
+      null,
+    );
+    const small = mergeReading(
+      big,
+      { signal: "placement_score", value: 8, detail: { target_capacity: 8 }, zone_code: null },
+      7.5,
+    );
+    expect(small.value).toBe(8);
+    expect(small.baseline).toBe(7.5);
+    expect(
+      mergeReading(
+        small,
+        { signal: "placement_score", value: 2, detail: { target_capacity: 64 }, zone_code: null },
+        null,
+      ).value,
+    ).toBe(8);
+
+    const a = mergeReading(
+      undefined,
+      {
+        signal: "sell_status",
+        value: 1,
+        detail: { status: "Available" },
+        zone_code: "cn-hangzhou-h",
+      },
+      null,
+    );
+    const b = mergeReading(
+      a,
+      {
+        signal: "sell_status",
+        value: 0,
+        detail: { status: "SoldOut" },
+        zone_code: "cn-hangzhou-i",
+      },
+      null,
+    );
+    const c = mergeReading(
+      b,
+      {
+        signal: "sell_status",
+        value: 1,
+        detail: { status: "Available" },
+        zone_code: "cn-hangzhou-j",
+      },
+      null,
+    );
+    expect(c.value).toBe(0);
+    expect(c.detail).toEqual({ status: "SoldOut", zone: "cn-hangzhou-i", zones: 3 });
+
+    const lead = mergeReading(
+      { value: 2, detail: { instance_count: 1 }, baseline: null },
+      { signal: "lead_time_days", value: 5, detail: { instance_count: 1 }, zone_code: null },
+      null,
+    );
+    expect(lead.value).toBe(5);
+  });
+});
