@@ -57,7 +57,18 @@ jobs:
       - run: npx wrangler deploy
       - name: smoke
         run: |
-          curl -fsS --retry 5 --retry-all-errors --retry-delay 5 https://cloud-atlas.seanreid.workers.dev/api/health | grep -q '"ok":true'
-          # The custom domain needs DNS and a certificate on first deploy, which can take minutes.
-          curl -fsS --retry 18 --retry-all-errors --retry-delay 10 https://cloud-atlas.dwainosaur.com/ | grep -qi cloud-atlas
-          curl -fsS --retry 5 --retry-all-errors --retry-delay 5 https://cloud-atlas.dwainosaur.com/api/health | grep -q '"ok":true'
+          # Prints status and body on a miss, so a failure here says what the edge actually served.
+          check() {
+            local url="$1" want="$2" tries="$3" delay="$4" body code
+            for i in $(seq 1 "$tries"); do
+              body=$(curl -sS -w '\n%{http_code}' --max-time 20 "$url" 2>&1) || true
+              code=${body##*$'\n'}
+              if [ "$code" = "200" ] && printf '%s' "$body" | grep -qi -- "$want"; then echo "ok $url"; return 0; fi
+              sleep "$delay"
+            done
+            echo "::error::$url answered $code without '$want'"; printf '%s\n' "$body" | head -c 600; echo
+            return 1
+          }
+          check https://cloud-atlas.seanreid.workers.dev/api/health '"ok":true' 6 5
+          check https://cloud-atlas.dwainosaur.com/ cloud-atlas 18 10
+          check https://cloud-atlas.dwainosaur.com/api/health '"ok":true' 6 5
