@@ -95,6 +95,16 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
       "Spot placement score per instance type and region for 8 and 64 units, and days until the earliest 24 hour Capacity Block for p5.48xlarge and p5en.48xlarge.",
     credentials: ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"],
   },
+  {
+    id: "gcp-calendar-mode",
+    title: "Google Cloud calendar-mode advice",
+    publisher: "Google Cloud",
+    mode: "automated",
+    schedule: "hourly",
+    measures:
+      "Days until Compute Engine can start a 24-hour block of 1 or 8 A3 or A4 GPU VMs per region, from the calendar-mode advice API.",
+    credentials: ["GCP_PROJECT", "GCP_SERVICE_ACCOUNT_JSON"],
+  },
 ];
 
 export const adapterMeta = (id: string): AdapterMeta | undefined =>

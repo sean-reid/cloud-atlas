@@ -21,7 +21,7 @@ import { AWS_TYPES } from "../../pipeline/adapters/aws-spot-advisor";
 import type { SqliteDb } from "../../pipeline/db";
 import { runAdapters } from "../../pipeline/run";
 import type { AvailabilitySignal } from "../../shared/types";
-import { memoryDb } from "./db";
+import { memoryDb } from "./helpers";
 
 const FIX = join(__dirname, "..", "fixtures");
 const DATA = join(__dirname, "..", "..", "data");
