@@ -369,6 +369,21 @@ describe("alibaba-available-resource", () => {
     expect(outcomes[0]!.result!.entities).toBe(2);
   });
 
+  test("seeding a provider's regions records no launch dates, even after earlier runs", async () => {
+    setEnv("alibaba");
+    await db.exec(
+      "INSERT INTO fetch_run (adapter, url, started_at, finished_at, ok, http_status, content_hash, changed, observations, error) VALUES ('alibaba-available-resource', 'https://example.test', '2026-10-01T00:00:00Z', '2026-10-01T00:00:01Z', 1, NULL, NULL, 0, 0, NULL);",
+    );
+    const { factory } = replay(acsRoute);
+    const { outcomes, store } = await run([makeAlibaba(factory, instant)]);
+    expect(outcomes[0]!.ok, outcomes[0]!.error ?? "").toBe(true);
+    expect(outcomes[0]!.result!.entities).toBe(2);
+    expect(outcomes[0]!.result!.observations).toBe(0);
+    expect([...store.observations.values()].some((o) => o.method_id === "first-seen.v1")).toBe(
+      false,
+    );
+  });
+
   test("a second run in the same hour adds nothing", async () => {
     setEnv("alibaba");
     const { factory } = replay(acsRoute);

@@ -2,9 +2,10 @@ import type { Adapter, AdapterContext } from "./adapters/types";
 import { makeObservation } from "./entities";
 import type { Entity, Source } from "../shared/types";
 
-// A region that appears in a provider's documentation after this adapter has already run is
-// new as of that day. The first run seeds every region and records nothing, since those
-// launch dates are unknown; the CSV import backfills them where a dated announcement exists.
+// A region that appears in a provider's list after that provider already has regions in the
+// store is new as of that day. The run that seeds a provider's first regions records nothing,
+// since those launch dates are unknown; the CSV import backfills them where a dated
+// announcement exists.
 export async function recordFirstSeen(
   ctx: AdapterContext,
   adapter: Adapter,
@@ -13,8 +14,7 @@ export async function recordFirstSeen(
   source: Source,
 ): Promise<boolean> {
   if (wasKnown) return false;
-  const seededBefore = ctx.store.fetchRuns.some((r) => r.adapter === adapter.id && r.ok);
-  if (!seededBefore) return false;
+  if (!ctx.store.regionProvidersAtOpen.has(entity.provider_slug)) return false;
   const now = ctx.now();
   const today = now.toISOString().slice(0, 10);
   const obs = await makeObservation(
