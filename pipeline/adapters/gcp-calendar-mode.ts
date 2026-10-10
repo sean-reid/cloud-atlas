@@ -2,6 +2,7 @@ import { GoogleAuth, type JWTInput } from "google-auth-library";
 import { stableId } from "../../shared/ids";
 import { ensureSource } from "../entities";
 import { assertAllowed, retryDelayMs, USER_AGENT } from "../fetch";
+import type { Db } from "../db";
 import { log } from "../log";
 import { GPU_ZONES_URL, gpuZoneRows } from "./gcp-gpu-zones";
 import { emptyResult, meta, ProbeUnavailable, type Adapter, type AdapterContext } from "./types";
@@ -136,6 +137,25 @@ export function leadTimeDays(start: string | undefined, now: Date): number {
 
 const GATED = /not available for this project/i;
 
+// When the docs page arrives without its table, the regions each machine type was offered in
+// over the last two weeks, as recorded by the GPU zones adapter, stand in for it.
+export async function regionsFromSignals(db: Db, now: Date): Promise<Map<string, string[]>> {
+  const since = new Date(now.getTime() - 14 * 86_400_000).toISOString();
+  const rows = await db.query<{ sku: string; region_code: string }>(
+    "SELECT DISTINCT sku, region_code FROM availability_signal WHERE provider_slug = 'gcp' AND signal = 'sku_offered' AND observed_at >= ?",
+    [since],
+  );
+  const out = new Map<string, Set<string>>();
+  for (const row of rows) {
+    const t = CALENDAR_TYPES.find((c) => c.label === row.sku);
+    if (!t) continue;
+    const set = out.get(t.sku) ?? new Set<string>();
+    set.add(row.region_code);
+    out.set(t.sku, set);
+  }
+  return new Map([...out].map(([sku, set]) => [sku, [...set].sort()]));
+}
+
 export function regionsByType(html: string): Map<string, string[]> {
   const out = new Map<string, Set<string>>();
   for (const row of gpuZoneRows(html)) {
@@ -233,7 +253,18 @@ export function makeAdapter(
       const now = ctx.now();
       const hour = now.toISOString().slice(0, 13) + ":00:00Z";
       const source = await ensureSource(ctx.store, { ...this.source(), adapter: this.id });
-      const regions = regionsByType((await ctx.fetch(GPU_ZONES_URL)).body);
+      let regions: Map<string, string[]>;
+      try {
+        regions = regionsByType((await ctx.fetch(GPU_ZONES_URL)).body);
+      } catch (err) {
+        regions = await regionsFromSignals(ctx.store.db, now);
+        if (!regions.size) throw err;
+        log("warn", "gcp-calendar-mode.zones_fallback", {
+          adapter: this.id,
+          error: String(err),
+          types: regions.size,
+        });
+      }
       const client = clientFactory(serviceAccountJson);
       const token = await client.token();
       let calls = 0;
