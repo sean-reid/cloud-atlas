@@ -929,11 +929,39 @@ details.filters-drawer .filters {
 }
 
 /* Availability history ribbon */
+.history {
+  margin-top: 1.75rem;
+}
+.history > .lead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.ribbon-scroll {
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
 .ribbon {
+  --cell-min: 9px;
   display: grid;
-  gap: 2px;
+  column-gap: 1px;
   align-items: center;
   font-size: 0.78rem;
+}
+@media (max-width: 767px) {
+  .ribbon {
+    --cell-min: 7px;
+  }
+}
+.ribbon > .ribbon-head:first-child,
+.ribbon-region {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--paper);
 }
 .ribbon-head {
   font-size: 0.7rem;
@@ -942,20 +970,30 @@ details.filters-drawer .filters {
   color: var(--ink-soft);
   padding-bottom: 0.3rem;
   border-bottom: 1px solid var(--rule);
+  align-self: end;
 }
 .ribbon-head.day {
   position: relative;
-  text-align: center;
+  height: 1.4rem;
+}
+.ribbon-head.day .tick {
+  position: absolute;
+  left: 50%;
+  bottom: 0.3rem;
+  transform: translateX(-50%);
   font-family: var(--mono);
   letter-spacing: 0;
   text-transform: none;
   white-space: nowrap;
-  padding-top: 0.9rem;
+}
+.ribbon-head.day .tick.first {
+  left: 0;
+  transform: none;
+}
+.ribbon-head.day.today .tick {
+  color: var(--ink);
 }
 .ribbon-head.day .month {
-  position: absolute;
-  top: 0;
-  left: 0;
   font-family: var(--serif);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -964,11 +1002,17 @@ details.filters-drawer .filters {
 .ribbon-region {
   all: unset;
   cursor: pointer;
-  min-height: 24px;
+  min-height: 26px;
   display: flex;
   align-items: center;
-  padding-right: 0.5rem;
+  padding-right: 0.75rem;
   border-bottom: 1px solid var(--rule-soft);
+  white-space: nowrap;
+}
+.ribbon-region:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 .ribbon-region.on {
   text-decoration: underline;
@@ -978,16 +1022,80 @@ details.filters-drawer .filters {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 24px;
+  min-height: 26px;
   border-bottom: 1px solid var(--rule-soft);
 }
 .ribbon-cell .swatch {
-  width: 0.75em;
-  height: 0.75em;
+  width: 64%;
+  max-width: 11px;
+  min-width: 5px;
+  height: auto;
+  aspect-ratio: 1;
+  vertical-align: middle;
 }
-@media (max-width: 767px) {
-  .ribbon-cell .swatch {
-    width: 0.6em;
-    height: 0.6em;
-  }
+.ribbon-cell .swatch.tight {
+  border-width: 2px;
+}
+.ribbon-cell .swatch.absent {
+  width: 3px;
+  min-width: 3px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--rule);
+}
+
+/* Hourly signal lines beneath the ribbon */
+.signal-lines {
+  margin-top: 1.25rem;
+}
+.signal-lines h3 {
+  margin: 0 0 0.5rem;
+}
+.signal-row {
+  margin-top: 0.6rem;
+}
+.signal-cap {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.15rem;
+}
+.signal-cap .mono {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+.signal-chart {
+  display: block;
+  touch-action: pan-y;
+}
+.signal-chart .band {
+  fill: transparent;
+}
+.signal-chart .band.constrained {
+  fill: var(--shade);
+  opacity: 0.55;
+}
+.signal-chart .band.tight {
+  fill: var(--shade);
+}
+.signal-chart .bands text {
+  font-size: 11px;
+  fill: var(--ink-faint);
+}
+.signal-chart .grid line {
+  stroke: var(--rule-soft);
+}
+.signal-chart .hover line {
+  stroke: var(--ink);
+  stroke-dasharray: 2 3;
+}
+.signal-axis {
+  display: block;
+  margin-top: 0.25rem;
+}
+.signal-axis .now {
+  fill: var(--ink);
 }

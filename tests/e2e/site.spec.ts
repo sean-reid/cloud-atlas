@@ -150,6 +150,16 @@ test("availability history answers per day and per hour", async ({ request }) =>
   expect(bad.status()).toBe(400);
 });
 
+test("availability history shows the whole window and switches it", async ({ page }) => {
+  await page.goto("/availability");
+  const history = page.locator(".history");
+  await expect(history.locator(".ribbon-head.day")).toHaveCount(30);
+  await expect(history.locator(".signal-chart").first()).toBeVisible();
+  await history.getByRole("tab", { name: "7d" }).click();
+  await expect(history.locator(".ribbon-head.day")).toHaveCount(7);
+  await shot(page, "availability-history");
+});
+
 test("demo mode is visibly separate", async ({ page }) => {
   await page.goto("/?demo=1");
   await expect(page.locator(".banner")).toContainText("Demo mode");

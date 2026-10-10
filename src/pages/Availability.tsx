@@ -194,14 +194,7 @@ export function Availability() {
           </>
         )}
 
-        {p && fam && slug && (
-          <>
-            <div className="lead" style={{ marginTop: "1.75rem" }}>
-              <h2>{fam} over the last 30 days</h2>
-            </div>
-            <AvailabilityHistory provider={slug} family={fam} />
-          </>
-        )}
+        {p && fam && slug && <AvailabilityHistory provider={slug} family={fam} />}
 
         {p && (
           <>
