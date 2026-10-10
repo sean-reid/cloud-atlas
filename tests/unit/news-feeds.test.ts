@@ -10,7 +10,7 @@ import {
   newsFeeds,
   type FeedClaimPayload,
 } from "../../pipeline/adapters/news-feeds";
-import { extractClaims } from "../../pipeline/claims";
+import { autoAccept, extractClaims } from "../../pipeline/claims";
 import type { SqliteDb } from "../../pipeline/db";
 import { fixtureFetch } from "../../pipeline/fixtures";
 import { loadGeo } from "../../pipeline/geo";
@@ -109,6 +109,24 @@ describe("feed parsing and claim extraction on the recorded feeds", () => {
     expect(alabama[0]!.place).toBeNull();
 
     expect(claimsOf(entry(entries, HORNDAL))).toHaveLength(0);
+  });
+
+  test("a power figure and an investment figure in one sentence count as two figures", () => {
+    const claims = extractClaims(
+      "Google will build a 100 MW data center in West Memphis, Arkansas, backed by a $4 billion investment.",
+      geo.places,
+    );
+    expect(claims.map((c) => c.metric).sort()).toEqual(["facility_power_mw", "investment_usd"]);
+    expect(claims.every((c) => c.figures === 2 && c.place?.key === "West Memphis, AR, US")).toBe(
+      true,
+    );
+    expect(claims.some((c) => autoAccept(c, 1))).toBe(false);
+    const one = extractClaims(
+      "Google will build a 100 MW data center in West Memphis, Arkansas.",
+      geo.places,
+    );
+    expect(one).toHaveLength(1);
+    expect(autoAccept(one[0]!, 1)).toBe(true);
   });
 
   test("Microsoft On the Issues: a placed investment and a post with several figures", () => {
