@@ -22,7 +22,7 @@ The database is Cloudflare D1 (SQLite). Schema lives in `migrations/`. Observati
 - `npm run import [file.csv]` loads hand-reviewed observations from `data/imports/`; the column schema is the header row, every row cites a source, and invalid rows go to the review queue.
 - `npm run review list|accept <id> [note]|reject <id> [note]` works the review queue. Accepting a feed candidate with a resolved place creates the proposed site and its observation; one without a place is transcribed into `data/imports/` by hand.
 - `npm run health` prints each adapter's latest run and its outcome.
-- `npm run retain` collapses hourly availability signals older than 90 days to the worst hour per zone and day; the daily ingest runs it.
+- `npm run retain` collapses hourly availability signals older than 90 days to the worst hour per zone, ask and day; the daily ingest runs it.
 
 GitHub Actions runs the hourly adapters every hour and everything daily, writing straight to D1.
 

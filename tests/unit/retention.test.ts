@@ -14,8 +14,9 @@ afterEach(async () => {
   await db.close();
 });
 
-const row = (id: string, signal: string, value: number, at: string, zone = "z1") =>
-  `INSERT INTO availability_signal VALUES ('${id}','aws','us-east-1','${zone}','p5.48xlarge','H100','${signal}',${value},'u','${at}','src_t',NULL);`;
+const row = (id: string, signal: string, value: number, at: string, zone = "z1", detail = "NULL") =>
+  `INSERT INTO availability_signal VALUES ('${id}','aws','us-east-1','${zone}','p5.48xlarge','H100','${signal}',${value},'u','${at}','src_t',${detail});`;
+const ask = (n: number) => `'{"target_capacity":${n},"instance_types":["p5.48xlarge"]}'`;
 
 test("old hours collapse to the worst hour per zone and day; recent hours stay", async () => {
   const now = new Date("2026-10-09T12:00:00Z");
@@ -35,6 +36,23 @@ test("old hours collapse to the worst hour per zone and day; recent hours stay",
   expect(removed).toBe(3);
   const left = await db.query<{ id: string }>("SELECT id FROM availability_signal ORDER BY id");
   expect(left.map((r) => r.id)).toEqual(["band2", "new1", "new2", "old2", "old4"]);
+});
+
+test("each ask keeps its own worst hour", async () => {
+  const now = new Date("2026-10-09T12:00:00Z");
+  await db.exec(
+    [
+      row("s8a", "placement_score", 9, "2026-06-01T10:00:00Z", "z1", ask(8)),
+      row("s8b", "placement_score", 7, "2026-06-01T11:00:00Z", "z1", ask(8)),
+      row("s64a", "placement_score", 2, "2026-06-01T10:00:00Z", "z1", ask(64)),
+      row("s64b", "placement_score", 4, "2026-06-01T11:00:00Z", "z1", ask(64)),
+      row("l1", "lead_time_days", 1, "2026-06-01T10:00:00Z", "z1", `'{"instance_count":1}'`),
+      row("l4", "lead_time_days", 3, "2026-06-01T10:00:00Z", "z1", `'{"instance_count":4}'`),
+    ].join("\n"),
+  );
+  expect(await pruneSignals(db, now)).toBe(2);
+  const left = await db.query<{ id: string }>("SELECT id FROM availability_signal ORDER BY id");
+  expect(left.map((r) => r.id)).toEqual(["l1", "l4", "s64a", "s8b"]);
 });
 
 test("a second pass removes nothing", async () => {
