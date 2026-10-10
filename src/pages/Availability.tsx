@@ -166,14 +166,12 @@ export function Availability() {
           <>
             <div className="lead" style={{ marginTop: "1.25rem" }}>
               <h2>Where is {fam} available?</h2>
-              <div className="chips" role="tablist" aria-label="SKU family">
+              <div className="chips" role="group" aria-label="SKU family">
                 {families.map((f) => (
                   <button
                     key={f}
                     type="button"
-                    role="tab"
                     className="chip"
-                    aria-selected={f === fam}
                     aria-pressed={f === fam}
                     onClick={() => setFamily(f)}
                   >
@@ -228,14 +226,16 @@ export function Availability() {
                 role="table"
                 aria-label="Availability level by region and SKU family"
               >
-                <div className="cell head" role="columnheader">
-                  region
-                </div>
-                {families.map((f) => (
-                  <div key={f} className="cell head" role="columnheader">
-                    {f}
+                <div style={{ display: "contents" }} role="row">
+                  <div className="cell head" role="columnheader">
+                    region
                   </div>
-                ))}
+                  {families.map((f) => (
+                    <div key={f} className="cell head" role="columnheader">
+                      {f}
+                    </div>
+                  ))}
+                </div>
                 {regions.map((r) => (
                   <div key={r} style={{ display: "contents" }} role="row">
                     <div className="cell mono rowhead" role="rowheader">

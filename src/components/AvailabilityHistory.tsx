@@ -97,14 +97,12 @@ export function AvailabilityHistory({ provider, family }: { provider: string; fa
     <div className="history">
       <div className="lead">
         <h2>{family} over time</h2>
-        <div className="chips" role="tablist" aria-label="History window">
+        <div className="chips" role="group" aria-label="History window">
           {WINDOWS.map((w) => (
             <button
               key={w}
               type="button"
-              role="tab"
               className="chip mono"
-              aria-selected={w === days}
               aria-pressed={w === days}
               onClick={() => setDays(w)}
             >
@@ -135,47 +133,52 @@ export function AvailabilityHistory({ provider, family }: { provider: string; fa
           role="table"
           aria-label={`${family} availability by region and day`}
         >
-          <div className="ribbon-head" role="columnheader">
-            region
+          <div style={{ display: "contents" }} role="row">
+            <div className="ribbon-head" role="columnheader">
+              region
+            </div>
+            {columns.map((d, i) => {
+              const fromEnd = columns.length - 1 - i;
+              const labelled = fromEnd % labelEvery === 0;
+              const prevLabelled = columns[i - labelEvery];
+              const month =
+                labelled && (!prevLabelled || prevLabelled.slice(0, 7) !== d.slice(0, 7));
+              return (
+                <div
+                  key={d}
+                  className={`ribbon-head day${fromEnd === 0 ? " today" : ""}`}
+                  role="columnheader"
+                  title={fmtDate(d)}
+                >
+                  {labelled && (
+                    <span className={`tick${i < 2 ? " first" : ""}`}>
+                      {month ? (
+                        <span className="month">
+                          {new Date(`${d}T00:00:00Z`).toLocaleString("en", {
+                            month: "short",
+                            timeZone: "UTC",
+                          })}
+                        </span>
+                      ) : null}
+                      {String(Number(d.slice(8)))}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
-          {columns.map((d, i) => {
-            const fromEnd = columns.length - 1 - i;
-            const labelled = fromEnd % labelEvery === 0;
-            const prevLabelled = columns[i - labelEvery];
-            const month = labelled && (!prevLabelled || prevLabelled.slice(0, 7) !== d.slice(0, 7));
-            return (
-              <div
-                key={d}
-                className={`ribbon-head day${fromEnd === 0 ? " today" : ""}`}
-                role="columnheader"
-                title={fmtDate(d)}
-              >
-                {labelled && (
-                  <span className={`tick${i < 2 ? " first" : ""}`}>
-                    {month ? (
-                      <span className="month">
-                        {new Date(`${d}T00:00:00Z`).toLocaleString("en", {
-                          month: "short",
-                          timeZone: "UTC",
-                        })}{" "}
-                      </span>
-                    ) : null}
-                    {String(Number(d.slice(8)))}
-                  </span>
-                )}
-              </div>
-            );
-          })}
           {shown.map((r) => (
             <div key={r.region} style={{ display: "contents" }} role="row">
-              <button
-                type="button"
-                className={`ribbon-region mono${active?.region === r.region ? " on" : ""}`}
-                onClick={() => setSelected(active?.region === r.region ? null : r.region)}
-                aria-pressed={active?.region === r.region}
-              >
-                {r.region}
-              </button>
+              <div className="ribbon-rowhead" role="rowheader">
+                <button
+                  type="button"
+                  className={`ribbon-region${active?.region === r.region ? " on" : ""}`}
+                  onClick={() => setSelected(active?.region === r.region ? null : r.region)}
+                  aria-pressed={active?.region === r.region}
+                >
+                  {r.region}
+                </button>
+              </div>
               {columns.map((d) => {
                 const c = r.cells.get(d);
                 return (
