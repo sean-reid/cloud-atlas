@@ -578,10 +578,10 @@ const availability: Handler = async (_req, env, url) => {
         } else {
           // Probes that ask for several sizes land as one row each; the smallest ask is what most buyers feel.
           const prev = entry.signals[r.signal];
-          const prevAsk = Number(
-            (prev?.detail as Record<string, unknown> | null)?.target_capacity ?? Infinity,
-          );
-          const ask = Number(detail?.target_capacity ?? Infinity);
+          const askOf = (d: Record<string, unknown> | null | undefined) =>
+            Number(d?.target_capacity ?? d?.instance_count ?? Infinity);
+          const prevAsk = askOf(prev?.detail as Record<string, unknown> | null);
+          const ask = askOf(detail);
           if (!prev || ask < prevAsk) {
             entry.signals[r.signal] = {
               value: r.value,
