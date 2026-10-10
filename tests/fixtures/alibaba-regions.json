@@ -1,0 +1,19 @@
+{
+  "RequestId": "473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E",
+  "Regions": {
+    "Region": [
+      {
+        "RegionId": "cn-hangzhou",
+        "RegionEndpoint": "ecs.cn-hangzhou.aliyuncs.com",
+        "LocalName": "China (Hangzhou)",
+        "Status": "available"
+      },
+      {
+        "RegionId": "ap-southeast-1",
+        "RegionEndpoint": "ecs.ap-southeast-1.aliyuncs.com",
+        "LocalName": "Singapore",
+        "Status": "available"
+      }
+    ]
+  }
+}

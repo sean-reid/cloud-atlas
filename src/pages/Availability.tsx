@@ -275,8 +275,8 @@ export function Availability() {
             </li>
           ))}
           <li>
-            Alibaba Cloud and Tencent Cloud return sold-out status per instance type and zone, but
-            only to an account.
+            Tencent Cloud returns sold-out status per instance type and zone, but only to an
+            account.
           </li>
           <li>Huawei Cloud marks sold-out flavors per zone behind an IAM token.</li>
           <li>

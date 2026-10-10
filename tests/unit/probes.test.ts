@@ -4,6 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
+  acsSign,
+  makeAdapter as makeAlibaba,
+  sellValue as acsSellValue,
+} from "../../pipeline/adapters/alibaba-available-resource";
+import {
   capacityValue,
   makeAdapter as makeOci,
   ociSign,
@@ -244,6 +249,130 @@ describe("oci-capacity-report", () => {
     expect(outcomes[0]!.skipped).toBe(true);
     expect(store.fetchRuns[0]!.error).toBe(
       "waiting for credentials: OCI_TENANCY, OCI_USER, OCI_FINGERPRINT, OCI_PRIVATE_KEY, OCI_REGION",
+    );
+    expect(calls).toHaveLength(0);
+  });
+});
+
+const acsRoute = (req: HttpRequest): HttpResponse => {
+  switch (req.headers["x-acs-action"]) {
+    case "DescribeRegions":
+      return fixture("alibaba-regions.json");
+    case "DescribeAvailableResource":
+      return fixture("alibaba-available-resource.json");
+    default:
+      return status(404);
+  }
+};
+
+describe("alibaba-available-resource", () => {
+  test("builds the ACS3 canonical request the signature guide describes", () => {
+    const req = acsSign(
+      { keyId: "testAccessKeyId", secret: "testSecret" },
+      {
+        host: "ecs.cn-hangzhou.aliyuncs.com",
+        action: "DescribeAvailableResource",
+        params: {
+          RegionId: "cn-hangzhou",
+          DestinationResource: "InstanceType",
+          InstanceType: "ecs.g7.large",
+        },
+        now: new Date("2025-04-16T07:45:55.123Z"),
+        nonce: "315484d3-b129-4966-974a-699b7ee56647",
+      },
+    );
+    expect(req.method).toBe("GET");
+    expect(req.url).toBe(
+      "https://ecs.cn-hangzhou.aliyuncs.com/?DestinationResource=InstanceType&InstanceType=ecs.g7.large&RegionId=cn-hangzhou",
+    );
+    expect(req.headers["x-acs-date"]).toBe("2025-04-16T07:45:55Z");
+    expect(req.headers["x-acs-version"]).toBe("2014-05-26");
+    expect(req.headers["x-acs-content-sha256"]).toBe(
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    );
+    expect(req.headers.authorization).toMatch(
+      /^ACS3-HMAC-SHA256 Credential=testAccessKeyId,SignedHeaders=host;x-acs-action;x-acs-content-sha256;x-acs-date;x-acs-signature-nonce;x-acs-version,Signature=[0-9a-f]{64}$/,
+    );
+    const again = acsSign(
+      { keyId: "testAccessKeyId", secret: "testSecret" },
+      {
+        host: "ecs.cn-hangzhou.aliyuncs.com",
+        action: "DescribeAvailableResource",
+        params: {
+          InstanceType: "ecs.g7.large",
+          RegionId: "cn-hangzhou",
+          DestinationResource: "InstanceType",
+        },
+        now: new Date("2025-04-16T07:45:55Z"),
+        nonce: "315484d3-b129-4966-974a-699b7ee56647",
+      },
+    );
+    expect(again.headers.authorization).toBe(req.headers.authorization);
+  });
+
+  test("emits one sell status per zone that lists the instance type", async () => {
+    setEnv("alibaba");
+    const { calls, factory } = replay(acsRoute);
+    const { outcomes } = await run([makeAlibaba(factory, instant)]);
+    expect(outcomes[0]!.ok, outcomes[0]!.error ?? "").toBe(true);
+    // Two regions, five types asked per region, the fixture answers for one type in three zones.
+    expect(
+      calls.filter((c) => c.headers["x-acs-action"] === "DescribeAvailableResource"),
+    ).toHaveLength(10);
+    expect(outcomes[0]!.result!.signals).toBe(6);
+    const asked = new URL(calls[1]!.url).searchParams;
+    expect(asked.get("DestinationResource")).toBe("InstanceType");
+    expect(asked.get("IoOptimized")).toBe("optimized");
+    expect(calls[1]!.url.startsWith("https://ecs.cn-hangzhou.aliyuncs.com/")).toBe(true);
+    const rows = (await signals()).filter((r) => r.region_code === "cn-hangzhou");
+    expect(rows.map((r) => [r.zone_code, r.sku, r.sku_family, r.value])).toEqual([
+      ["cn-hangzhou-i", "ecs.gn7i-c8g1.2xlarge", "A10", 1],
+      ["cn-hangzhou-j", "ecs.gn7i-c8g1.2xlarge", "A10", 1],
+      ["cn-hangzhou-k", "ecs.gn7i-c8g1.2xlarge", "A10", 0],
+    ]);
+    expect(JSON.parse(rows[2]!.detail!)).toEqual({
+      status: "SoldOut",
+      status_category: "WithoutStock",
+    });
+    expect(rows.every((r) => r.signal === "sell_status" && r.provider_slug === "alibaba")).toBe(
+      true,
+    );
+    expect(acsSellValue("Limited")).toBe(0.5);
+  });
+
+  test("a second run in the same hour adds nothing", async () => {
+    setEnv("alibaba");
+    const { factory } = replay(acsRoute);
+    await run([makeAlibaba(factory, instant)]);
+    const { outcomes, store } = await run([makeAlibaba(factory, instant)]);
+    expect(outcomes[0]!.result!.signals).toBe(0);
+    expect(store.signalIds.size).toBe(6);
+  });
+
+  test("one region failing keeps the others and throttling codes are retried", async () => {
+    setEnv("alibaba");
+    let throttles = 0;
+    const { factory } = replay((req) => {
+      if (req.url.includes("ap-southeast-1")) return status(403, '{"Code":"Forbidden.RAM"}');
+      if (req.headers["x-acs-action"] === "DescribeAvailableResource" && throttles++ < 1)
+        return status(
+          429,
+          '{"Code":"Throttling.User","Message":"Request was denied due to user flow control."}',
+        );
+      return acsRoute(req);
+    });
+    const { outcomes } = await run([makeAlibaba(factory, instant)]);
+    expect(outcomes[0]!.ok).toBe(true);
+    expect(outcomes[0]!.result!.signals).toBe(3);
+    expect(slept).toEqual([1000]);
+  });
+
+  test("without credentials the runner records a waiting run", async () => {
+    const { calls, factory } = replay(acsRoute);
+    const { outcomes, store } = await run([makeAlibaba(factory, instant)]);
+    expect(outcomes[0]!.skipped).toBe(true);
+    expect(store.fetchRuns[0]!.error).toBe(
+      "waiting for credentials: ALIBABA_ACCESS_KEY_ID, ALIBABA_ACCESS_KEY_SECRET",
     );
     expect(calls).toHaveLength(0);
   });

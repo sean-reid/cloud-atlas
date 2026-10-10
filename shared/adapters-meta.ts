@@ -115,6 +115,15 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
       "Capacity report verdict per GPU shape and availability domain across the tenancy's subscribed regions.",
     credentials: ["OCI_TENANCY", "OCI_USER", "OCI_FINGERPRINT", "OCI_PRIVATE_KEY", "OCI_REGION"],
   },
+  {
+    id: "alibaba-available-resource",
+    title: "Alibaba Cloud available resources",
+    publisher: "Alibaba Cloud",
+    mode: "automated",
+    schedule: "hourly",
+    measures: "Sell status per GPU instance type and zone from the ECS available resource check.",
+    credentials: ["ALIBABA_ACCESS_KEY_ID", "ALIBABA_ACCESS_KEY_SECRET"],
+  },
 ];
 
 export const adapterMeta = (id: string): AdapterMeta | undefined =>
