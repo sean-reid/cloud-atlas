@@ -20,6 +20,8 @@ const CACHE = resolve(ROOT, ".cache");
 const DB_NAME = "cloud-atlas";
 
 const has = (args: string[], name: string) => args.includes(`--${name}`);
+const flagValues = (args: string[]): Set<string> =>
+  new Set(args.flatMap((a, i) => (a.startsWith("--") && args[i + 1] ? [args[i + 1]!] : [])));
 const flag = (args: string[], name: string): string | undefined => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : undefined;
@@ -42,16 +44,19 @@ async function openDb(args: string[]): Promise<Db> {
       );
     return D1HttpDb.connect({ account, token, name: DB_NAME });
   }
-  let path = localD1Path(ROOT);
-  if (!path) {
-    wrangler(["d1", "migrations", "apply", DB_NAME, "--local"]);
-    path = localD1Path(ROOT);
-  }
+  // Applying is a no-op once the database is current, so every command sees every table.
+  wrangler(["d1", "migrations", "apply", DB_NAME, "--local"]);
+  const path = localD1Path(ROOT);
   if (!path) throw new Error("local D1 database not found after applying migrations");
   return new SqliteDb(path);
 }
 
 async function main(argv: string[]): Promise<number> {
+  try {
+    process.loadEnvFile(resolve(ROOT, ".env"));
+  } catch {
+    // No .env: credentials come from the environment, as in CI.
+  }
   const [cmd = "help", ...args] = argv;
   const dataset = (flag(args, "dataset") ?? "live") as "live" | "demo";
 
@@ -72,7 +77,10 @@ async function main(argv: string[]): Promise<number> {
       return 0;
     }
     case "ingest": {
-      const only = args.filter((a) => !a.startsWith("--") && adapterById(a));
+      const named = args.filter((a) => !a.startsWith("--") && !flagValues(args).has(a));
+      const unknown = named.filter((a) => !adapterById(a));
+      if (unknown.length) throw new Error(`unknown adapter: ${unknown.join(", ")}`);
+      const only = named;
       const schedule = flag(args, "schedule");
       const selected = only.length
         ? ADAPTERS.filter((a) => only.includes(a.id))
@@ -195,7 +203,7 @@ async function main(argv: string[]): Promise<number> {
       console.log(
         "usage: cli <sources|migrate|ingest [adapter...] [--schedule hourly|daily|weekly] [--fixtures]|import [file.csv...]|review ...|retain|health> [--remote] [--dataset live|demo]",
       );
-      return cmd === "help" ? 0 : 2;
+      return cmd === "help" || cmd === "--help" ? 0 : 2;
   }
 }
 

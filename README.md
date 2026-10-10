@@ -7,11 +7,12 @@ Global datacenter capacity observatory. Tracks documented datacenter capacity ac
 ```sh
 npm install
 npm run setup        # local D1: migrate, import the reviewed CSVs, ingest every automated source
+npm run build        # dist/, which the Worker serves
 npm run dev:worker   # Worker with the local D1 on 8787
 npm run dev          # Vite on 5173 with /api proxied to the Worker
 ```
 
-`npm run seed:offline` seeds the local database from recorded fixtures instead of the network. `npm test` runs the unit suite, `npm run test:e2e` runs Playwright against a production build, `npm run build` produces `dist/`.
+Probe credentials are read from a `.env` file at the repo root when one exists (see `.env.example`), or from the environment. `npm run seed:offline` seeds the local database from recorded fixtures instead of the network. `npm test` runs the unit suite, `npm run test:e2e` runs Playwright against a production build, `npm run build` produces `dist/`.
 
 ## Data
 

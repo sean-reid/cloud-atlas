@@ -48,12 +48,13 @@ export function applyMigrations(db: SqliteDb, dir: string): Promise<void> {
   return db.exec(files.map((f) => readFileSync(join(dir, f), "utf8")).join("\n"));
 }
 
-// wrangler keeps the local D1 database as a SQLite file under .wrangler; the newest one is ours.
+// wrangler keeps the local D1 database as a SQLite file named by hash under .wrangler, next to
+// a metadata.sqlite that miniflare touches on every run; the newest hashed file is ours.
 export function localD1Path(root: string): string | null {
   const dir = join(root, ".wrangler", "state", "v3", "d1", "miniflare-D1DatabaseObject");
   try {
     const files = readdirSync(dir)
-      .filter((f) => f.endsWith(".sqlite"))
+      .filter((f) => /^[0-9a-f]{16,}\.sqlite$/.test(f))
       .map((f) => ({ f, m: statSync(join(dir, f)).mtimeMs }))
       .sort((a, b) => b.m - a.m);
     return files[0] ? join(dir, files[0].f) : null;
