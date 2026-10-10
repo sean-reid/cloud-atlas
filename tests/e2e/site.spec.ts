@@ -179,6 +179,17 @@ test("bad query parameters answer 400 with a plain message, never 500", async ({
   expect(fine.status()).toBe(200);
 });
 
+test("source counts cover the same accepted live observations as the coverage matrix", async ({
+  request,
+}) => {
+  const sources = await (await request.get("/api/sources")).json();
+  const meta = await (await request.get("/api/meta")).json();
+  const cited = sources.sources.reduce((n: number, s: { n: number }) => n + s.n, 0);
+  const covered = meta.coverage.reduce((n: number, c: { n: number }) => n + c.n, 0);
+  expect(cited).toBeGreaterThan(0);
+  expect(cited).toBe(covered);
+});
+
 test("availability history answers per day and per hour", async ({ request }) => {
   const latest = await (await request.get("/api/availability")).json();
   const provider = Object.keys(latest.providers)[0] as string;

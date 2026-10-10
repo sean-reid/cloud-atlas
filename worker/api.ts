@@ -510,7 +510,8 @@ const feed: Handler = async (_req, env, url) => {
 const sources: Handler = async (_req, env) => {
   const list = await all<Source & { n: number; latest_effective: string | null }>(
     env.DB,
-    `SELECT s.*, COUNT(o.id) AS n, MAX(o.effective_date) AS latest_effective FROM source s LEFT JOIN observation o ON o.source_id = s.id
+    `SELECT s.*, COUNT(o.id) AS n, MAX(o.effective_date) AS latest_effective FROM source s
+     LEFT JOIN observation o ON o.source_id = s.id AND o.review_status = 'accepted' AND o.dataset = 'live'
      GROUP BY s.id ORDER BY s.tier, n DESC`,
   );
   const runs = await all<FetchRun>(
