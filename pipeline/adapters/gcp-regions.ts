@@ -1,4 +1,5 @@
 import { ensureEntity, ensureSource, makeObservation, providerEntity } from "../entities";
+import { recordFirstSeen } from "../first-seen";
 import { regionGeo } from "../geo";
 import { columnIndex, tableWithColumns } from "../html";
 import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
@@ -61,6 +62,9 @@ export const gcpRegions: Adapter = {
     for (const [code, { zones, location }] of zonesByRegion) {
       const geo = regionGeo(ctx.geo, "gcp", code);
       const parts = location.split(",").map((s) => s.trim());
+      const wasKnown = [...store.entities.values()].some(
+        (e) => e.type === "region" && e.provider_slug === provider.provider_slug && e.code === code,
+      );
       const region = await ensureEntity(store, {
         dataset,
         type: "region",
@@ -78,6 +82,7 @@ export const gcpRegions: Adapter = {
         ownership: "owned",
       });
       result.entities++;
+      if (await recordFirstSeen(ctx, this, region, wasKnown, source)) result.observations++;
       if (geo)
         await store.resolveReview(`rev_gcp_geo_${code}`, "geography added", now.toISOString());
       if (

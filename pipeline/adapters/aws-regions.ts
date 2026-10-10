@@ -1,5 +1,6 @@
 import { datePrecision } from "../../shared/dates";
 import { ensureEntity, ensureSource, makeObservation, providerEntity } from "../entities";
+import { recordFirstSeen } from "../first-seen";
 import { regionGeo } from "../geo";
 import { columnIndex, stripTags, tableWithColumns } from "../html";
 import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
@@ -105,6 +106,9 @@ export const awsRegions: Adapter = {
       count++;
       const name = descriptions.get(code) ?? row[iName] ?? code;
       const geo = regionGeo(ctx.geo, "aws", code);
+      const wasKnown = [...store.entities.values()].some(
+        (e) => e.type === "region" && e.provider_slug === provider.provider_slug && e.code === code,
+      );
       const entity = await ensureEntity(store, {
         dataset,
         type: "region",
@@ -122,6 +126,7 @@ export const awsRegions: Adapter = {
         ownership: "owned",
       });
       result.entities++;
+      if (await recordFirstSeen(ctx, this, entity, wasKnown, docsSource)) result.observations++;
       if (geo)
         await store.resolveReview(`rev_aws_geo_${code}`, "geography added", now.toISOString());
       if (!geo) {

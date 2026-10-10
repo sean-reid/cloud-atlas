@@ -1,4 +1,5 @@
 import { ensureEntity, ensureSource, makeObservation, providerEntity } from "../entities";
+import { recordFirstSeen } from "../first-seen";
 import { regionGeo } from "../geo";
 import { columnIndex, tables } from "../html";
 import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
@@ -53,6 +54,9 @@ export const azureRegions: Adapter = {
 
     for (const [code, [name, azText, location]] of seen) {
       const geo = regionGeo(ctx.geo, "azure", code);
+      const wasKnown = [...store.entities.values()].some(
+        (e) => e.type === "region" && e.provider_slug === provider.provider_slug && e.code === code,
+      );
       const entity = await ensureEntity(store, {
         dataset,
         type: "region",
@@ -70,6 +74,7 @@ export const azureRegions: Adapter = {
         ownership: "owned",
       });
       result.entities++;
+      if (await recordFirstSeen(ctx, this, entity, wasKnown, source)) result.observations++;
       if (geo)
         await store.resolveReview(`rev_azure_geo_${code}`, "geography added", now.toISOString());
       if (

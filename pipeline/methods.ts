@@ -38,6 +38,15 @@ export const METHODS: readonly Method[] = [
     assumptions: "Rates are indicative, not the rate on the announcement date.",
   },
   {
+    id: "first-seen.v1",
+    version: 1,
+    title: "First appearance in provider documentation",
+    description:
+      "The date a region code first appeared in the provider's published region table, read daily. A lower bound on age: the region may have opened before the table listed it.",
+    assumptions:
+      "The table is read at least daily; the seed run records nothing because every region is new to it.",
+  },
+  {
     id: "spot-ratio.v1",
     version: 1,
     title: "Spot to on-demand price ratio",
