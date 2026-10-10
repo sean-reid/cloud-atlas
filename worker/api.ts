@@ -19,6 +19,7 @@ import { all, loadSites, one } from "./db";
 export interface Env {
   DB: D1Database;
   ASSETS: Fetcher;
+  API_RATE: RateLimit;
 }
 
 type Handler = (
@@ -873,15 +874,37 @@ const ROUTES: [RegExp, Handler][] = [
   [/^\/api\/openapi\.json$/, openapi],
 ];
 
-export async function handleApi(request: Request, env: Env): Promise<Response> {
+// Public and keyless, so two guards: a per-client budget of 300 requests a minute, and the
+// edge cache in front of D1 so repeated reads of one URL cost one query per five minutes.
+export async function handleApi(
+  request: Request,
+  env: Env,
+  ctx: ExecutionContext,
+): Promise<Response> {
   if (request.method !== "GET" && request.method !== "HEAD")
     return json({ error: "method not allowed" }, 405, { allow: "GET, HEAD" });
   const url = new URL(request.url);
+  const guarded = url.pathname !== "/api/health";
+  if (guarded) {
+    const key = request.headers.get("cf-connecting-ip") ?? "anonymous";
+    const { success } = await env.API_RATE.limit({ key });
+    if (!success) {
+      return json({ error: "rate limited: 300 requests a minute per client" }, 429, {
+        "retry-after": "60",
+        "cache-control": "no-store",
+      });
+    }
+    const hit = await caches.default.match(request);
+    if (hit) return hit;
+  }
   for (const [pattern, handler] of ROUTES) {
     const m = pattern.exec(url.pathname);
     if (m) {
       try {
-        return await handler(request, env, url, m.groups ?? {});
+        const res = await handler(request, env, url, m.groups ?? {});
+        if (guarded && res.ok && request.method === "GET")
+          ctx.waitUntil(caches.default.put(request, res.clone()));
+        return res;
       } catch (err) {
         return json({ error: err instanceof Error ? err.message : "internal error" }, 500, {
           "cache-control": "no-store",
