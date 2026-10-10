@@ -1,4 +1,4 @@
-import type { Filters } from "../shared/filters";
+import { effectiveDateRange, type Filters } from "../shared/filters";
 import type { Candidate } from "../shared/selection";
 import type { Entity } from "../shared/types";
 
@@ -71,14 +71,9 @@ export async function loadSites(
     obsWhere.push("s.tier <= ?");
     obsParams.push(f.tier);
   }
-  if (f.from) {
-    obsWhere.push("o.effective_date >= ?");
-    obsParams.push(f.from);
-  }
-  if (f.to) {
-    obsWhere.push("o.effective_date <= ?");
-    obsParams.push(f.to);
-  }
+  const range = effectiveDateRange(f);
+  obsWhere.push(...range.where);
+  obsParams.push(...range.params);
   const rows: Candidate[] = [];
   // D1 caps bound parameters per statement, so entity ids go in chunks.
   const ids = entities.map((e) => e.id);
