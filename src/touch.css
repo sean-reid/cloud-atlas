@@ -1,0 +1,30 @@
+/* Touch devices get 44px targets; pointer devices keep the denser layout */
+@media (pointer: coarse) {
+  .chip,
+  .filters details.more > summary {
+    min-height: 44px;
+  }
+  .maplibregl-ctrl-group button {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+  .map .maplibregl-ctrl-attrib.maplibregl-compact {
+    min-height: 44px;
+    padding-right: 44px;
+  }
+  .map .maplibregl-ctrl-attrib-button {
+    width: 44px;
+    height: 44px;
+    background-position: center;
+  }
+  .ribbon-region,
+  .ribbon-cell {
+    min-height: 44px;
+  }
+  .lead a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
