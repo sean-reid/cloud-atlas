@@ -11,6 +11,7 @@ import {
 import { providerBySlug } from "../../shared/providers";
 import type { AvailabilitySignalKind } from "../../shared/types";
 import type { RegionMarker } from "../components/Map";
+import { AvailabilityHistory } from "../components/AvailabilityHistory";
 import { useApi } from "../lib/api";
 import { fmtAgo } from "../lib/format";
 
@@ -190,6 +191,15 @@ export function Availability() {
                 variant="availability"
               />
             </Suspense>
+          </>
+        )}
+
+        {p && fam && slug && (
+          <>
+            <div className="lead" style={{ marginTop: "1.75rem" }}>
+              <h2>{fam} over the last 30 days</h2>
+            </div>
+            <AvailabilityHistory provider={slug} family={fam} />
           </>
         )}
 

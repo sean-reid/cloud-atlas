@@ -927,3 +927,67 @@ details.filters-drawer .filters {
     display: none;
   }
 }
+
+/* Availability history ribbon */
+.ribbon {
+  display: grid;
+  gap: 2px;
+  align-items: center;
+  font-size: 0.78rem;
+}
+.ribbon-head {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--rule);
+}
+.ribbon-head.day {
+  position: relative;
+  text-align: center;
+  font-family: var(--mono);
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  padding-top: 0.9rem;
+}
+.ribbon-head.day .month {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: var(--serif);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+}
+.ribbon-region {
+  all: unset;
+  cursor: pointer;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  padding-right: 0.5rem;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.ribbon-region.on {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.ribbon-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 24px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.ribbon-cell .swatch {
+  width: 0.75em;
+  height: 0.75em;
+}
+@media (max-width: 767px) {
+  .ribbon-cell .swatch {
+    width: 0.6em;
+    height: 0.6em;
+  }
+}

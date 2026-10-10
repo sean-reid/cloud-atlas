@@ -110,3 +110,55 @@ const rank: Record<Level, number> = {
 export function worstLevel<T extends { level: Level }>(cells: readonly T[]): T | null {
   return cells.reduce<T | null>((w, c) => (!w || rank[c.level] > rank[w.level] ? c : w), null);
 }
+
+// Higher is worse for prices, interruption bands, and lead times; lower is worse for scores and
+// verdicts. A day's reading is the worst hour in it, so a tight afternoon is not averaged away.
+export const HIGHER_IS_WORSE = new Set<AvailabilitySignalKind>([
+  "spot_ratio",
+  "interruption_band",
+  "lead_time_days",
+]);
+
+export function worstOfDay(signal: AvailabilitySignalKind, min: number, max: number): number {
+  return HIGHER_IS_WORSE.has(signal) ? max : min;
+}
+
+export interface DayCell {
+  day: string;
+  level: Level;
+  measure: string;
+  samples: number;
+}
+
+// Builds the per-day level and measurement for one region and SKU from daily extremes.
+export function dayCells(
+  rows: readonly {
+    day: string;
+    signal: AvailabilitySignalKind;
+    min: number;
+    max: number;
+    samples: number;
+    detail: Record<string, unknown> | null;
+  }[],
+  spotTerciles: { q33: number; q66: number } | null,
+): DayCell[] {
+  const byDay = new Map<string, { readings: Readings; samples: number }>();
+  for (const r of rows) {
+    const d = byDay.get(r.day) ?? { readings: {}, samples: 0 };
+    d.readings[r.signal] = {
+      value: worstOfDay(r.signal, r.min, r.max),
+      detail: r.detail,
+      baseline: null,
+    };
+    d.samples = Math.max(d.samples, r.samples);
+    byDay.set(r.day, d);
+  }
+  return [...byDay.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .map(([day, d]) => ({
+      day,
+      level: levelFor(d.readings, spotTerciles),
+      measure: measureFor(d.readings),
+      samples: d.samples,
+    }));
+}
