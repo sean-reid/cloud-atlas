@@ -26,6 +26,7 @@ interface Series {
 const DAY = 86_400_000;
 const HOUR = 3_600_000;
 const WINDOWS = [7, 30, 90] as const;
+const ROW_LIMIT = 12;
 type Window = (typeof WINDOWS)[number];
 
 const rank: Record<Level, number> = {
@@ -50,7 +51,8 @@ function windowDays(days: number, now: number): string[] {
 // their latest day, and that row's hourly readings open by default.
 export function AvailabilityHistory({ provider, family }: { provider: string; family: string }) {
   const [days, setDays] = useState<Window>(30);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null | undefined>(undefined);
+  const [showAll, setShowAll] = useState(false);
   const [now] = useState(() => Date.now());
   const { data } = useApi<History>(
     `/api/availability/history?provider=${provider}&family=${encodeURIComponent(family)}&days=${days}`,
@@ -80,7 +82,11 @@ export function AvailabilityHistory({ provider, family }: { provider: string; fa
   const regions = [...byRegion.values()].sort(
     (a, b) => latestRank(b.cells) - latestRank(a.cells) || a.region.localeCompare(b.region),
   );
-  const active = regions.find((r) => r.region === selected) ?? regions[0] ?? null;
+  const active =
+    selected === null ? null : (regions.find((r) => r.region === selected) ?? regions[0] ?? null);
+  const shown = showAll
+    ? regions
+    : regions.filter((r, i) => i < ROW_LIMIT || r.region === active?.region);
   const withReadings = data?.days.filter((d) => d >= columns[0]!) ?? [];
   const labelEvery = days <= 7 ? 1 : 7;
   const scrollToEnd = (el: HTMLDivElement | null) => {
@@ -117,7 +123,7 @@ export function AvailabilityHistory({ provider, family }: { provider: string; fa
         <p className="muted small">
           Readings on {withReadings.length} of the last {days} days, since{" "}
           {fmtDate(withReadings[0])}. Each mark is the day&apos;s worst hour for the family&apos;s
-          worst SKU; pick a region for its hourly readings.
+          worst SKU. Click a region for its hourly readings, again to hide them.
         </p>
       )}
       <div className="ribbon-scroll" ref={scrollToEnd}>
@@ -160,12 +166,12 @@ export function AvailabilityHistory({ provider, family }: { provider: string; fa
               </div>
             );
           })}
-          {regions.map((r) => (
+          {shown.map((r) => (
             <div key={r.region} style={{ display: "contents" }} role="row">
               <button
                 type="button"
                 className={`ribbon-region mono${active?.region === r.region ? " on" : ""}`}
-                onClick={() => setSelected(r.region)}
+                onClick={() => setSelected(active?.region === r.region ? null : r.region)}
                 aria-pressed={active?.region === r.region}
               >
                 {r.region}
@@ -194,6 +200,13 @@ export function AvailabilityHistory({ provider, family }: { provider: string; fa
           ))}
         </div>
       </div>
+      {regions.length > shown.length && (
+        <p style={{ marginTop: "0.75rem" }}>
+          <button type="button" onClick={() => setShowAll(true)}>
+            Show all {regions.length} regions
+          </button>
+        </p>
+      )}
       {active && (
         <SignalLines provider={provider} region={active.region} sku={active.sku} days={days} />
       )}
