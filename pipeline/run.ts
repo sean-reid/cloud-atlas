@@ -8,6 +8,7 @@ import { loadReviewed } from "./decisions";
 import { loadGeo } from "./geo";
 import { log } from "./log";
 import { ensureMethods } from "./methods";
+import { scrubError } from "./scrub";
 import { Store } from "./store";
 
 export interface RunOptions {
@@ -141,7 +142,7 @@ export async function runAdapters(
         content_hash: null,
         changed: false,
         observations: 0,
-        error: message.slice(0, 500),
+        error: scrubError(message).slice(0, 500),
       });
       outcomes.push({
         adapter: adapter.id,
