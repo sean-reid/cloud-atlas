@@ -18,6 +18,7 @@ import type {
   Observation,
   Source,
 } from "../shared/types";
+import { cacheKey, FILTER_PARAMS } from "./cache-key";
 import { csvCell } from "./csv";
 import { all, loadSites, one, placeholders } from "./db";
 import { BadRequest, intParam, queryFilters } from "./params";
@@ -984,22 +985,23 @@ const openapi: Handler = async (_req, _env, url) => {
   return json(doc);
 };
 
-const ROUTES: [RegExp, Handler][] = [
-  [/^\/api\/health$/, health],
-  [/^\/api\/meta$/, meta],
-  [/^\/api\/summary$/, summary],
-  [/^\/api\/sites$/, sites],
-  [/^\/api\/regions$/, regions],
-  [/^\/api\/timeseries$/, timeseries],
-  [/^\/api\/entities\/(?<id>[a-z0-9_]+)$/, entityDetail],
-  [/^\/api\/providers\/(?<slug>[a-z0-9-]+)$/, providerDetail],
-  [/^\/api\/feed$/, feed],
-  [/^\/api\/sources$/, sources],
-  [/^\/api\/availability$/, availability],
-  [/^\/api\/availability\/history$/, availabilityHistory],
-  [/^\/api\/availability\/series$/, availabilitySeries],
-  [/^\/api\/export\.csv$/, exportCsv],
-  [/^\/api\/openapi\.json$/, openapi],
+const NONE: readonly string[] = [];
+const ROUTES: [RegExp, Handler, readonly string[]][] = [
+  [/^\/api\/health$/, health, NONE],
+  [/^\/api\/meta$/, meta, NONE],
+  [/^\/api\/summary$/, summary, FILTER_PARAMS],
+  [/^\/api\/sites$/, sites, FILTER_PARAMS],
+  [/^\/api\/regions$/, regions, ["provider", "demo"]],
+  [/^\/api\/timeseries$/, timeseries, FILTER_PARAMS],
+  [/^\/api\/entities\/(?<id>[a-z0-9_]+)$/, entityDetail, NONE],
+  [/^\/api\/providers\/(?<slug>[a-z0-9-]+)$/, providerDetail, FILTER_PARAMS],
+  [/^\/api\/feed$/, feed, ["limit"]],
+  [/^\/api\/sources$/, sources, NONE],
+  [/^\/api\/availability$/, availability, ["provider"]],
+  [/^\/api\/availability\/history$/, availabilityHistory, ["provider", "family", "days"]],
+  [/^\/api\/availability\/series$/, availabilitySeries, ["provider", "region", "sku", "days"]],
+  [/^\/api\/export\.csv$/, exportCsv, FILTER_PARAMS],
+  [/^\/api\/openapi\.json$/, openapi, NONE],
 ];
 
 // Public and keyless, so two guards: a per-client budget of 300 requests a minute, and the
@@ -1022,23 +1024,25 @@ export async function handleApi(
         "cache-control": "no-store",
       });
     }
-    const hit = await caches.default.match(request);
-    if (hit) return hit;
   }
-  for (const [pattern, handler] of ROUTES) {
+  for (const [pattern, handler, known] of ROUTES) {
     const m = pattern.exec(url.pathname);
-    if (m) {
-      try {
-        const res = await handler(request, env, url, m.groups ?? {});
-        if (guarded && res.ok && request.method === "GET")
-          ctx.waitUntil(caches.default.put(request, res.clone()));
-        return res;
-      } catch (err) {
-        if (err instanceof BadRequest)
-          return json({ error: err.message }, 400, { "cache-control": "no-store" });
-        console.error("api.failed", url.pathname, err);
-        return json({ error: "internal error" }, 500, { "cache-control": "no-store" });
-      }
+    if (!m) continue;
+    const cacheReq = new Request(cacheKey(url, known), { method: "GET" });
+    if (guarded) {
+      const hit = await caches.default.match(cacheReq);
+      if (hit) return hit;
+    }
+    try {
+      const res = await handler(request, env, url, m.groups ?? {});
+      if (guarded && res.ok && request.method === "GET")
+        ctx.waitUntil(caches.default.put(cacheReq, res.clone()));
+      return res;
+    } catch (err) {
+      if (err instanceof BadRequest)
+        return json({ error: err.message }, 400, { "cache-control": "no-store" });
+      console.error("api.failed", url.pathname, err);
+      return json({ error: "internal error" }, 500, { "cache-control": "no-store" });
     }
   }
   return notFound();
