@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { providerTotals, selectSites } from "../../shared/aggregate";
-import { selectObservation, type Candidate } from "../../shared/selection";
+import { providerTotals, rowPicks, selectSites } from "../../shared/aggregate";
+import { selectByStatus, selectObservation, type Candidate } from "../../shared/selection";
 import type { Entity } from "../../shared/types";
 
 const base: Candidate = {
@@ -71,6 +71,19 @@ describe("selection rule", () => {
     )!;
     expect(s.pick.id).toBe("new");
     expect(s.competing).toHaveLength(0);
+  });
+  test("one selection per status, so an announcement never hides the operational figure", () => {
+    const rows = [
+      c({ id: "op", value: 100, effective_date: "2025" }),
+      c({ id: "plan", value: 900, status: "announced", effective_date: "2028" }),
+      c({ id: "older", value: 800, status: "announced", effective_date: "2027" }),
+    ];
+    expect(selectObservation(rows, null, "reconstructed")!.pick.id).toBe("plan");
+    const byStatus = selectByStatus(rows, null, "reconstructed");
+    expect([...byStatus.keys()]).toEqual(["operational", "announced"]);
+    expect(byStatus.get("operational")!.pick.id).toBe("op");
+    expect(byStatus.get("announced")!.pick.id).toBe("plan");
+    expect(byStatus.get("announced")!.competing.map((o) => o.id)).toEqual(["older"]);
   });
   test("pending observations never reach the dashboard", () => {
     expect(selectObservation([c({ review_status: "pending" })], null, "known")).toBeNull();
@@ -154,6 +167,60 @@ describe("aggregation without double counting", () => {
     expect(t.facility_only_power_mw).toBe(50);
     expect(t.pipeline_it_power_mw.announced).toBe(900);
     expect(t.pipeline_it_power_mw.operational).toBe(0);
+  });
+  test("a campus with an IT figure covers a building that reports facility power", () => {
+    const rows = [
+      c({ id: "cit", entity_id: "campus", value: 300 }),
+      c({ id: "bfac", entity_id: "b1", metric: "facility_power_mw", value: 120 }),
+      c({
+        id: "bplan",
+        entity_id: "b2",
+        metric: "facility_power_mw",
+        value: 80,
+        status: "announced",
+      }),
+    ];
+    const t = providerTotals(entities, selectSites(entities, rows, null, "known"))[0]!;
+    expect(t.it_power_mw).toBe(300);
+    expect(t.it_sites).toBe(1);
+    expect(t.facility_only_power_mw).toBe(0);
+    expect(t.facility_only_sites).toBe(0);
+    expect(t.pipeline_facility_only_power_mw.announced).toBe(80);
+  });
+  test("a site row carries the operational pick whatever order the rows arrive in", () => {
+    const rows = [
+      c({ id: "op", entity_id: "campus", value: 100, effective_date: "2025" }),
+      c({
+        id: "plan",
+        entity_id: "campus",
+        value: 900,
+        status: "announced",
+        effective_date: "2028",
+      }),
+      c({
+        id: "ofac",
+        entity_id: "other",
+        metric: "facility_power_mw",
+        value: 50,
+        status: "announced",
+      }),
+      c({
+        id: "ouc",
+        entity_id: "other",
+        metric: "facility_power_mw",
+        value: 60,
+        status: "under_construction",
+      }),
+    ];
+    for (const ordered of [rows, [...rows].reverse()]) {
+      const picks = selectSites(entities, ordered, null, "reconstructed");
+      expect(picks).toHaveLength(4);
+      const row = rowPicks(picks).map((p) => [p.entity.id, p.metric, p.selection.pick.id]);
+      expect(row).toHaveLength(2);
+      expect(row).toContainEqual(["campus", "it_power_mw", "op"]);
+      expect(row).toContainEqual(["other", "facility_power_mw", "ouc"]);
+      expect(providerTotals(entities, picks)[0]!.it_power_mw).toBe(100);
+    }
   });
   test("unknown is not zero: an entity without observations adds nothing and is not counted as a site", () => {
     const t = providerTotals(

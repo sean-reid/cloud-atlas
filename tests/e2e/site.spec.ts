@@ -179,6 +179,17 @@ test("bad query parameters answer 400 with a plain message, never 500", async ({
   expect(fine.status()).toBe(200);
 });
 
+test("source counts cover the same accepted live observations as the coverage matrix", async ({
+  request,
+}) => {
+  const sources = await (await request.get("/api/sources")).json();
+  const meta = await (await request.get("/api/meta")).json();
+  const cited = sources.sources.reduce((n: number, s: { n: number }) => n + s.n, 0);
+  const covered = meta.coverage.reduce((n: number, c: { n: number }) => n + c.n, 0);
+  expect(cited).toBeGreaterThan(0);
+  expect(cited).toBe(covered);
+});
+
 test("availability history answers per day and per hour", async ({ request }) => {
   const latest = await (await request.get("/api/availability")).json();
   const provider = Object.keys(latest.providers)[0] as string;
@@ -190,6 +201,15 @@ test("availability history answers per day and per hour", async ({ request }) =>
   ).json();
   expect(history.days.length).toBeGreaterThan(0);
   expect(history.series[0].days[0]).toHaveProperty("level");
+  // The seed holds one hour, so the ribbon's latest day must read as the latest view does.
+  for (const entry of latest.providers[provider].families[family]) {
+    const s = history.series.find(
+      (x: { region_code: string; sku: string }) =>
+        x.region_code === entry.region_code && x.sku === entry.sku,
+    );
+    expect(s, `${entry.region_code} ${entry.sku}`).toBeTruthy();
+    expect(s.days.at(-1).level, `${entry.region_code} ${entry.sku}`).toBe(entry.level);
+  }
   const first = history.series[0];
   const series = await (
     await request.get(

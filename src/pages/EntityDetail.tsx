@@ -1,7 +1,7 @@
 import { Link, useParams } from "wouter";
 import { metricById } from "../../shared/metrics";
 import { providerBySlug } from "../../shared/providers";
-import type { Entity, Method, Observation } from "../../shared/types";
+import type { Entity, Method, Observation, Status } from "../../shared/types";
 import { countryName } from "../components/FilterBar";
 import { useApi } from "../lib/api";
 import { fmtAgo, fmtDate, fmtMetric, precisionLabel, statusLabel, tierLabel } from "../lib/format";
@@ -18,7 +18,14 @@ interface Detail {
   entity: Entity;
   ancestors: Entity[];
   children: Entity[];
-  metrics: Record<string, { selected: string | null; observations: Obs[] }>;
+  metrics: Record<
+    string,
+    {
+      selected: string | null;
+      selected_by_status: Partial<Record<Status, string>>;
+      observations: Obs[];
+    }
+  >;
   methods: Method[];
 }
 
@@ -90,16 +97,21 @@ export function EntityDetail() {
       {metricOrder.map((metric) => {
         const group = data.metrics[metric]!;
         const def = metricById(metric);
-        const selected = group.observations.find((o) => o.id === group.selected);
+        const selectedIds = new Set(Object.values(group.selected_by_status));
+        const selected = group.observations.filter((o) => selectedIds.has(o.id));
         return (
           <section className="block" key={metric}>
             <div className="lead">
               <h2>{def?.label ?? metric}</h2>
-              {selected && (
+              {selected.length > 0 && (
                 <span className="muted small">
                   selected:{" "}
-                  {fmtMetric(metric, selected.value, selected.value_low, selected.value_high)},{" "}
-                  {statusLabel[selected.status]}, claim dated {fmtDate(selected.effective_date)}
+                  {selected
+                    .map(
+                      (o) =>
+                        `${fmtMetric(metric, o.value, o.value_low, o.value_high)} ${statusLabel[o.status]}, claim dated ${fmtDate(o.effective_date)}`,
+                    )
+                    .join("; ")}
                   {group.observations.length > 1
                     ? ` · ${group.observations.length} observations`
                     : ""}
@@ -125,8 +137,10 @@ export function EntityDetail() {
                     return (
                       <tr key={o.id} style={{ opacity: superseded ? 0.6 : 1 }}>
                         <td className="num">
-                          {o.id === group.selected && (
-                            <span title="selected for the dashboard">▸ </span>
+                          {selectedIds.has(o.id) && (
+                            <span title={`selected for the dashboard as ${statusLabel[o.status]}`}>
+                              ▸{" "}
+                            </span>
                           )}
                           {fmtMetric(metric, o.value, o.value_low, o.value_high)}
                           {o.value_original && o.value_original !== String(o.value) && (

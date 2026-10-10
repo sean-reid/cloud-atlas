@@ -70,6 +70,8 @@ export function extractClaims(sentence: string, places: Gazetteer): Claim[] {
   const kind = statusHit?.[2] ?? "as_of";
   const place = placeFor(places, sentence);
   const powerHits = [...sentence.matchAll(POWER)];
+  const moneyHits = [...sentence.matchAll(MONEY)];
+  const figures = powerHits.length + moneyHits.length;
   for (const m of powerHits) {
     const parsed = parsePowerMw(m[0]);
     if (!parsed) continue;
@@ -81,10 +83,9 @@ export function extractClaims(sentence: string, places: Gazetteer): Claim[] {
       effective_kind: kind,
       place,
       sentence,
-      figures: powerHits.length,
+      figures,
     });
   }
-  const moneyHits = [...sentence.matchAll(MONEY)];
   for (const m of moneyHits) {
     const parsed = parseMoneyUsd(m[0]);
     if (!parsed || parsed.value < 1e8) continue;
@@ -96,14 +97,14 @@ export function extractClaims(sentence: string, places: Gazetteer): Claim[] {
       effective_kind: kind === "as_of" ? "announced" : kind,
       place,
       sentence,
-      figures: moneyHits.length,
+      figures,
     });
   }
   return out;
 }
 
-// A claim from a provider's own newsroom with one figure, a status word, and a resolved place
-// is accepted as reported. Anything less waits for a maintainer.
+// A claim from a provider's own newsroom whose sentence holds one figure of any kind, a status
+// word, and a resolved place is accepted as reported. Anything less waits for a maintainer.
 export function autoAccept(claim: Claim, tier: number): boolean {
   return tier === 1 && claim.figures === 1 && claim.place !== null && claim.status !== "unknown";
 }

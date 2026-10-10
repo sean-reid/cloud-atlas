@@ -1,5 +1,5 @@
 import { dateFloor } from "./dates";
-import type { ClaimType, Observation, SourceTier } from "./types";
+import type { ClaimType, Observation, SourceTier, Status } from "./types";
 
 export interface Candidate extends Observation {
   tier: SourceTier;
@@ -55,6 +55,36 @@ export function selectObservation(
   );
   const disagreement = sameDate.some((o) => o.value !== pick.value);
   return { pick, competing, disagreement };
+}
+
+// When one metric has a pick at several statuses, the operational figure speaks for the site,
+// then the nearest stage of the pipeline.
+export const STATUS_PRIORITY: readonly Status[] = [
+  "operational",
+  "under_construction",
+  "announced",
+  "unknown",
+  "cancelled",
+  "decommissioned",
+];
+
+export const statusRank = (s: Status): number => STATUS_PRIORITY.indexOf(s);
+
+// One selection per status present, so a 2028 announcement never hides the operational figure.
+export function selectByStatus(
+  rows: readonly Candidate[],
+  asOf: string | null,
+  mode: TimeMode,
+): Map<Status, Selection> {
+  const byStatus = new Map<Status, Candidate[]>();
+  for (const r of rows) byStatus.set(r.status, [...(byStatus.get(r.status) ?? []), r]);
+  const out = new Map<Status, Selection>();
+  for (const status of STATUS_PRIORITY) {
+    const list = byStatus.get(status);
+    const sel = list && selectObservation(list, asOf, mode);
+    if (sel) out.set(status, sel);
+  }
+  return out;
 }
 
 // Operational figures and planned expansion coexist at one site, so the grouping key carries

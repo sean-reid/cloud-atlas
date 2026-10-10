@@ -2,6 +2,7 @@ import { POWER_METRICS } from "./metrics";
 import {
   groupByEntityMetric,
   selectObservation,
+  statusRank,
   type Candidate,
   type Selection,
   type TimeMode,
@@ -58,6 +59,19 @@ export function selectSites(
   return out;
 }
 
+// One pick per entity and metric for a table row: the operational figure when there is one,
+// else the earliest pipeline stage, so the row agrees with the totals above it.
+export function rowPicks(picks: readonly SitePick[]): SitePick[] {
+  const best = new Map<string, SitePick>();
+  for (const p of picks) {
+    const key = `${p.entity.id}|${p.metric}`;
+    const cur = best.get(key);
+    if (!cur || statusRank(p.selection.pick.status) < statusRank(cur.selection.pick.status))
+      best.set(key, p);
+  }
+  return [...best.values()];
+}
+
 function ancestors(entity: Entity, byId: Map<string, Entity>): Entity[] {
   const out: Entity[] = [];
   let cur = entity.parent_id ? byId.get(entity.parent_id) : undefined;
@@ -69,7 +83,7 @@ function ancestors(entity: Entity, byId: Map<string, Entity>): Entity[] {
 }
 
 // Sums power without double counting: a site contributes only if no ancestor of it already
-// contributes the same metric at the same status. IT and facility power never mix; a site
+// contributes a power figure at the same status. IT and facility power never mix; a site
 // with only a facility figure lands in the facility-only bucket.
 export function providerTotals(
   entities: readonly Entity[],
@@ -101,18 +115,14 @@ export function providerTotals(
   const powerPicks = picks.filter(
     (p) => POWER_METRICS.has(p.metric) && p.selection.pick.value !== null,
   );
-  const has = new Set(
-    powerPicks.map((p) => `${p.entity.id}|${p.metric}|${p.selection.pick.status}`),
-  );
+  const hasPower = new Set(powerPicks.map((p) => `${p.entity.id}|${p.selection.pick.status}`));
   const hasIt = new Set(
     powerPicks
       .filter((p) => p.metric === "it_power_mw")
       .map((p) => `${p.entity.id}|${p.selection.pick.status}`),
   );
   const covered = (p: SitePick) =>
-    ancestors(p.entity, byId).some((a) =>
-      has.has(`${a.id}|${p.metric}|${p.selection.pick.status}`),
-    );
+    ancestors(p.entity, byId).some((a) => hasPower.has(`${a.id}|${p.selection.pick.status}`));
 
   let derived = 0;
   let counted = 0;

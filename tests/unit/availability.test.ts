@@ -1,5 +1,16 @@
-import { describe, expect, test } from "vitest";
-import { levelFor, measureFor, worstLevel, type Readings } from "../../shared/availability";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import type { SqliteDb } from "../../pipeline/db";
+import {
+  HISTORY_DAY_SQL,
+  historyCells,
+  levelFor,
+  measureFor,
+  spotTerciles,
+  worstLevel,
+  type HistoryRow,
+  type Readings,
+} from "../../shared/availability";
+import { memoryDb } from "./helpers";
 
 const r = (partial: Readings): Readings => partial;
 const terciles = { q33: 0.3, q66: 0.6 };
@@ -103,22 +114,79 @@ describe("measurements shown beside a level", () => {
 });
 
 describe("daily history cells", () => {
-  test("the worst hour decides the day, by direction of each signal", async () => {
-    const { dayCells, worstOfDay } = await import("../../shared/availability");
-    expect(worstOfDay("spot_ratio", 0.2, 0.9)).toBe(0.9);
-    expect(worstOfDay("placement_score", 3, 9)).toBe(3);
-    const cells = dayCells(
-      [
-        { day: "2026-10-09", signal: "spot_ratio", min: 0.2, max: 0.9, samples: 24, detail: null },
-        { day: "2026-10-10", signal: "spot_ratio", min: 0.1, max: 0.25, samples: 20, detail: null },
-        { day: "2026-10-08", signal: "placement_score", min: 2, max: 9, samples: 24, detail: null },
-      ],
-      { q33: 0.3, q66: 0.6 },
+  let db: SqliteDb;
+  beforeEach(async () => {
+    db = await memoryDb();
+    await db.exec(
+      "INSERT INTO source (id, publisher, title, url, tier) VALUES ('s', 'p', 't', 'https://example.test', 1);",
     );
-    expect(cells.map((c) => c.day)).toEqual(["2026-10-08", "2026-10-09", "2026-10-10"]);
-    expect(cells.map((c) => c.level)).toEqual(["tight", "tight", "available"]);
-    expect(cells[1]!.measure).toBe("90% of list");
-    expect(cells[0]!.measure).toBe("score 2/10");
+  });
+  afterEach(async () => {
+    await db.close();
+  });
+  const sig = (
+    id: string,
+    signal: string,
+    value: number,
+    at: string,
+    detail: Record<string, unknown> | null,
+    zone: string | null = null,
+    region = "us-east-1",
+  ) =>
+    db.exec(
+      `INSERT INTO availability_signal VALUES ('${id}','aws','${region}',${zone ? `'${zone}'` : "NULL"},'p5.48xlarge','H100','${signal}',${value},'u','${at}','s',${detail ? `'${JSON.stringify(detail)}'` : "NULL"});`,
+    );
+  const history = async () => {
+    const rows = await db.query<Omit<HistoryRow, "detail"> & { detail: string | null }>(
+      HISTORY_DAY_SQL,
+      ["aws", "H100", "2026-01-01"],
+    );
+    return historyCells(
+      rows.map((r) => ({ ...r, detail: r.detail ? JSON.parse(r.detail) : null })),
+    );
+  };
+
+  test("a day follows the smallest ask, then its worst hour, carrying that hour's detail", async () => {
+    await sig("a", "placement_score", 9, "2026-06-01T10:00:00Z", { target_capacity: 8 });
+    await sig("b", "placement_score", 2, "2026-06-01T10:00:00Z", { target_capacity: 64 });
+    expect((await history())[0]!.days).toEqual([
+      { day: "2026-06-01", level: "available", measure: "score 9/10", samples: 1 },
+    ]);
+    await sig("c", "placement_score", 5, "2026-06-01T11:00:00Z", { target_capacity: 8 });
+    await sig("d", "placement_score", 1, "2026-06-01T11:00:00Z", { target_capacity: 64 });
+    await sig("e", "placement_score", 8, "2026-06-02T11:00:00Z", { target_capacity: 8 });
+    expect((await history())[0]!.days).toEqual([
+      { day: "2026-06-01", level: "constrained", measure: "score 5/10", samples: 2 },
+      { day: "2026-06-02", level: "available", measure: "score 8/10", samples: 1 },
+    ]);
+  });
+
+  test("zones fold to the worst zone at the worst hour and the cell names it", async () => {
+    await sig("a1", "sell_status", 1, "2026-06-01T10:00:00Z", { status: "Available" }, "a");
+    await sig("b1", "sell_status", 1, "2026-06-01T10:00:00Z", { status: "Available" }, "b");
+    await sig("a2", "sell_status", 1, "2026-06-01T11:00:00Z", { status: "Available" }, "a");
+    await sig("b2", "sell_status", 0, "2026-06-01T11:00:00Z", { status: "SoldOut" }, "b");
+    expect((await history())[0]!.days).toEqual([
+      { day: "2026-06-01", level: "tight", measure: "sold out in b, 2 zones", samples: 2 },
+    ]);
+  });
+
+  test("spot terciles are relative within the family on each day, as in the latest view", async () => {
+    await sig("r1", "spot_ratio", 0.2, "2026-06-01T10:00:00Z", null, null, "r1");
+    await sig("r2", "spot_ratio", 0.5, "2026-06-01T10:00:00Z", null, null, "r2");
+    await sig("r3", "spot_ratio", 0.8, "2026-06-01T10:00:00Z", null, null, "r3");
+    await sig("r1b", "spot_ratio", 0.9, "2026-06-02T10:00:00Z", null, null, "r1");
+    await sig("r2b", "spot_ratio", 0.9, "2026-06-02T10:00:00Z", null, null, "r2");
+    const cells = await history();
+    expect(cells.map((c) => c.days.map((d) => d.level))).toEqual([
+      ["available", "available"],
+      ["constrained", "available"],
+      ["tight"],
+    ]);
+    const t = spotTerciles([0.8, 0.2, 0.5])!;
+    expect(levelFor({ spot_ratio: { value: 0.5, detail: null, baseline: null } }, t)).toBe(
+      "constrained",
+    );
   });
 });
 

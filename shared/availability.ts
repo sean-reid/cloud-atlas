@@ -120,15 +120,19 @@ export function worstLevel<T extends { level: Level }>(cells: readonly T[]): T |
 }
 
 // Higher is worse for prices, interruption bands, and lead times; lower is worse for scores and
-// verdicts. A day's reading is the worst hour in it, so a tight afternoon is not averaged away.
+// verdicts.
 export const HIGHER_IS_WORSE = new Set<AvailabilitySignalKind>([
   "spot_ratio",
   "interruption_band",
   "lead_time_days",
 ]);
 
-export function worstOfDay(signal: AvailabilitySignalKind, min: number, max: number): number {
-  return HIGHER_IS_WORSE.has(signal) ? max : min;
+// Positional terciles of the spot ratios in one family at one moment.
+export function spotTerciles(ratios: readonly number[]): { q33: number; q66: number } | null {
+  if (!ratios.length) return null;
+  const sorted = [...ratios].sort((a, b) => a - b);
+  const q = (p: number) => sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))]!;
+  return { q33: q(0.33), q66: q(0.66) };
 }
 
 const askOf = (d: Record<string, unknown> | null | undefined): number =>
@@ -175,35 +179,72 @@ export interface DayCell {
   samples: number;
 }
 
-// Builds the per-day level and measurement for one region and SKU from daily extremes.
-export function dayCells(
-  rows: readonly {
-    day: string;
-    signal: AvailabilitySignalKind;
-    min: number;
-    max: number;
-    samples: number;
-    detail: Record<string, unknown> | null;
-  }[],
-  spotTerciles: { q33: number; q66: number } | null,
-): DayCell[] {
-  const byDay = new Map<string, { readings: Readings; samples: number }>();
+export interface HistoryRow {
+  region_code: string;
+  sku: string;
+  zone_code: string | null;
+  signal: AvailabilitySignalKind;
+  day: string;
+  value: number;
+  detail: Record<string, unknown> | null;
+  samples: number;
+}
+
+export interface HistorySeries {
+  region_code: string;
+  sku: string;
+  days: DayCell[];
+}
+
+const worseFirst = `CASE WHEN signal IN (${[...HIGHER_IS_WORSE].map((s) => `'${s}'`).join(", ")}) THEN -value ELSE value END`;
+
+// One row per region, SKU, zone, signal, ask and UTC day for a provider and family since a date:
+// the worst hour's value and detail, and the hours seen. SQLite fills the bare value and detail
+// columns from the row holding the single MIN, so the deciding hour's detail travels with it.
+export const HISTORY_DAY_SQL = `SELECT region_code, sku, zone_code, signal, substr(observed_at, 1, 10) AS day,
+    MIN(${worseFirst}) AS worst, value, detail, COUNT(*) AS samples
+  FROM availability_signal
+  WHERE provider_slug = ? AND sku_family = ? AND observed_at >= ?
+  GROUP BY region_code, sku, zone_code, signal, day,
+    json_extract(detail, '$.target_capacity'), json_extract(detail, '$.instance_count')
+  ORDER BY region_code, sku, day`;
+
+// Builds the day cells for one family. A day folds its asks and zones the way the latest view
+// folds its hour: smallest ask, worst zone at that ask, worst hour. Spot terciles are relative
+// within the family on that day, as the latest view's are at its hour.
+export function historyCells(rows: readonly HistoryRow[]): HistorySeries[] {
+  const series = new Map<string, Map<string, { readings: Readings; samples: number }>>();
   for (const r of rows) {
-    const d = byDay.get(r.day) ?? { readings: {}, samples: 0 };
-    d.readings[r.signal] = {
-      value: worstOfDay(r.signal, r.min, r.max),
-      detail: r.detail,
-      baseline: null,
-    };
+    const key = `${r.region_code}|${r.sku}`;
+    const days = series.get(key) ?? new Map<string, { readings: Readings; samples: number }>();
+    const d = days.get(r.day) ?? { readings: {}, samples: 0 };
+    d.readings[r.signal] = mergeReading(
+      d.readings[r.signal],
+      { signal: r.signal, value: r.value, detail: r.detail, zone_code: r.zone_code },
+      null,
+    );
     d.samples = Math.max(d.samples, r.samples);
-    byDay.set(r.day, d);
+    days.set(r.day, d);
+    series.set(key, days);
   }
-  return [...byDay.entries()]
-    .sort(([a], [b]) => (a < b ? -1 : 1))
-    .map(([day, d]) => ({
-      day,
-      level: levelFor(d.readings, spotTerciles),
-      measure: measureFor(d.readings),
-      samples: d.samples,
-    }));
+  const spotByDay = new Map<string, number[]>();
+  for (const days of series.values())
+    for (const [day, d] of days)
+      if (d.readings.spot_ratio)
+        spotByDay.set(day, [...(spotByDay.get(day) ?? []), d.readings.spot_ratio.value]);
+  return [...series.entries()].map(([key, days]) => {
+    const [region_code, sku] = key.split("|") as [string, string];
+    return {
+      region_code,
+      sku,
+      days: [...days.entries()]
+        .sort(([a], [b]) => (a < b ? -1 : 1))
+        .map(([day, d]) => ({
+          day,
+          level: levelFor(d.readings, spotTerciles(spotByDay.get(day) ?? [])),
+          measure: measureFor(d.readings),
+          samples: d.samples,
+        })),
+    };
+  });
 }
