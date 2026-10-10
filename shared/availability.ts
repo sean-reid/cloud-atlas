@@ -31,14 +31,14 @@ export const SIGNAL_NOTES: Record<AvailabilitySignalKind, string> = {
   lead_time_days:
     "Days until the provider's scheduler can start a block of the probed size. Today available, within three days constrained, later or never tight.",
   sell_status:
-    "The provider's sell status for the instance type in the zone: in stock is available, sold out is tight.",
+    "The provider's sell status for the instance type in the zone: in stock is available, low stock constrained, sold out tight.",
   capacity_report:
     "The provider's capacity report verdict for the shape: available, or out of host capacity, which reads tight.",
 };
 
-// Direct verdicts outrank scores, scores outrank market prices. Each rule is the one the
-// methodology page documents for that signal; thresholds for the spot ratio arrive from the
-// caller because they are relative within a family.
+// Direct verdicts outrank scores, scores outrank market prices. Each threshold is the one
+// SIGNAL_NOTES states for that signal; the spot ratio's arrive from the caller because they are
+// relative within a family.
 export function levelFor(r: Readings, spotTerciles: { q33: number; q66: number } | null): Level {
   if (r.capacity_report) return r.capacity_report.value >= 1 ? "available" : "tight";
   if (r.sell_status)

@@ -195,8 +195,9 @@ export function Methodology() {
           permits, filings, and reporting.
         </li>
         <li>
-          Alibaba, Tencent, Huawei, and IBM are tracked at provider level; their region pages give
-          counts, not sites. Baidu AI Cloud and OVHcloud have no evidence yet and appear as gaps.
+          Alibaba, Tencent, Huawei, and IBM are tracked mostly at provider level, with a handful of
+          sites where a filing or report names one. Baidu AI Cloud and OVHcloud have no evidence yet
+          and appear as gaps.
         </li>
         <li>
           Coverage outside the United States is thin because that is where open permit records and
@@ -207,9 +208,10 @@ export function Methodology() {
           supplier-operated and flagged in notes.
         </li>
         <li>
-          The AWS placement score and Capacity Block probe runs only once read-only account keys are
-          set. The Oracle capacity report and Alibaba and Tencent sold-out probes are designed but
-          not yet written.
+          The account probes (AWS placement scores and Capacity Blocks, Google calendar-mode advice,
+          Oracle capacity reports, Alibaba and Tencent sell status) run only where a read-only
+          account exists; the sources page shows which are waiting. Google admits accounts to
+          calendar mode one by one and has not admitted this one.
         </li>
         <li>The metrics tracked here: {METRICS.map((m) => m.label.toLowerCase()).join("; ")}.</li>
       </ul>
