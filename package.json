@@ -29,6 +29,7 @@
     "seed:offline": "npm run migrate && npm run import && tsx pipeline/cli.ts ingest --fixtures"
   },
   "dependencies": {
+    "@aws-sdk/client-ec2": "^3.1149.0",
     "d3-scale": "^4.0.2",
     "maplibre-gl": "^6.13.0",
     "react": "^19.3.0",
