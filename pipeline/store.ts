@@ -2,6 +2,7 @@ import type {
   AvailabilitySignal,
   Dataset,
   Entity,
+  FeedItem,
   FetchRun,
   Method,
   Observation,
@@ -38,6 +39,7 @@ export class Store {
   readonly methods = new Map<string, Method>();
   readonly observations = new Map<string, Observation>();
   readonly review = new Map<string, ReviewItem>();
+  readonly feedItems = new Map<string, FeedItem>();
   readonly signalIds = new Set<string>();
   readonly regionProvidersAtOpen = new Set<string>();
   aliases = new Map<string, string>();
@@ -81,6 +83,8 @@ export class Store {
       s.observations.set(String(r.id), row<Observation>(r));
     for (const r of await db.query("SELECT * FROM review_item"))
       s.review.set(String(r.id), row<ReviewItem>(r));
+    for (const r of await db.query("SELECT * FROM feed_item"))
+      s.feedItems.set(String(r.link), row<FeedItem>(r));
     const since = new Date(now.getTime() - 48 * 3_600_000).toISOString();
     for (const r of await db.query("SELECT id FROM availability_signal WHERE observed_at >= ?", [
       since,
@@ -162,6 +166,14 @@ export class Store {
     this.review.set(item.id, row);
     if (!decided) this.added.review++;
     return !decided;
+  }
+
+  // One row per feed entry ever read, so a rerun skips it whatever the first outcome was.
+  async recordFeedItem(item: FeedItem): Promise<boolean> {
+    if (this.feedItems.has(item.link)) return false;
+    await this.batch.add(insertSql("feed_item", item));
+    this.feedItems.set(item.link, item);
+    return true;
   }
 
   async resolveReview(id: string, resolution: string, at: string): Promise<void> {
