@@ -76,7 +76,9 @@ function readCache(path: string): CacheEntry | null {
   }
 }
 
-function retryDelayMs(attempt: number, retryAfter: string | null): number {
+export const USER_AGENT = "cloud-atlas/0.1 (+https://github.com/sean-reid/cloud-atlas)";
+
+export function retryDelayMs(attempt: number, retryAfter: string | null): number {
   if (retryAfter) {
     const secs = Number(retryAfter);
     if (Number.isFinite(secs)) return Math.min(secs * 1000, 120_000);
@@ -110,7 +112,7 @@ export async function safeFetch(url: string, opts: FetchOptions): Promise<FetchR
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const headers: Record<string, string> = {
-        "user-agent": "cloud-atlas/0.1 (+https://github.com/sean-reid/cloud-atlas)",
+        "user-agent": USER_AGENT,
         accept: opts.accept ?? "application/json, text/csv, text/html;q=0.8, */*;q=0.5",
       };
       if (cached?.etag) headers["if-none-match"] = cached.etag;
