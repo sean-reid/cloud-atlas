@@ -67,18 +67,26 @@ export function levelFor(r: Readings, spotTerciles: { q33: number; q66: number }
   return "unknown";
 }
 
+// A verdict folded from several zones names the zone it came from and how many were asked.
+const zoned = (text: string, r: SignalReading): string =>
+  typeof r.detail?.zones === "number" && r.detail.zones > 1
+    ? `${text} in ${String(r.detail.zone)}, ${r.detail.zones} zones`
+    : text;
+
 // The provider's own number behind a level, for the cell text and tooltips.
 export function measureFor(r: Readings): string {
   if (r.capacity_report)
-    return r.capacity_report.value >= 1
-      ? "capacity available"
-      : String(r.capacity_report.detail?.status ?? "out of host capacity");
+    return zoned(
+      r.capacity_report.value >= 1
+        ? "capacity available"
+        : String(r.capacity_report.detail?.status ?? "out of host capacity"),
+      r.capacity_report,
+    );
   if (r.sell_status)
-    return r.sell_status.value >= 1
-      ? "in stock"
-      : r.sell_status.value > 0
-        ? "low stock"
-        : "sold out";
+    return zoned(
+      r.sell_status.value >= 1 ? "in stock" : r.sell_status.value > 0 ? "low stock" : "sold out",
+      r.sell_status,
+    );
   if (r.placement_score) return `score ${r.placement_score.value}/10`;
   if (r.lead_time_days) {
     const d = r.lead_time_days.value;

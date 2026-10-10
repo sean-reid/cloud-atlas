@@ -177,6 +177,9 @@ describe("merging rows for one region and SKU", () => {
     );
     expect(c.value).toBe(0);
     expect(c.detail).toEqual({ status: "SoldOut", zone: "cn-hangzhou-i", zones: 3 });
+    const { measureFor } = await import("../../shared/availability");
+    expect(measureFor({ sell_status: c })).toBe("sold out in cn-hangzhou-i, 3 zones");
+    expect(measureFor({ sell_status: a })).toBe("in stock");
 
     const lead = mergeReading(
       { value: 2, detail: { instance_count: 1 }, baseline: null },
