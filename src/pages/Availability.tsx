@@ -274,10 +274,6 @@ export function Availability() {
               {a.title}: {a.measures} Waiting for {a.credentials!.join(", ")}.
             </li>
           ))}
-          <li>
-            Tencent Cloud returns sold-out status per instance type and zone, but only to an
-            account.
-          </li>
           <li>Huawei Cloud marks sold-out flavors per zone behind an IAM token.</li>
           <li>
             IBM Cloud has no spot market or sell-out flag. CoreWeave, Nebius, Nscale, and Crusoe

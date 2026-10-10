@@ -13,10 +13,20 @@ import {
   makeAdapter as makeOci,
   ociSign,
 } from "../../pipeline/adapters/oci-capacity-report";
+import {
+  makeAdapter as makeTencent,
+  sellValue as tc3SellValue,
+  tc3Sign,
+} from "../../pipeline/adapters/tencent-zone-config";
 import type { Adapter } from "../../pipeline/adapters/types";
 import type { SqliteDb } from "../../pipeline/db";
 import { runAdapters } from "../../pipeline/run";
-import { type HttpClient, type HttpRequest, type HttpResponse } from "../../pipeline/signed";
+import {
+  sha256Hex,
+  type HttpClient,
+  type HttpRequest,
+  type HttpResponse,
+} from "../../pipeline/signed";
 import type { AvailabilitySignal } from "../../shared/types";
 import { DATA, FIXTURES, fixedNow, memoryDb } from "./helpers";
 
@@ -373,6 +383,140 @@ describe("alibaba-available-resource", () => {
     expect(outcomes[0]!.skipped).toBe(true);
     expect(store.fetchRuns[0]!.error).toBe(
       "waiting for credentials: ALIBABA_ACCESS_KEY_ID, ALIBABA_ACCESS_KEY_SECRET",
+    );
+    expect(calls).toHaveLength(0);
+  });
+});
+
+const tc3Route = (req: HttpRequest): HttpResponse => {
+  switch (req.headers["x-tc-action"]) {
+    case "DescribeRegions":
+      return fixture("tencent-regions.json");
+    case "DescribeZoneInstanceConfigInfos":
+      return fixture("tencent-zone-instance-config.json");
+    default:
+      return status(404);
+  }
+};
+
+describe("tencent-zone-config", () => {
+  test("reproduces the canonical request hash from the TC3 signing guide", () => {
+    const body = '{"Limit": 1, "Filters": [{"Values": ["unnamed"], "Name": "instance-name"}]}';
+    expect(sha256Hex(body)).toBe(
+      "99d58dfbc6745f6747f36bfca17dee5e6881dc0428a0a36f96199342bc5b4907",
+    );
+    const canonical = [
+      "POST",
+      "/",
+      "",
+      "content-type:application/json; charset=utf-8\nhost:cvm.tencentcloudapi.com\n",
+      "content-type;host",
+      sha256Hex(body),
+    ].join("\n");
+    expect(sha256Hex(canonical)).toBe(
+      "2815843035062fffda5fd6f2a44ea8a34818b0dc46f024b8b3786976a3adda7a",
+    );
+    const req = tc3Sign(
+      { secretId: "AKIDexample", secretKey: "examplekey" },
+      { action: "DescribeInstances", region: "ap-guangzhou", body, timestamp: 1551113065 },
+    );
+    expect(req.url).toBe("https://cvm.tencentcloudapi.com/");
+    expect(req.headers["x-tc-timestamp"]).toBe("1551113065");
+    expect(req.headers["x-tc-version"]).toBe("2017-03-12");
+    expect(req.headers["x-tc-region"]).toBe("ap-guangzhou");
+    expect(req.headers.authorization).toMatch(
+      /^TC3-HMAC-SHA256 Credential=AKIDexample\/2019-02-25\/cvm\/tc3_request, SignedHeaders=content-type;host, Signature=[0-9a-f]{64}$/,
+    );
+  });
+
+  test("emits sell status per zone and instance type for the basket families", async () => {
+    setEnv("tencent");
+    const { calls, factory } = replay(tc3Route);
+    const { outcomes } = await run([makeTencent(factory, instant)]);
+    expect(outcomes[0]!.ok, outcomes[0]!.error ?? "").toBe(true);
+    // Two AVAILABLE regions, six quota rows each.
+    expect(outcomes[0]!.result!.signals).toBe(12);
+    const zoneCalls = calls.filter(
+      (c) => c.headers["x-tc-action"] === "DescribeZoneInstanceConfigInfos",
+    );
+    expect(zoneCalls.map((c) => c.headers["x-tc-region"])).toEqual([
+      "ap-guangzhou",
+      "ap-singapore",
+    ]);
+    expect(JSON.parse(zoneCalls[0]!.body).Filters).toEqual([
+      { Name: "instance-family", Values: ["GN10Xp", "GT4", "PNV4", "GN7", "S5"] },
+      { Name: "instance-charge-type", Values: ["POSTPAID_BY_HOUR"] },
+    ]);
+    const rows = (await signals()).filter((r) => r.region_code === "ap-guangzhou");
+    expect(rows.map((r) => [r.zone_code, r.sku, r.sku_family, r.value])).toEqual([
+      ["ap-guangzhou-6", "GN10Xp.2XLARGE40", "V100", 1],
+      ["ap-guangzhou-6", "GN7.2XLARGE32", "T4", 1],
+      ["ap-guangzhou-6", "GT4.41XLARGE948", "A100", 0],
+      ["ap-guangzhou-6", "S5.LARGE8", "general", 1],
+      ["ap-guangzhou-7", "PNV4.7XLARGE116", "A10", 0.5],
+      ["ap-guangzhou-7", "S5.LARGE8", "general", 1],
+    ]);
+    expect(JSON.parse(rows[2]!.detail!)).toEqual({
+      status: "SOLD_OUT",
+      status_category: "WithoutStock",
+      sold_out_reason: "ResourcesSoldOut.SpecifiedInstanceType",
+    });
+    expect(rows.every((r) => r.signal === "sell_status" && r.provider_slug === "tencent")).toBe(
+      true,
+    );
+    expect(tc3SellValue("SELL", "EnoughStock")).toBe(1);
+    expect(tc3SellValue("SELL", "UnderStock")).toBe(0.5);
+    expect(tc3SellValue("SOLD_OUT", "WithoutStock")).toBe(0);
+  });
+
+  test("a second run in the same hour adds nothing", async () => {
+    setEnv("tencent");
+    const { factory } = replay(tc3Route);
+    await run([makeTencent(factory, instant)]);
+    const { outcomes, store } = await run([makeTencent(factory, instant)]);
+    expect(outcomes[0]!.result!.signals).toBe(0);
+    expect(store.signalIds.size).toBe(12);
+  });
+
+  test("one region failing keeps the others and a 200 with RequestLimitExceeded is retried", async () => {
+    setEnv("tencent");
+    let throttles = 0;
+    const limited = status(
+      200,
+      JSON.stringify({
+        Response: {
+          Error: {
+            Code: "RequestLimitExceeded",
+            Message: "Your current request times equals to the frequency limit.",
+          },
+          RequestId: "f1b2",
+        },
+      }),
+    );
+    const { factory } = replay((req) => {
+      if (req.headers["x-tc-region"] === "ap-singapore")
+        return status(
+          200,
+          JSON.stringify({
+            Response: { Error: { Code: "UnsupportedRegion", Message: "no" }, RequestId: "x" },
+          }),
+        );
+      if (req.headers["x-tc-action"] === "DescribeZoneInstanceConfigInfos" && throttles++ < 2)
+        return limited;
+      return tc3Route(req);
+    });
+    const { outcomes } = await run([makeTencent(factory, instant)]);
+    expect(outcomes[0]!.ok).toBe(true);
+    expect(outcomes[0]!.result!.signals).toBe(6);
+    expect(slept).toEqual([1000, 2000]);
+  });
+
+  test("without credentials the runner records a waiting run", async () => {
+    const { calls, factory } = replay(tc3Route);
+    const { outcomes, store } = await run([makeTencent(factory, instant)]);
+    expect(outcomes[0]!.skipped).toBe(true);
+    expect(store.fetchRuns[0]!.error).toBe(
+      "waiting for credentials: TENCENT_SECRET_ID, TENCENT_SECRET_KEY",
     );
     expect(calls).toHaveLength(0);
   });

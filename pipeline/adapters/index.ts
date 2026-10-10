@@ -11,6 +11,7 @@ import { gcpRegions } from "./gcp-regions";
 import type { Adapter } from "./types";
 import { ociCapacityReport } from "./oci-capacity-report";
 import { alibabaAvailableResource } from "./alibaba-available-resource";
+import { tencentZoneConfig } from "./tencent-zone-config";
 
 export const ADAPTERS: readonly Adapter[] = [
   awsRegions,
@@ -25,6 +26,7 @@ export const ADAPTERS: readonly Adapter[] = [
   makeGcpCalendarMode(googleClient),
   ociCapacityReport,
   alibabaAvailableResource,
+  tencentZoneConfig,
 ];
 
 export const adapterById = (id: string): Adapter | undefined => ADAPTERS.find((a) => a.id === id);

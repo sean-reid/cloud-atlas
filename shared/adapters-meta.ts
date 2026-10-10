@@ -124,6 +124,15 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
     measures: "Sell status per GPU instance type and zone from the ECS available resource check.",
     credentials: ["ALIBABA_ACCESS_KEY_ID", "ALIBABA_ACCESS_KEY_SECRET"],
   },
+  {
+    id: "tencent-zone-config",
+    title: "Tencent Cloud zone instance configs",
+    publisher: "Tencent Cloud",
+    mode: "automated",
+    schedule: "hourly",
+    measures: "Sell status per GPU instance type and zone from the CVM zone configuration listing.",
+    credentials: ["TENCENT_SECRET_ID", "TENCENT_SECRET_KEY"],
+  },
 ];
 
 export const adapterMeta = (id: string): AdapterMeta | undefined =>
