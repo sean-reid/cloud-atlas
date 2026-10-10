@@ -319,7 +319,15 @@ export function SignalLines({
     (k) => k !== "sku_offered",
   );
   const wide = width >= 560;
-  const pad = { top: 6, right: wide ? 84 : 10, bottom: 4, left: 46 };
+  // Y labels are the signal's own words ("sold out", "10/10"), so the gutter fits the longest.
+  const labelChars = Math.max(
+    2,
+    ...kinds.flatMap((k) => {
+      const m = SIGNAL_UNIT[k];
+      return m?.domain ? m.domain.map((v) => m.format(v).length) : [3];
+    }),
+  );
+  const pad = { top: 6, right: wide ? 84 : 10, bottom: 4, left: 14 + labelChars * 6.8 };
   const height = 92;
   const x = scaleUtc()
     .domain([new Date(now - days * DAY), new Date(now)])
