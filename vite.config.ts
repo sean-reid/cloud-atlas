@@ -14,7 +14,8 @@ export default defineConfig({
         manualChunks(id) {
           if (id.includes("node_modules/maplibre-gl") || id.includes("topojson-client"))
             return "map";
-          if (id.includes("world-atlas")) return "land";
+          if (id.includes("world-atlas/countries-110m")) return "land-coarse";
+          if (id.includes("world-atlas/countries-50m")) return "land-fine";
           if (id.includes("node_modules/react")) return "react";
           return undefined;
         },

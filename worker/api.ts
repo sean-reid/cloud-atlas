@@ -1,6 +1,5 @@
 import { providerTotals, selectSites, type SitePick } from "../shared/aggregate";
 import { dateFloor, daysBetween } from "../shared/dates";
-import { parseFilters } from "../shared/filters";
 import { METRICS } from "../shared/metrics";
 import { PROVIDERS } from "../shared/providers";
 import {
@@ -19,7 +18,10 @@ import type {
   Observation,
   Source,
 } from "../shared/types";
+import { cacheKey, FILTER_PARAMS } from "./cache-key";
+import { csvCell } from "./csv";
 import { all, loadSites, one, placeholders } from "./db";
+import { BadRequest, intParam, queryFilters } from "./params";
 
 export interface Env {
   DB: D1Database;
@@ -179,7 +181,7 @@ const meta: Handler = async (_req, env) => {
 };
 
 const summary: Handler = async (_req, env, url) => {
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   const { entities, rows } = await loadSites(env.DB, f);
   const picks = selectSites(entities, rows, f.asof || null, f.mode);
   const totals = providerTotals(entities, picks);
@@ -233,14 +235,14 @@ const summary: Handler = async (_req, env, url) => {
 };
 
 const sites: Handler = async (_req, env, url) => {
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   const { entities, rows } = await loadSites(env.DB, f);
   const picks = selectSites(entities, rows, f.asof || null, f.mode);
   return json({ filters: f, sites: siteRows(entities, picks, rows, new Date()) });
 };
 
 const regions: Handler = async (_req, env, url) => {
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   const where = ["e.dataset = ?", "e.type = 'region'"];
   const params: unknown[] = [f.demo ? "demo" : "live"];
   if (f.providers.length) {
@@ -312,7 +314,7 @@ interface SeriesPoint {
 // recorded by then; "reconstructed" uses the dates the claims describe. The per-step site
 // difference separates newly tracked sites from revisions of sites already tracked.
 const timeseries: Handler = async (_req, env, url) => {
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   const { entities, rows } = await loadSites(env.DB, f);
   if (!rows.length) return json({ filters: f, series: {} });
   const dates = rows.map((r) =>
@@ -414,7 +416,7 @@ const entityDetail: Handler = async (_req, env, _url, params) => {
 const providerDetail: Handler = async (_req, env, url, params) => {
   const provider = PROVIDERS.find((p) => p.slug === params.slug);
   if (!provider) return notFound();
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   f.providers = [provider.slug];
   const { entities, rows } = await loadSites(env.DB, f);
   const picks = selectSites(entities, rows, f.asof || null, f.mode);
@@ -447,7 +449,7 @@ const providerDetail: Handler = async (_req, env, url, params) => {
 };
 
 const feed: Handler = async (_req, env, url) => {
-  const limit = Math.min(Number(url.searchParams.get("limit") ?? 40), 200);
+  const limit = intParam(url.searchParams, "limit", 40, 1, 200);
   const rows = await all<
     Observation & {
       tier: number;
@@ -607,7 +609,7 @@ const availabilityHistory: Handler = async (_req, env, url) => {
     return json({ error: "provider and family are required" }, 400, {
       "cache-control": "no-store",
     });
-  const days = Math.min(Math.max(Number(url.searchParams.get("days") ?? 30), 1), 180);
+  const days = intParam(url.searchParams, "days", 30, 1, 180);
   const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
   const rows = await all<{
     region_code: string;
@@ -668,7 +670,7 @@ const availabilitySeries: Handler = async (_req, env, url) => {
     return json({ error: "provider, region, and sku are required" }, 400, {
       "cache-control": "no-store",
     });
-  const days = Math.min(Math.max(Number(url.searchParams.get("days") ?? 30), 1), 180);
+  const days = intParam(url.searchParams, "days", 30, 1, 180);
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
   const rows = await all<{
     signal: string;
@@ -689,7 +691,7 @@ const availabilitySeries: Handler = async (_req, env, url) => {
 };
 
 const exportCsv: Handler = async (_req, env, url) => {
-  const f = parseFilters(url.searchParams);
+  const f = queryFilters(url.searchParams);
   const { entities, rows } = await loadSites(env.DB, f);
   const byId = new Map(entities.map((e) => [e.id, e]));
   const sourceIds = [...new Set(rows.map((r) => r.source_id))];
@@ -740,11 +742,6 @@ const exportCsv: Handler = async (_req, env, url) => {
     "review_status",
     "notes",
   ];
-  const esc = (v: unknown) => {
-    if (v === null || v === undefined) return "";
-    const s = String(v);
-    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  };
   const lines = [cols.join(",")];
   for (const r of rows) {
     const e = byId.get(r.entity_id)!;
@@ -787,7 +784,7 @@ const exportCsv: Handler = async (_req, env, url) => {
         r.review_status,
         r.notes,
       ]
-        .map(esc)
+        .map(csvCell)
         .join(","),
     );
   }
@@ -988,22 +985,23 @@ const openapi: Handler = async (_req, _env, url) => {
   return json(doc);
 };
 
-const ROUTES: [RegExp, Handler][] = [
-  [/^\/api\/health$/, health],
-  [/^\/api\/meta$/, meta],
-  [/^\/api\/summary$/, summary],
-  [/^\/api\/sites$/, sites],
-  [/^\/api\/regions$/, regions],
-  [/^\/api\/timeseries$/, timeseries],
-  [/^\/api\/entities\/(?<id>[a-z0-9_]+)$/, entityDetail],
-  [/^\/api\/providers\/(?<slug>[a-z0-9-]+)$/, providerDetail],
-  [/^\/api\/feed$/, feed],
-  [/^\/api\/sources$/, sources],
-  [/^\/api\/availability$/, availability],
-  [/^\/api\/availability\/history$/, availabilityHistory],
-  [/^\/api\/availability\/series$/, availabilitySeries],
-  [/^\/api\/export\.csv$/, exportCsv],
-  [/^\/api\/openapi\.json$/, openapi],
+const NONE: readonly string[] = [];
+const ROUTES: [RegExp, Handler, readonly string[]][] = [
+  [/^\/api\/health$/, health, NONE],
+  [/^\/api\/meta$/, meta, NONE],
+  [/^\/api\/summary$/, summary, FILTER_PARAMS],
+  [/^\/api\/sites$/, sites, FILTER_PARAMS],
+  [/^\/api\/regions$/, regions, ["provider", "demo"]],
+  [/^\/api\/timeseries$/, timeseries, FILTER_PARAMS],
+  [/^\/api\/entities\/(?<id>[a-z0-9_]+)$/, entityDetail, NONE],
+  [/^\/api\/providers\/(?<slug>[a-z0-9-]+)$/, providerDetail, FILTER_PARAMS],
+  [/^\/api\/feed$/, feed, ["limit"]],
+  [/^\/api\/sources$/, sources, NONE],
+  [/^\/api\/availability$/, availability, ["provider"]],
+  [/^\/api\/availability\/history$/, availabilityHistory, ["provider", "family", "days"]],
+  [/^\/api\/availability\/series$/, availabilitySeries, ["provider", "region", "sku", "days"]],
+  [/^\/api\/export\.csv$/, exportCsv, FILTER_PARAMS],
+  [/^\/api\/openapi\.json$/, openapi, NONE],
 ];
 
 // Public and keyless, so two guards: a per-client budget of 300 requests a minute, and the
@@ -1026,22 +1024,25 @@ export async function handleApi(
         "cache-control": "no-store",
       });
     }
-    const hit = await caches.default.match(request);
-    if (hit) return hit;
   }
-  for (const [pattern, handler] of ROUTES) {
+  for (const [pattern, handler, known] of ROUTES) {
     const m = pattern.exec(url.pathname);
-    if (m) {
-      try {
-        const res = await handler(request, env, url, m.groups ?? {});
-        if (guarded && res.ok && request.method === "GET")
-          ctx.waitUntil(caches.default.put(request, res.clone()));
-        return res;
-      } catch (err) {
-        return json({ error: err instanceof Error ? err.message : "internal error" }, 500, {
-          "cache-control": "no-store",
-        });
-      }
+    if (!m) continue;
+    const cacheReq = new Request(cacheKey(url, known), { method: "GET" });
+    if (guarded) {
+      const hit = await caches.default.match(cacheReq);
+      if (hit) return hit;
+    }
+    try {
+      const res = await handler(request, env, url, m.groups ?? {});
+      if (guarded && res.ok && request.method === "GET")
+        ctx.waitUntil(caches.default.put(cacheReq, res.clone()));
+      return res;
+    } catch (err) {
+      if (err instanceof BadRequest)
+        return json({ error: err.message }, 400, { "cache-control": "no-store" });
+      console.error("api.failed", url.pathname, err);
+      return json({ error: "internal error" }, 500, { "cache-control": "no-store" });
     }
   }
   return notFound();

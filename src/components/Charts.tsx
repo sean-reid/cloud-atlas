@@ -1,5 +1,5 @@
 import { scaleBand, scaleLinear, scaleUtc } from "d3-scale";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { ProviderTotals } from "../../shared/aggregate";
 import { providerBySlug } from "../../shared/providers";
 import { fmtMw } from "../lib/format";
@@ -9,14 +9,17 @@ const PAD = { top: 12, right: 16, bottom: 28, left: 44 };
 
 export function useSize(initial = 720) {
   const [width, setWidth] = useState(initial);
-  const ref = (el: HTMLDivElement | null) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
     if (!el) return;
     const ro = new ResizeObserver((entries) => {
       const w = entries[0]?.contentRect.width;
-      if (w && Math.abs(w - width) > 2) setWidth(w);
+      if (w) setWidth((prev) => (Math.abs(w - prev) > 2 ? w : prev));
     });
     ro.observe(el);
-  };
+    return () => ro.disconnect();
+  }, []);
   return { width, ref };
 }
 
