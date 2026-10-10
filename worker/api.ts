@@ -9,7 +9,7 @@ import {
   type Level,
   type Readings,
 } from "../shared/availability";
-import { selectObservation, type Candidate } from "../shared/selection";
+import { selectByStatus, selectObservation, type Candidate } from "../shared/selection";
 import type {
   AvailabilitySignal,
   Entity,
@@ -17,6 +17,7 @@ import type {
   Method,
   Observation,
   Source,
+  Status,
 } from "../shared/types";
 import { cacheKey, FILTER_PARAMS } from "./cache-key";
 import { csvCell } from "./csv";
@@ -402,13 +403,27 @@ const entityDetail: Handler = async (_req, env, _url, params) => {
         methodIds,
       )
     : [];
-  const byMetric: Record<string, { selected: string | null; observations: typeof obs }> = {};
+  // The dashboard selects per status, so an announced 2028 figure and the operational one are
+  // both marked; `selected` is the one a site row leads with.
+  const byMetric: Record<
+    string,
+    {
+      selected: string | null;
+      selected_by_status: Partial<Record<Status, string>>;
+      observations: typeof obs;
+    }
+  > = {};
   for (const o of obs) {
-    (byMetric[o.metric] ??= { selected: null, observations: [] }).observations.push(o);
+    (byMetric[o.metric] ??= {
+      selected: null,
+      selected_by_status: {},
+      observations: [],
+    }).observations.push(o);
   }
-  for (const [metric, group] of Object.entries(byMetric)) {
-    const sel = selectObservation(group.observations, null, "reconstructed");
-    byMetric[metric]!.selected = sel?.pick.id ?? null;
+  for (const group of Object.values(byMetric)) {
+    const picks = [...selectByStatus(group.observations, null, "reconstructed")];
+    for (const [status, sel] of picks) group.selected_by_status[status] = sel.pick.id;
+    group.selected = picks[0]?.[1].pick.id ?? null;
   }
   return json({ entity: e, ancestors: chain, children, metrics: byMetric, methods });
 };

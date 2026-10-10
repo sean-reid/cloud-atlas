@@ -72,6 +72,19 @@ describe("selection rule", () => {
     expect(s.pick.id).toBe("new");
     expect(s.competing).toHaveLength(0);
   });
+  test("one selection per status, so an announcement never hides the operational figure", () => {
+    const rows = [
+      c({ id: "op", value: 100, effective_date: "2025" }),
+      c({ id: "plan", value: 900, status: "announced", effective_date: "2028" }),
+      c({ id: "older", value: 800, status: "announced", effective_date: "2027" }),
+    ];
+    expect(selectObservation(rows, null, "reconstructed")!.pick.id).toBe("plan");
+    const byStatus = selectByStatus(rows, null, "reconstructed");
+    expect([...byStatus.keys()]).toEqual(["operational", "announced"]);
+    expect(byStatus.get("operational")!.pick.id).toBe("op");
+    expect(byStatus.get("announced")!.pick.id).toBe("plan");
+    expect(byStatus.get("announced")!.competing.map((o) => o.id)).toEqual(["older"]);
+  });
   test("pending observations never reach the dashboard", () => {
     expect(selectObservation([c({ review_status: "pending" })], null, "known")).toBeNull();
   });
