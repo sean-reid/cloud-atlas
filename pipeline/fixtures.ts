@@ -17,6 +17,15 @@ const ROUTES: Record<string, string> = {
   "https://epoch.ai/data/data_centers/data_center_timelines.csv": "epoch-timelines.csv",
   "https://spot-bid-advisor.s3.amazonaws.com/spot-advisor-data.json": "spot-advisor.json",
   "https://docs.cloud.google.com/compute/docs/gpus/gpu-regions-zones": "gcp-gpu-zones.html",
+  "https://aws.amazon.com/about-aws/whats-new/recent/feed/": "feed-aws-whats-new.xml",
+  "https://aws.amazon.com/blogs/aws/feed/": "feed-aws-news-blog.xml",
+  "https://www.aboutamazon.com/rss/feed.rss": "feed-about-amazon.xml",
+  "https://cloudblog.withgoogle.com/rss/": "feed-google-cloud-blog.xml",
+  "https://blog.google/innovation-and-ai/infrastructure-and-cloud/global-network/rss/":
+    "feed-google-global-network.xml",
+  "https://blogs.microsoft.com/on-the-issues/feed/": "feed-microsoft-on-the-issues.xml",
+  "https://local.microsoft.com/blog/feed/": "feed-microsoft-local.xml",
+  "https://www.alizila.com/feed/": "feed-alizila.xml",
 };
 
 // Serves recorded copies of every source so tests and offline seeding never touch the network.

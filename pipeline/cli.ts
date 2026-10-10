@@ -3,6 +3,7 @@ import { readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { ADAPTERS, adapterById } from "./adapters";
 import { importCsv } from "./adapters/csv-import";
+import { acceptFeedClaim } from "./adapters/news-feeds";
 import { D1HttpDb, localD1Path, SqliteDb, type Db } from "./db";
 import { loadReviewed } from "./decisions";
 import { fixtureFetch } from "./fixtures";
@@ -150,6 +151,15 @@ async function main(argv: string[]): Promise<number> {
         .join(" ");
       await store.resolveReview(id, `${sub}ed${note ? `: ${note}` : ""}`, new Date().toISOString());
       if (sub === "accept") {
+        if (item.adapter === "news-feeds") {
+          await ensureMethods(store);
+          const obs = await acceptFeedClaim(store, item, dataset, new Date());
+          console.log(
+            obs
+              ? `observation ${obs.id} on ${obs.entity_id}`
+              : "no place resolved for this claim; transcribe it through data/imports",
+          );
+        }
         for (const o of store.observations.values()) {
           if (o.review_status === "pending" && item.payload.includes(o.entity_id))
             await store.setReviewStatus(o.id, "accepted");
