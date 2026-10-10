@@ -18,6 +18,7 @@ import type {
   Observation,
   Source,
 } from "../shared/types";
+import { csvCell } from "./csv";
 import { all, loadSites, one, placeholders } from "./db";
 import { BadRequest, intParam, queryFilters } from "./params";
 
@@ -740,11 +741,6 @@ const exportCsv: Handler = async (_req, env, url) => {
     "review_status",
     "notes",
   ];
-  const esc = (v: unknown) => {
-    if (v === null || v === undefined) return "";
-    const s = String(v);
-    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  };
   const lines = [cols.join(",")];
   for (const r of rows) {
     const e = byId.get(r.entity_id)!;
@@ -787,7 +783,7 @@ const exportCsv: Handler = async (_req, env, url) => {
         r.review_status,
         r.notes,
       ]
-        .map(esc)
+        .map(csvCell)
         .join(","),
     );
   }
