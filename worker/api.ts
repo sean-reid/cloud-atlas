@@ -3,7 +3,7 @@ import { dateFloor, daysBetween } from "../shared/dates";
 import { parseFilters } from "../shared/filters";
 import { METRICS } from "../shared/metrics";
 import { PROVIDERS } from "../shared/providers";
-import { levelFor, type Level, type Readings } from "../shared/availability";
+import { dayCells, levelFor, type Level, type Readings } from "../shared/availability";
 import { selectObservation, type Candidate } from "../shared/selection";
 import type {
   AvailabilitySignal,
@@ -606,6 +606,96 @@ const availability: Handler = async (_req, env, url) => {
   return json({ providers: out });
 };
 
+// Daily history per region and SKU for one provider and family: the worst hour of each day
+// decides the day's level, so the ribbon shows when a region was ever tight, not its average.
+const availabilityHistory: Handler = async (_req, env, url) => {
+  const provider = url.searchParams.get("provider");
+  const family = url.searchParams.get("family");
+  if (!provider || !family)
+    return json({ error: "provider and family are required" }, 400, {
+      "cache-control": "no-store",
+    });
+  const days = Math.min(Math.max(Number(url.searchParams.get("days") ?? 30), 1), 180);
+  const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+  const rows = await all<{
+    region_code: string;
+    sku: string;
+    signal: AvailabilitySignal["signal"];
+    day: string;
+    min: number;
+    max: number;
+    samples: number;
+    detail: string | null;
+  }>(
+    env.DB,
+    `SELECT region_code, sku, signal, substr(observed_at, 1, 10) AS day, MIN(value) AS min, MAX(value) AS max, COUNT(*) AS samples, MAX(detail) AS detail
+     FROM availability_signal WHERE provider_slug = ? AND sku_family = ? AND observed_at >= ?
+     GROUP BY region_code, sku, signal, day ORDER BY region_code, sku, day`,
+    [provider, family, since],
+  );
+  const ratios = rows
+    .filter((r) => r.signal === "spot_ratio")
+    .map((r) => r.max)
+    .sort((a, b) => a - b);
+  const q = (p: number) => ratios[Math.min(ratios.length - 1, Math.floor(p * ratios.length))];
+  const terciles = ratios.length ? { q33: q(0.33)!, q66: q(0.66)! } : null;
+  const grouped = new Map<string, typeof rows>();
+  for (const r of rows)
+    grouped.set(`${r.region_code}|${r.sku}`, [
+      ...(grouped.get(`${r.region_code}|${r.sku}`) ?? []),
+      r,
+    ]);
+  const allDays = [...new Set(rows.map((r) => r.day))].sort();
+  const series = [...grouped.entries()].map(([key, list]) => {
+    const [region_code, sku] = key.split("|") as [string, string];
+    return {
+      region_code,
+      sku,
+      days: dayCells(
+        list.map((r) => ({
+          day: r.day,
+          signal: r.signal,
+          min: r.min,
+          max: r.max,
+          samples: r.samples,
+          detail: r.detail ? (JSON.parse(r.detail) as Record<string, unknown>) : null,
+        })),
+        terciles,
+      ),
+    };
+  });
+  return json({ provider, family, since, days: allDays, series });
+};
+
+// Hourly readings for one region and SKU, for the line beneath the ribbon.
+const availabilitySeries: Handler = async (_req, env, url) => {
+  const provider = url.searchParams.get("provider");
+  const region = url.searchParams.get("region");
+  const sku = url.searchParams.get("sku");
+  if (!provider || !region || !sku)
+    return json({ error: "provider, region, and sku are required" }, 400, {
+      "cache-control": "no-store",
+    });
+  const days = Math.min(Math.max(Number(url.searchParams.get("days") ?? 30), 1), 180);
+  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+  const rows = await all<{
+    signal: string;
+    observed_at: string;
+    value: number;
+    detail: string | null;
+  }>(
+    env.DB,
+    `SELECT signal, observed_at, value, detail FROM availability_signal WHERE provider_slug = ? AND region_code = ? AND sku = ? AND observed_at >= ? ORDER BY observed_at`,
+    [provider, region, sku, since],
+  );
+  return json({
+    provider,
+    region,
+    sku,
+    points: rows.map((r) => ({ ...r, detail: r.detail ? JSON.parse(r.detail) : null })),
+  });
+};
+
 const exportCsv: Handler = async (_req, env, url) => {
   const f = parseFilters(url.searchParams);
   const { entities, rows } = await loadSites(env.DB, f);
@@ -878,6 +968,8 @@ const ROUTES: [RegExp, Handler][] = [
   [/^\/api\/feed$/, feed],
   [/^\/api\/sources$/, sources],
   [/^\/api\/availability$/, availability],
+  [/^\/api\/availability\/history$/, availabilityHistory],
+  [/^\/api\/availability\/series$/, availabilitySeries],
   [/^\/api\/export\.csv$/, exportCsv],
   [/^\/api\/openapi\.json$/, openapi],
 ];

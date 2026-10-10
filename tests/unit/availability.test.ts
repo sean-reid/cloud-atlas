@@ -101,3 +101,23 @@ describe("measurements shown beside a level", () => {
     expect(worstLevel([])).toBeNull();
   });
 });
+
+describe("daily history cells", () => {
+  test("the worst hour decides the day, by direction of each signal", async () => {
+    const { dayCells, worstOfDay } = await import("../../shared/availability");
+    expect(worstOfDay("spot_ratio", 0.2, 0.9)).toBe(0.9);
+    expect(worstOfDay("placement_score", 3, 9)).toBe(3);
+    const cells = dayCells(
+      [
+        { day: "2026-10-09", signal: "spot_ratio", min: 0.2, max: 0.9, samples: 24, detail: null },
+        { day: "2026-10-10", signal: "spot_ratio", min: 0.1, max: 0.25, samples: 20, detail: null },
+        { day: "2026-10-08", signal: "placement_score", min: 2, max: 9, samples: 24, detail: null },
+      ],
+      { q33: 0.3, q66: 0.6 },
+    );
+    expect(cells.map((c) => c.day)).toEqual(["2026-10-08", "2026-10-09", "2026-10-10"]);
+    expect(cells.map((c) => c.level)).toEqual(["tight", "tight", "available"]);
+    expect(cells[1]!.measure).toBe("90% of list");
+    expect(cells[0]!.measure).toBe("score 2/10");
+  });
+});

@@ -7,7 +7,7 @@ import type { SeriesPoint } from "../lib/types";
 
 const PAD = { top: 12, right: 16, bottom: 28, left: 44 };
 
-function useSize(initial = 720) {
+export function useSize(initial = 720) {
   const [width, setWidth] = useState(initial);
   const ref = (el: HTMLDivElement | null) => {
     if (!el) return;

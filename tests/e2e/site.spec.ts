@@ -128,6 +128,28 @@ test("api responses carry cache headers and a budget", async ({ request }) => {
   expect(again.ok()).toBe(true);
 });
 
+test("availability history answers per day and per hour", async ({ request }) => {
+  const latest = await (await request.get("/api/availability")).json();
+  const provider = Object.keys(latest.providers)[0] as string;
+  const family = Object.keys(latest.providers[provider].families)[0] as string;
+  const history = await (
+    await request.get(
+      `/api/availability/history?provider=${provider}&family=${encodeURIComponent(family)}`,
+    )
+  ).json();
+  expect(history.days.length).toBeGreaterThan(0);
+  expect(history.series[0].days[0]).toHaveProperty("level");
+  const first = history.series[0];
+  const series = await (
+    await request.get(
+      `/api/availability/series?provider=${provider}&region=${first.region_code}&sku=${encodeURIComponent(first.sku)}`,
+    )
+  ).json();
+  expect(series.points.length).toBeGreaterThan(0);
+  const bad = await request.get("/api/availability/history?provider=aws");
+  expect(bad.status()).toBe(400);
+});
+
 test("demo mode is visibly separate", async ({ page }) => {
   await page.goto("/?demo=1");
   await expect(page.locator(".banner")).toContainText("Demo mode");
