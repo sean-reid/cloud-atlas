@@ -21,7 +21,7 @@ export function Layout({ children }: { children: ReactNode }) {
         Skip to content
       </a>
       {demo && (
-        <div className="banner">
+        <div className="banner" role="status">
           <div className="wrap">
             Demo mode: this view reads a labelled synthetic dataset, not live evidence. Remove
             demo=1 from the address to return.
