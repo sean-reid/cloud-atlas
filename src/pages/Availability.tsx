@@ -63,7 +63,7 @@ const describe = (c: Cell) =>
   `${c.sku}: ${LEVEL_LABEL[c.level]}${measureFor(c.signals) ? `, ${measureFor(c.signals)}` : ""}`;
 
 export function Availability() {
-  const { data } = useApi<Data>("/api/availability");
+  const { data, error } = useApi<Data>("/api/availability");
   const providers = PROVIDERS.map((x) => x.slug).filter((slug) => data?.providers[slug]);
   const [active, setActive] = useState<string | null>(null);
   const [family, setFamily] = useState<string | null>(null);
@@ -274,7 +274,15 @@ export function Availability() {
             </ul>
           </>
         )}
-        {!providers.length && <p className="muted">No availability signals recorded yet.</p>}
+        {!data && !error && (
+          <p className="muted" aria-busy="true">
+            Loading availability signals...
+          </p>
+        )}
+        {error && <p className="muted">Availability signals could not be loaded: {error}</p>}
+        {data && !providers.length && (
+          <p className="muted">No availability signals recorded yet.</p>
+        )}
         <h2 style={{ marginTop: "2rem" }}>Not yet covered</h2>
         <ul className="small muted" style={{ marginTop: "0.5rem" }}>
           {uncovered.map((a) => (
