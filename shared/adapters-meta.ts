@@ -92,6 +92,33 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
       "Power and investment figures matched by rule in the providers' own news feeds; a one-figure sentence on a tracked site is accepted, everything else waits for review.",
   },
   {
+    id: "gcp-sites",
+    title: "Google data center locations",
+    publisher: "Google",
+    mode: "automated",
+    schedule: "daily",
+    measures:
+      "Investment to date per location page in US dollars, with the year established; a page covering several cities, an unresolved place, or a figure in another currency waits for review.",
+  },
+  {
+    id: "azure-globe-regions",
+    title: "Azure datacenter globe",
+    publisher: "Microsoft",
+    mode: "automated",
+    schedule: "daily",
+    measures:
+      "Opening year per Azure region from the datacenter globe, matched to the region entity by code or name. Geography only.",
+  },
+  {
+    id: "nscale-sites",
+    title: "Nscale AI infrastructure sites",
+    publisher: "Nscale",
+    mode: "automated",
+    schedule: "daily",
+    measures:
+      "Power figures in the per-site prose of Nscale's infrastructure page, by the one-figure sentence rule; everything else waits for review.",
+  },
+  {
     id: "gcp-gpu-zones",
     title: "Google Cloud GPU zones",
     publisher: "Google Cloud",

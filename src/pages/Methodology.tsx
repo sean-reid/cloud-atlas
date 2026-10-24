@@ -51,7 +51,9 @@ export function Methodology() {
         <li>
           <strong>Tier 1, official:</strong> provider pages, releases, filings, investor materials.
           Region and zone inventories are read automatically from AWS, Google Cloud, and Microsoft
-          documentation every day.
+          documentation every day. Provider site pages are tier 1 too: Google&apos;s data center
+          location pages, Microsoft&apos;s datacenter globe, and Nscale&apos;s infrastructure page
+          are read daily; a page that covers several cities waits for review.
         </li>
         <li>
           <strong>Tier 2, public records:</strong> planning permissions, utility filings, county and
