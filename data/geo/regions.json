@@ -1526,6 +1526,51 @@
       "country_code": "MX",
       "lat": 20.59,
       "lon": -100.39
+    },
+    "eu-west-3": {
+      "code": "eu-west-3",
+      "name": "Netherlands (Amsterdam)",
+      "locality": "Amsterdam",
+      "admin_area": null,
+      "country_code": "NL",
+      "lat": 52.37,
+      "lon": 4.9
+    },
+    "sa-east-1": {
+      "code": "sa-east-1",
+      "name": "Brazil (Sao Paulo)",
+      "locality": "Sao Paulo",
+      "admin_area": "Sao Paulo",
+      "country_code": "BR",
+      "lat": -23.55,
+      "lon": -46.63
+    },
+    "eu-west-2": {
+      "code": "eu-west-2",
+      "name": "France (Paris)",
+      "locality": "Paris",
+      "admin_area": null,
+      "country_code": "FR",
+      "lat": 48.86,
+      "lon": 2.35
+    },
+    "ap-southeast-8": {
+      "code": "ap-southeast-8",
+      "name": "Malaysia (Johor)",
+      "locality": "Johor Bahru",
+      "admin_area": "Johor",
+      "country_code": "MY",
+      "lat": 1.49,
+      "lon": 103.74
+    },
+    "cn-zhongwei": {
+      "code": "cn-zhongwei",
+      "name": "China (Zhongwei)",
+      "locality": "Zhongwei",
+      "admin_area": "Ningxia",
+      "country_code": "CN",
+      "lat": 37.5,
+      "lon": 105.19
     }
   },
   "oracle": {
