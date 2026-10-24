@@ -38,3 +38,33 @@ export function daysBetween(fromIso: string, toIso: string): number {
   const b = Date.parse(dateFloor(toIso.slice(0, 10)));
   return Math.round((b - a) / 86_400_000);
 }
+
+const PRECISION_RANK: Record<DatePrecision, number> = { year: 0, month: 1, day: 2 };
+
+// The earliest opening among dated claims: the earliest year wins, and within that year the
+// finest precision, so "2012-06-07" beats a bare "2012" instead of losing the string sort.
+export function earliestOpened<
+  T extends { effective_date: string; effective_precision: DatePrecision },
+>(items: readonly T[]): T | null {
+  let best: T | null = null;
+  for (const o of items) {
+    if (!best) {
+      best = o;
+      continue;
+    }
+    const year = o.effective_date.slice(0, 4);
+    const bestYear = best.effective_date.slice(0, 4);
+    if (year !== bestYear) {
+      if (year < bestYear) best = o;
+      continue;
+    }
+    const rank = PRECISION_RANK[o.effective_precision];
+    const bestRank = PRECISION_RANK[best.effective_precision];
+    if (rank !== bestRank) {
+      if (rank > bestRank) best = o;
+      continue;
+    }
+    if (o.effective_date < best.effective_date) best = o;
+  }
+  return best;
+}
