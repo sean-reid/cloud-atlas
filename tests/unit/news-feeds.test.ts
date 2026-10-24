@@ -62,6 +62,7 @@ const run = (fetchImpl = fixtureFetch(FIX)) =>
     cacheDir: cache,
     now: fixedNow,
     fetchDefaults: fast,
+    tableRetryMs: 0,
     fetchImpl,
   });
 

@@ -102,7 +102,9 @@ async function main(argv: string[]): Promise<number> {
         const mark = o.ok ? "ok  " : o.skipped ? "skip" : "FAIL";
         console.log(`${mark} ${o.adapter.padEnd(22)} ${o.ok ? JSON.stringify(o.result) : o.error}`);
       }
-      return outcomes.every((o) => o.ok || o.skipped) ? 0 : 1;
+      // One source failing is recorded on its run and shown on the sources page; the ingest
+      // itself fails only when nothing ran.
+      return outcomes.some((o) => o.ok) || outcomes.every((o) => o.skipped) ? 0 : 1;
     }
     case "import": {
       const files = args.filter((a) => a.endsWith(".csv")).map((f) => resolve(f));

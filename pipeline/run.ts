@@ -19,6 +19,7 @@ export interface RunOptions {
   now?: () => Date;
   fetchImpl?: typeof fetch;
   fetchDefaults?: Partial<FetchOptions>;
+  tableRetryMs?: number;
 }
 
 export interface RunOutcome {
@@ -89,6 +90,7 @@ export async function runAdapters(
       now,
       geo: geo.regions,
       places: geo.places,
+      ...(opts.tableRetryMs === undefined ? {} : { tableRetryMs: opts.tableRetryMs }),
       fetch: async (url: string, extra: Partial<FetchOptions> = {}) => {
         const base: FetchOptions = {
           adapter: adapter.id,

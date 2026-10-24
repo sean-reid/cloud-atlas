@@ -38,6 +38,7 @@ describe("adapters against fixtures", () => {
       cacheDir: cache,
       now: fixedNow,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: fakeFetch(),
     });
     for (const o of outcomes) expect(o.ok, `${o.adapter}: ${o.error}`).toBe(true);
@@ -99,6 +100,7 @@ describe("adapters against fixtures", () => {
       cacheDir: cache,
       now: fixedNow,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: fakeFetch(),
     });
     const before = {
@@ -113,6 +115,7 @@ describe("adapters against fixtures", () => {
       cacheDir: cache,
       now: fixedNow,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: fakeFetch(),
     });
     expect(second.outcomes.every((o) => o.ok)).toBe(true);
@@ -136,6 +139,7 @@ describe("adapters against fixtures", () => {
       cacheDir: cache,
       now: fixedNow,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: fakeFetch(),
     });
     const broken = fakeFetch({ "https://epoch.ai/": () => new Response("gone", { status: 500 }) });
@@ -146,6 +150,7 @@ describe("adapters against fixtures", () => {
       cacheDir: cache,
       now: fixedNow,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: broken,
     });
     const epoch = outcomes.find((o) => o.adapter === "epoch-ai")!;
@@ -172,6 +177,7 @@ describe("adapters against fixtures", () => {
       cacheDir: cache,
       now: fixedNow,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: bad,
     });
     expect(outcomes[0]!.ok).toBe(false);
@@ -195,6 +201,7 @@ describe("adapters against fixtures", () => {
       cacheDir: cache,
       now: fixedNow,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: hijack,
     });
     expect(outcomes[0]!.ok).toBe(false);
@@ -348,6 +355,7 @@ describe("regions that appear after the seed run", () => {
       cacheDir: cache,
       now: fixedNow,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: fakeFetch(),
     });
     const dated = [...after.observations.values()].filter((o) => o.method_id === "first-seen.v1");
@@ -363,6 +371,7 @@ describe("regions that appear after the seed run", () => {
       cacheDir: cache,
       now: fixedNow,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: fakeFetch(),
     });
     const firstSeen = (s: Store) =>
@@ -383,6 +392,7 @@ describe("regions that appear after the seed run", () => {
       cacheDir: cache,
       now: later,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: grown,
     });
     const seen = firstSeen(second.store);
@@ -399,6 +409,7 @@ describe("regions that appear after the seed run", () => {
       cacheDir: cache,
       now: later,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: grown,
     });
     expect(firstSeen(third.store)).toHaveLength(1);

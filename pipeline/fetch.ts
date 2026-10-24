@@ -13,6 +13,8 @@ export interface FetchOptions {
   accept?: string;
   now?: () => Date;
   fetchImpl?: typeof fetch;
+  // Skip the cached copy and the conditional headers, so the origin sends a full page.
+  fresh?: boolean;
 }
 
 export interface FetchResult {
@@ -102,7 +104,7 @@ export async function safeFetch(url: string, opts: FetchOptions): Promise<FetchR
   const minInterval = opts.minIntervalMs ?? 1000;
   mkdirSync(opts.cacheDir, { recursive: true });
   const path = cachePath(opts.cacheDir, url);
-  const cached = readCache(path);
+  const cached = opts.fresh ? null : readCache(path);
   const startedAt = now().toISOString();
 
   const since = Date.now() - (lastCall.get(u.hostname) ?? 0);
