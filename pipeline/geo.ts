@@ -113,11 +113,16 @@ const STATES: Record<string, string> = {
 
 const FOLD: Record<string, string> = { ø: "o", æ: "ae", å: "a", ß: "ss", ð: "d", þ: "th", ł: "l" };
 
-// US states named in free text, as postal abbreviations.
+// US states named in free text, as postal abbreviations. An abbreviation counts only when
+// written in capitals as its own token, since "in", "or", and "me" are also words.
 export function statesNamed(text: string): string[] {
   const t = ` ${foldText(text)} `;
+  const raw = ` ${text} `;
   return Object.entries(STATES)
-    .filter(([name, abbr]) => t.includes(` ${name} `) || t.includes(` ${abbr.toLowerCase()} `))
+    .filter(
+      ([name, abbr]) =>
+        t.includes(` ${name} `) || new RegExp(`[\\s,(]${abbr}(?=[\\s,.);]|$)`).test(raw),
+    )
     .map(([, abbr]) => abbr);
 }
 
@@ -129,6 +134,14 @@ export function foldText(s: string): string {
     .replace(/[øæåßðþł]/g, (c) => FOLD[c] ?? c)
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
+
+// A US town that shares its name with a town in another state only counts when the text names
+// no state or names that town's state.
+export function stateAgrees(place: Place, text: string): boolean {
+  if (place.country_code !== "US" || !place.admin_area) return true;
+  const states = statesNamed(text);
+  return !states.length || states.includes(place.admin_area);
 }
 
 // Resolves a free-text address to a gazetteer place: the place's city must appear as whole
