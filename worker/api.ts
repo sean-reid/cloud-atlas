@@ -484,7 +484,7 @@ const feed: Handler = async (_req, env, url) => {
     env.DB,
     `SELECT o.*, s.tier, s.publisher, s.title, s.url, e.name AS entity_name, e.type AS entity_type, e.provider_slug
      FROM observation o JOIN source s ON s.id = o.source_id JOIN entity e ON e.id = o.entity_id
-     WHERE o.dataset = ? AND o.review_status = 'accepted' AND e.type <> 'zone'
+     WHERE o.dataset = ? AND o.review_status = 'accepted' AND e.type <> 'zone' AND o.metric <> 'building_count'
      ORDER BY o.recorded_at DESC, o.effective_date DESC LIMIT ?`,
     [f.demo ? "demo" : "live", limit * 3],
   );

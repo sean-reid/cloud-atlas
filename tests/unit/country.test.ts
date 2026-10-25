@@ -14,6 +14,13 @@ describe("countryAt", () => {
     expect(countryAt(-33.8688, 151.2093)).toBe("AU");
   });
 
+  test("small states the coarse polygons folded into neighbours resolve on their own", async () => {
+    const { countryAt } = await import("../../pipeline/country");
+    expect(countryAt(1.35, 103.82)).toBe("SG");
+    expect(countryAt(26.22, 50.59)).toBe("BH");
+    expect(countryAt(22.32, 114.17)).toBe("HK");
+  });
+
   test("open ocean is nobody's", () => {
     expect(countryAt(0, -30)).toBeNull();
     expect(countryAt(-60, 100)).toBeNull();
