@@ -3,8 +3,69 @@ import { createRequire } from "node:module";
 import { feature } from "topojson-client";
 import type { GeometryCollection, Topology } from "topojson-specification";
 
-// ISO 3166-1 numeric to alpha-2 for every country in world-atlas countries-110m.
+// ISO 3166-1 numeric to alpha-2 for every country in world-atlas countries-50m.
 const ISO_A2: Record<string, string> = {
+  "336": "VA",
+  "583": "FM",
+  "584": "MH",
+  "580": "MP",
+  "850": "VI",
+  "316": "GU",
+  "016": "AS",
+  "239": "GS",
+  "086": "IO",
+  "654": "SH",
+  "612": "PN",
+  "660": "AI",
+  "136": "KY",
+  "060": "BM",
+  "092": "VG",
+  "796": "TC",
+  "500": "MS",
+  "832": "JE",
+  "831": "GG",
+  "833": "IM",
+  "776": "TO",
+  "702": "SG",
+  "690": "SC",
+  "678": "ST",
+  "674": "SM",
+  "882": "WS",
+  "670": "VC",
+  "662": "LC",
+  "659": "KN",
+  "585": "PW",
+  "570": "NU",
+  "184": "CK",
+  "533": "AW",
+  "531": "CW",
+  "520": "NR",
+  "492": "MC",
+  "480": "MU",
+  "470": "MT",
+  "462": "MV",
+  "438": "LI",
+  "296": "KI",
+  "308": "GD",
+  "666": "PM",
+  "876": "WF",
+  "663": "MF",
+  "652": "BL",
+  "258": "PF",
+  "248": "AX",
+  "212": "DM",
+  "234": "FO",
+  "174": "KM",
+  "446": "MO",
+  "344": "HK",
+  "132": "CV",
+  "052": "BB",
+  "048": "BH",
+  "334": "HM",
+  "574": "NF",
+  "028": "AG",
+  "020": "AD",
+  "534": "SX",
   "004": "AF",
   "008": "AL",
   "010": "AQ",
@@ -184,7 +245,7 @@ const ISO_A2: Record<string, string> = {
 // Three shapes in the atlas carry no numeric id.
 const BY_NAME: Record<string, string> = { Kosovo: "XK", "N. Cyprus": "CY", Somaliland: "SO" };
 
-// A point just off a 110m coastline still belongs to that coast.
+// A point just off a 50m coastline still belongs to that coast.
 export const COAST_KM = 20;
 
 type Ring = [number, number][];
@@ -207,7 +268,7 @@ function load(): Shape[] {
   if (shapes) return shapes;
   const require = createRequire(import.meta.url);
   const topo = JSON.parse(
-    readFileSync(require.resolve("world-atlas/countries-110m.json"), "utf8"),
+    readFileSync(require.resolve("world-atlas/countries-50m.json"), "utf8"),
   ) as Topology<{ countries: GeometryCollection<{ name: string }> }>;
   const fc = feature(topo, topo.objects.countries);
   shapes = [];
@@ -279,7 +340,7 @@ function edgeKm(lon: number, lat: number, s: Shape): number {
 }
 
 // The country whose polygon holds the point, else the one whose coast lies within COAST_KM,
-// else null. Natural Earth 110m omits the smallest states and draws Singapore inside Malaysia.
+// else null. Natural Earth 50m carries every state down to Singapore and Bahrain.
 export function countryAt(lat: number, lon: number): string | null {
   const all = load();
   for (const s of all) {

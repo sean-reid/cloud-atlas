@@ -156,7 +156,7 @@ function nearestCampus(
   return best;
 }
 
-// A mapper's own addr:country beats a 110m polygon, which has no Singapore at all.
+// A mapper's own addr:country beats the polygon lookup.
 const countryTag = (tags: Record<string, string>): string | null => {
   const cc = tags["addr:country"]?.trim().toUpperCase();
   return cc && /^[A-Z]{2}$/.test(cc) ? cc : null;
