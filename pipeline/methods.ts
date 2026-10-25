@@ -74,6 +74,15 @@ export const METHODS: readonly Method[] = [
       "The figure describes the place named in the same sentence; the entry's publication date is the claim date.",
   },
   {
+    id: "site-section.v1",
+    version: 1,
+    title: "Figure read from a provider's site directory",
+    description:
+      "A power or investment figure matched by rule in one sentence of the section a provider's own site directory gives to one site; the sentence is the excerpt and the section anchor is the locator. Accepted without review only when the sentence holds one figure and a status word, and the place it names, or the section heading when it names none, resolves in the gazetteer. Every other figure waits in the review queue.",
+    assumptions:
+      "The figure describes the site the section is about; the fetch date is the claim date.",
+  },
+  {
     id: "lead-time-days.v1",
     version: 1,
     title: "Capacity Block lead time",

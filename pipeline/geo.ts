@@ -113,11 +113,16 @@ const STATES: Record<string, string> = {
 
 const FOLD: Record<string, string> = { ø: "o", æ: "ae", å: "a", ß: "ss", ð: "d", þ: "th", ł: "l" };
 
-// US states named in free text, as postal abbreviations.
+// US states named in free text, as postal abbreviations. An abbreviation counts only when
+// written in capitals as its own token, since "in", "or", and "me" are also words.
 export function statesNamed(text: string): string[] {
   const t = ` ${foldText(text)} `;
+  const raw = ` ${text} `;
   return Object.entries(STATES)
-    .filter(([name, abbr]) => t.includes(` ${name} `) || t.includes(` ${abbr.toLowerCase()} `))
+    .filter(
+      ([name, abbr]) =>
+        t.includes(` ${name} `) || new RegExp(`[\\s,(]${abbr}(?=[\\s,.);]|$)`).test(raw),
+    )
     .map(([, abbr]) => abbr);
 }
 
@@ -134,13 +139,17 @@ export function foldText(s: string): string {
 // Resolves a free-text address to a gazetteer place: the place's city must appear as whole
 // words in the address and the country must match. Several matching cities in different
 // places need a state to pick one; otherwise the address stays unresolved for review.
-export function resolveAddress(
-  places: Gazetteer,
-  address: string,
-  countryCode: string | null,
-): { key: string; place: Place } | null {
-  const text = ` ${foldText(address)} `;
-  const hits: { key: string; place: Place; len: number; at: number }[] = [];
+interface CityHit {
+  key: string;
+  place: Place;
+  len: number;
+  at: number;
+}
+
+// Gazetteer cities that appear as whole words in the text, dropping any name that sits inside a
+// longer matched name: "West Memphis" also contains "Memphis".
+function cityHits(places: Gazetteer, text: string, countryCode: string | null): CityHit[] {
+  const hits: CityHit[] = [];
   for (const [key, place] of Object.entries(places)) {
     if (countryCode && place.country_code !== countryCode) continue;
     const city = foldText(key.split(",")[0] ?? "");
@@ -148,11 +157,42 @@ export function resolveAddress(
     if (at < 0) continue;
     hits.push({ key, place, len: city.length, at });
   }
-  if (!hits.length) return null;
-  // "West Memphis" also contains "Memphis": a name inside a longer matched name is not a hit.
-  const outer = hits.filter(
+  return hits.filter(
     (h) => !hits.some((g) => g.len > h.len && g.at <= h.at && g.at + g.len >= h.at + h.len),
   );
+}
+
+// A US town that shares its name with a town in another state only counts when the text names
+// no state or names that town's state.
+export function stateAgrees(place: Place, text: string): boolean {
+  if (place.country_code !== "US" || !place.admin_area) return true;
+  const states = statesNamed(text);
+  return !states.length || states.includes(place.admin_area);
+}
+
+// Every distinct gazetteer place the text names, for telling a page about one town from a page
+// that covers several.
+export function placesNamed(
+  places: Gazetteer,
+  text: string,
+  countryCode: string | null = null,
+): { key: string; place: Place }[] {
+  const distinct = new Map<string, { key: string; place: Place }>();
+  for (const h of cityHits(places, ` ${foldText(text)} `, countryCode)) {
+    if (!stateAgrees(h.place, text)) continue;
+    distinct.set(`${h.place.lat},${h.place.lon}`, { key: h.key, place: h.place });
+  }
+  return [...distinct.values()];
+}
+
+export function resolveAddress(
+  places: Gazetteer,
+  address: string,
+  countryCode: string | null,
+): { key: string; place: Place } | null {
+  const text = ` ${foldText(address)} `;
+  const outer = cityHits(places, text, countryCode);
+  if (!outer.length) return null;
   const distinct = new Map(outer.map((h) => [`${h.place.lat},${h.place.lon}`, h]));
   if (distinct.size === 1) {
     const h = outer.sort((a, b) => b.len - a.len)[0]!;

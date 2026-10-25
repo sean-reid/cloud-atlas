@@ -1,5 +1,5 @@
 import { providerTotals, rowPicks, selectSites, type SitePick } from "../shared/aggregate";
-import { dateFloor, daysBetween } from "../shared/dates";
+import { dateFloor, daysBetween, earliestOpened } from "../shared/dates";
 import { METRICS } from "../shared/metrics";
 import { PROVIDERS } from "../shared/providers";
 import {
@@ -277,9 +277,7 @@ const regions: Handler = async (_req, env, url) => {
       f.asof || null,
       f.mode,
     );
-    const opened = mine
-      .filter((o) => o.effective_kind === "opened")
-      .sort((a, b) => (a.effective_date < b.effective_date ? -1 : 1))[0];
+    const opened = earliestOpened(mine.filter((o) => o.effective_kind === "opened"));
     return {
       id: e.id,
       code: e.code,

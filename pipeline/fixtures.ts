@@ -26,6 +26,12 @@ const ROUTES: Record<string, string> = {
   "https://blogs.microsoft.com/on-the-issues/feed/": "feed-microsoft-on-the-issues.xml",
   "https://local.microsoft.com/blog/feed/": "feed-microsoft-local.xml",
   "https://www.alizila.com/feed/": "feed-alizila.xml",
+  "https://datacenters.google/locations/": "gcp-locations.html",
+  "https://datacenters.google/locations/iowa/": "gcp-location-iowa.html",
+  "https://datacenters.google/locations/oregon/": "gcp-location-oregon.html",
+  "https://datacenters.google/locations/north-carolina/": "gcp-location-north-carolina.html",
+  "https://datacenters.microsoft.com/wp-json/globe/regions": "azure-globe-regions.json",
+  "https://www.nscale.com/ai-infrastructure": "nscale-ai-infrastructure.html",
 };
 
 // Serves recorded copies of every source so tests and offline seeding never touch the network.

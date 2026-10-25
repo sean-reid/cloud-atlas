@@ -1,6 +1,6 @@
 import { parsePowerMw, parseMoneyUsd } from "../shared/metrics";
 import type { Status } from "../shared/types";
-import { resolveAddress, statesNamed, type Gazetteer } from "./geo";
+import { resolveAddress, stateAgrees, type Gazetteer } from "./geo";
 
 export interface ClaimPlace {
   key: string;
@@ -47,15 +47,9 @@ const STATUS_WORDS: [RegExp, Status, Claim["effective_kind"]][] = [
   ],
 ];
 
-// A US town that shares its name with a town in another state only counts when the sentence
-// names no state or names that town's state.
-function placeFor(places: Gazetteer, sentence: string): ClaimPlace | null {
+export function placeFor(places: Gazetteer, sentence: string): ClaimPlace | null {
   const hit = resolveAddress(places, sentence, null);
-  if (!hit) return null;
-  const states = statesNamed(sentence);
-  if (hit.place.country_code === "US" && hit.place.admin_area && states.length) {
-    if (!states.includes(hit.place.admin_area)) return null;
-  }
+  if (!hit || !stateAgrees(hit.place, sentence)) return null;
   return { key: hit.key, ...hit.place };
 }
 
