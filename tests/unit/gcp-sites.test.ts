@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { importCsv } from "../../pipeline/adapters/csv-import";
 import {
   gcpSites,
@@ -14,6 +14,7 @@ import {
 } from "../../pipeline/adapters/gcp-sites";
 import type { SqliteDb } from "../../pipeline/db";
 import { fixtureFetch } from "../../pipeline/fixtures";
+import { ECB_URL } from "../../pipeline/fx";
 import { loadGeo } from "../../pipeline/geo";
 import { ensureMethods } from "../../pipeline/methods";
 import { runAdapters } from "../../pipeline/run";
@@ -23,6 +24,7 @@ import { DATA, FIX, fast, fixedNow, memoryDb } from "./helpers";
 const IOWA = "https://datacenters.google/locations/iowa/";
 const OREGON = "https://datacenters.google/locations/oregon/";
 const LENOIR = "https://datacenters.google/locations/north-carolina/";
+const HAMINA = "https://datacenters.google/locations/hamina-finland/";
 
 const page = (name: string) => readFileSync(join(FIX, name), "utf8");
 
@@ -72,9 +74,10 @@ async function importGoogleSites(): Promise<void> {
 describe("parsing the recorded Google location pages", () => {
   test("the index maps each page to the localities it covers", () => {
     const pages = parseIndex(page("gcp-locations.html"));
-    expect([...pages.keys()].sort()).toEqual([IOWA, LENOIR, OREGON]);
+    expect([...pages.keys()].sort()).toEqual([HAMINA, IOWA, LENOIR, OREGON]);
     expect(pages.get(IOWA)).toEqual(["Cedar Rapids, Iowa", "Council Bluffs, Iowa"]);
     expect(pages.get(OREGON)).toEqual(["The Dalles, Oregon"]);
+    expect(pages.get(HAMINA)).toEqual(["Hamina, Finland"]);
     expect(parseIndex("<html><body>nothing</body></html>").size).toBe(0);
   });
 
@@ -90,23 +93,31 @@ describe("parsing the recorded Google location pages", () => {
         "Google has invested more than $20 billion in Iowa since building our data center in Council Bluffs in 2007.",
     });
     expect(cards[1]).toMatchObject({ label: "Established in Iowa", figure: "2007" });
+    expect(pageTitle(page("gcp-location-hamina-finland.html"))).toBe("Hamina, Finland");
+    expect(parseCards(page("gcp-location-hamina-finland.html"))[0]).toMatchObject({
+      label: "Investment to date",
+      figure: "€3.5B",
+    });
   });
 
   test("investment figures parse with currency and lower bound", () => {
-    expect(parseInvestmentFigure("$20B+")).toEqual({ usd: true, value: 20e9, lowerBound: true });
-    expect(parseInvestmentFigure("$1.6B+")).toEqual({ usd: true, value: 1.6e9, lowerBound: true });
-    expect(parseInvestmentFigure("US$5B")).toEqual({ usd: true, value: 5e9, lowerBound: false });
+    const usd = { usd: true, currency: "USD" };
+    expect(parseInvestmentFigure("$20B+")).toEqual({ ...usd, value: 20e9, lowerBound: true });
+    expect(parseInvestmentFigure("$1.6B+")).toEqual({ ...usd, value: 1.6e9, lowerBound: true });
+    expect(parseInvestmentFigure("US$5B")).toEqual({ ...usd, value: 5e9, lowerBound: false });
     expect(parseInvestmentFigure("$6B", "Google has invested more than $6 billion")).toEqual({
-      usd: true,
+      ...usd,
       value: 6e9,
       lowerBound: true,
     });
     expect(parseInvestmentFigure("€600 million")).toEqual({
       usd: false,
+      currency: "EUR",
       value: 600e6,
       lowerBound: false,
     });
-    expect(parseInvestmentFigure("£5B")?.usd).toBe(false);
+    expect(parseInvestmentFigure("£5B")).toMatchObject({ usd: false, currency: "GBP" });
+    expect(parseInvestmentFigure("¥100B")).toMatchObject({ usd: false, currency: "JPY" });
     expect(parseInvestmentFigure("2007")).toBeNull();
     expect(parseInvestmentFigure("153K+")).toBeNull();
   });
@@ -116,10 +127,11 @@ describe("gcp-sites adapter", () => {
   test("creates a campus per single-city page and holds the state page for review", async () => {
     const { store, outcomes } = await run();
     expect(outcomes[0]!.ok, outcomes[0]!.error ?? "").toBe(true);
-    expect(outcomes[0]!.result).toEqual({ observations: 2, entities: 2, signals: 0, review: 1 });
+    expect(outcomes[0]!.result).toEqual({ observations: 3, entities: 3, signals: 0, review: 1 });
 
     const campuses = [...store.entities.values()].filter((e) => e.type === "campus");
     expect(campuses.map((c) => c.name).sort()).toEqual([
+      "Google Hamina campus",
       "Google Lenoir campus",
       "Google The Dalles campus",
     ]);
@@ -163,6 +175,28 @@ describe("gcp-sites adapter", () => {
     )!;
     expect(lenoir).toMatchObject({ value: 4e9, value_low: 4e9, locator: LENOIR });
 
+    const hamina = campuses.find((c) => c.name === "Google Hamina campus")!;
+    expect(hamina).toMatchObject({ country_code: "FI", locality: "Hamina", lat: 60.57, lon: 27.2 });
+    const euro = [...store.observations.values()].find((o) => o.entity_id === hamina.id)!;
+    expect(euro).toMatchObject({
+      metric: "investment_usd",
+      value: 3.92e9,
+      value_low: null,
+      unit: "USD",
+      value_original: "€3.5B",
+      claim_type: "derived",
+      method_id: "fx-conversion.v1",
+      derived_from: null,
+      source_id: obs[0]!.source_id,
+      locator: HAMINA,
+      review_status: "accepted",
+      notes: "EUR 3.5 billion at ECB reference rate 1.1193 USD per EUR on 2026-10-23",
+    });
+    expect(euro.excerpt).toMatch(/€3\.5 billion invested in the region to date/);
+    const ecb = [...store.sources.values()].find((s) => s.url === ECB_URL)!;
+    expect(ecb).toMatchObject({ publisher: "European Central Bank", tier: 1 });
+    expect(ecb.license).toMatch(/ECB cited as the source/);
+
     const item = store.review.get("rev_gcp-sites_iowa")!;
     expect(item.resolved_at).toBeNull();
     expect(item.reason).toBe(
@@ -190,7 +224,7 @@ describe("gcp-sites adapter", () => {
       (e) => e.name === "Google The Dalles campus",
     )!;
     const { store, outcomes } = await run();
-    expect(outcomes[0]!.result).toEqual({ observations: 2, entities: 0, signals: 0, review: 1 });
+    expect(outcomes[0]!.result).toEqual({ observations: 3, entities: 0, signals: 0, review: 1 });
     const dalles = [...store.entities.values()].filter(
       (e) => e.name === "Google The Dalles campus",
     );
@@ -221,14 +255,48 @@ describe("gcp-sites adapter", () => {
     const partial = fixtureFetch(FIX, { [OREGON]: () => new Response("gone", { status: 404 }) });
     const { store, outcomes } = await run(partial);
     expect(outcomes[0]!.ok).toBe(true);
-    expect(outcomes[0]!.result!.observations).toBe(1);
+    expect(outcomes[0]!.result!.observations).toBe(2);
     expect([...store.entities.values()].some((e) => e.name === "Google Lenoir campus")).toBe(true);
 
     const gone = () => new Response("gone", { status: 404 });
-    const none = fixtureFetch(FIX, { [IOWA]: gone, [OREGON]: gone, [LENOIR]: gone });
+    const none = fixtureFetch(FIX, {
+      [IOWA]: gone,
+      [OREGON]: gone,
+      [LENOIR]: gone,
+      [HAMINA]: gone,
+    });
     const failed = await run(none);
     expect(failed.outcomes[0]!.ok).toBe(false);
     expect(failed.outcomes[0]!.error).toMatch(/every location page failed/);
+  });
+
+  test("a euro page waits for review when the ECB file is down, logged once", async () => {
+    const lines: string[] = [];
+    const spy = vi.spyOn(process.stdout, "write").mockImplementation((chunk) => {
+      lines.push(String(chunk));
+      return true;
+    });
+    try {
+      const down = fixtureFetch(FIX, { [ECB_URL]: () => new Response("down", { status: 503 }) });
+      const { store, outcomes } = await run(down);
+      expect(outcomes[0]!.ok, outcomes[0]!.error ?? "").toBe(true);
+      expect(outcomes[0]!.result).toEqual({ observations: 2, entities: 2, signals: 0, review: 2 });
+      expect([...store.entities.values()].some((e) => e.name === "Google Hamina campus")).toBe(
+        false,
+      );
+      const item = store.review.get("rev_gcp-sites_hamina-finland")!;
+      expect(item.resolved_at).toBeNull();
+      expect(item.reason).toBe(
+        'Google Hamina, Finland: "€3.5B" (Investment to date); "€3.5B" is not in US dollars',
+      );
+      const payload = JSON.parse(item.payload) as GcpSiteReview;
+      expect(payload).toMatchObject({ page: HAMINA, value: 3.5e9, usd: false });
+      expect(payload.proposed).toMatchObject({ name: "Google Hamina campus", country_code: "FI" });
+      expect([...store.sources.values()].some((s) => s.url === ECB_URL)).toBe(false);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(lines.filter((l) => l.includes('"event":"fx.unavailable"'))).toHaveLength(1);
   });
 
   test("an index without the location list fails instead of writing nothing quietly", async () => {
