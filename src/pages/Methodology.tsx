@@ -39,7 +39,10 @@ export function Methodology() {
         Facility power (the whole building, including cooling and losses), utility supply capacity,
         building and campus counts, cloud region and zone counts, GPU counts, land, and investment
         are each tracked as their own metric and never combined. Where a source gives facility power
-        and we show IT power, the conversion names its PUE assumption and is labelled derived.
+        and we show IT power, the conversion names its PUE assumption and is labelled derived. Where
+        a provider states an investment in euros or pounds, the dollar figure is converted at the
+        European Central Bank reference rate of the day the page was read, the notes name the rate
+        and date, and the figure is labelled derived.
       </p>
       <p>
         Physical sites (campuses, buildings, phases) and logical geography (regions, availability
