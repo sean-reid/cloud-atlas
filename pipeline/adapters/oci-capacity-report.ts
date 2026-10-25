@@ -50,6 +50,11 @@ interface RegionSubscription {
   isHomeRegion: boolean;
 }
 
+interface Region {
+  key: string;
+  name: string;
+}
+
 interface AvailabilityDomain {
   name: string;
   id: string;
@@ -170,13 +175,24 @@ export function makeAdapter(
         `https://identity.${creds.region}.oci.oraclecloud.com/${API_VERSION}/tenancies/${creds.tenancy}/regionSubscriptions`,
       );
       const regions = subs.filter((s) => s.status === "READY").map((s) => s.regionName);
+      // Every region Oracle offers, not only the subscribed ones, so the map and the regions
+      // chart carry the whole footprint while capacity reports stay limited to subscriptions.
+      let offered: Region[] = [];
+      try {
+        offered = await call<Region[]>(
+          "GET",
+          `https://identity.${creds.region}.oci.oraclecloud.com/${API_VERSION}/regions`,
+        );
+      } catch (err) {
+        log("warn", "probe.region_list_failed", { adapter: id, error: String(err) });
+      }
       const parent = await providerEntity(
         ctx.store,
         "oracle",
         "Oracle Cloud Infrastructure",
         ctx.dataset,
       );
-      for (const code of regions) {
+      for (const code of [...new Set([...offered.map((r) => r.name), ...regions])].sort()) {
         const placed = await ensureRegion(ctx, this, {
           provider: "oracle",
           code,
