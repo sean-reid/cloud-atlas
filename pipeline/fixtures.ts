@@ -48,6 +48,8 @@ export function fixtureFetch(
     if (override) return override[1]();
     if (url.startsWith("https://prices.azure.com/"))
       return new Response(read("azure-prices.json"), { status: 200 });
+    if (url.startsWith("https://overpass-api.de/api/interpreter?"))
+      return new Response(read("osm-datacenters.json"), { status: 200 });
     const file = ROUTES[url];
     if (!file) return new Response("not found", { status: 404 });
     return new Response(read(file), { status: 200, headers: { etag: `"${file}"` } });

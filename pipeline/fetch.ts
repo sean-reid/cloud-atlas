@@ -15,6 +15,7 @@ export interface FetchOptions {
   fetchImpl?: typeof fetch;
   // Skip the cached copy and the conditional headers, so the origin sends a full page.
   fresh?: boolean;
+  userAgent?: string;
 }
 
 export interface FetchResult {
@@ -117,7 +118,7 @@ export async function safeFetch(url: string, opts: FetchOptions): Promise<FetchR
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const headers: Record<string, string> = {
-        "user-agent": USER_AGENT,
+        "user-agent": opts.userAgent ?? USER_AGENT,
         accept: opts.accept ?? "application/json, text/csv, text/html;q=0.8, */*;q=0.5",
       };
       if (cached?.etag) headers["if-none-match"] = cached.etag;
