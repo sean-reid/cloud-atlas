@@ -23,6 +23,7 @@ The database is Cloudflare D1 (SQLite). Schema lives in `migrations/`. Observati
 - `npm run review list|accept <id> [note]|reject <id> [note]` works the review queue. Accepting a feed candidate with a resolved place creates the proposed site and its observation; one without a place is transcribed into `data/imports/` by hand.
 - `npm run health` prints each adapter's latest run and its outcome.
 - `npm run retain` collapses hourly availability signals older than 90 days to the worst hour per zone, ask and day; the daily ingest runs it.
+- The Worker's cron trigger dispatches the ingest workflow on the hour, since GitHub's own schedule drifts; it needs the `GITHUB_DISPATCH_TOKEN` Worker secret, a fine-grained token with actions write on this repository.
 
 GitHub Actions runs the hourly adapters every hour and everything daily, writing straight to D1.
 
