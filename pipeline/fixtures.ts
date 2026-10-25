@@ -30,6 +30,7 @@ const ROUTES: Record<string, string> = {
   "https://datacenters.google/locations/iowa/": "gcp-location-iowa.html",
   "https://datacenters.google/locations/oregon/": "gcp-location-oregon.html",
   "https://datacenters.google/locations/north-carolina/": "gcp-location-north-carolina.html",
+  "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml": "eurofxref-daily.xml",
   "https://datacenters.microsoft.com/wp-json/globe/regions": "azure-globe-regions.json",
   "https://www.nscale.com/ai-infrastructure": "nscale-ai-infrastructure.html",
 };
