@@ -32,12 +32,21 @@ interface Tip {
 // Horizontal bars of tracked operational IT power per provider. The hatched portion is the
 // share of that total that rests on derived estimates. Pipeline totals sit alongside as text,
 // never stacked onto the operational bar.
-export function ProviderBars({ totals }: { totals: ProviderTotals[] }) {
+export function ProviderBars({
+  totals,
+  stated = {},
+}: {
+  totals: ProviderTotals[];
+  stated?: Record<string, number>;
+}) {
   const rows = totals.filter((t) => t.it_power_mw > 0 || t.facility_only_power_mw > 0);
   const { width, ref } = useSize();
   const rowH = 34;
   const height = PAD.top + rows.length * rowH + 8;
-  const max = Math.max(1, ...rows.map((t) => t.it_power_mw));
+  const max = Math.max(
+    1,
+    ...rows.map((t) => Math.max(t.it_power_mw, stated[t.provider_slug] ?? 0)),
+  );
   const labelW = 92;
   const x = scaleLinear()
     .domain([0, max])
@@ -70,6 +79,8 @@ export function ProviderBars({ totals }: { totals: ProviderTotals[] }) {
           const derivedW = w * t.derived_share;
           const pipeline =
             t.pipeline_it_power_mw.under_construction + t.pipeline_it_power_mw.announced;
+          const fleet = stated[t.provider_slug];
+          const fleetX = fleet ? labelW + x(fleet) : null;
           return (
             <g
               key={t.provider_slug}
@@ -100,6 +111,12 @@ export function ProviderBars({ totals }: { totals: ProviderTotals[] }) {
                           construction, {fmtMw(t.pipeline_it_power_mw.announced)} announced
                         </>
                       )}
+                      {fleet && (
+                        <>
+                          <br />
+                          {p?.shortName} states {fmtMw(fleet)} fleet-wide; not summed with sites
+                        </>
+                      )}
                     </>
                   ),
                 })
@@ -119,9 +136,35 @@ export function ProviderBars({ totals }: { totals: ProviderTotals[] }) {
                   fill="url(#hatch)"
                 />
               )}
-              <text x={labelW + w + 8} y={rowH / 2 + 4} className="num" fill="var(--ink)">
+              {fleetX !== null && (
+                <>
+                  <line
+                    x1={labelW + w}
+                    x2={fleetX}
+                    y1={rowH / 2}
+                    y2={rowH / 2}
+                    stroke="var(--ink-faint)"
+                    strokeDasharray="2 3"
+                  />
+                  <circle
+                    cx={fleetX}
+                    cy={rowH / 2}
+                    r={4.5}
+                    fill="var(--paper)"
+                    stroke="var(--ink)"
+                    strokeWidth={1.5}
+                  />
+                </>
+              )}
+              <text
+                x={(fleetX === null ? labelW + w : Math.max(labelW + w, fleetX)) + 10}
+                y={rowH / 2 + 4}
+                className="num"
+                fill="var(--ink)"
+              >
                 {fmtMw(t.it_power_mw)}
                 {t.it_sites ? ` · ${t.it_sites} site${t.it_sites === 1 ? "" : "s"}` : ""}
+                {fleet ? ` · states ${fmtMw(fleet)}` : ""}
               </text>
             </g>
           );
@@ -136,6 +179,11 @@ export function ProviderBars({ totals }: { totals: ProviderTotals[] }) {
         <span>
           <span className="mark" /> reported
         </span>
+        {Object.keys(stated).length > 0 && (
+          <span>
+            <span className="mark ring" /> stated fleet-wide, not summed
+          </span>
+        )}
         <span>
           <span
             className="mark"
