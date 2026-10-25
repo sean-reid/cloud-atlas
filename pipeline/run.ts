@@ -1,4 +1,5 @@
 import { ProbeUnavailable } from "./adapters/types";
+import { flushFirstSeen } from "./first-seen";
 import { createHash } from "node:crypto";
 import type { Dataset, FetchRun } from "../shared/types";
 import type { Adapter, AdapterContext, AdapterResult } from "./adapters/types";
@@ -115,6 +116,7 @@ export async function runAdapters(
     log("info", "adapter.start", { adapter: adapter.id });
     try {
       const result = await adapter.run(ctx);
+      result.observations += await flushFirstSeen(ctx, adapter);
       const run: FetchRun = {
         adapter: adapter.id,
         url: adapter.url,
