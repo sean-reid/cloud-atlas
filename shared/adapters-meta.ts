@@ -98,7 +98,7 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
     mode: "automated",
     schedule: "daily",
     measures:
-      "Investment to date per location page in US dollars, with the year established; a page covering several cities, an unresolved place, or a figure in another currency waits for review.",
+      "Investment to date per location page, with the year established; euro and pound figures are converted at the day's ECB reference rate; a page covering several cities or an unresolved place waits for review.",
   },
   {
     id: "azure-globe-regions",

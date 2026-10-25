@@ -34,7 +34,7 @@ export const METHODS: readonly Method[] = [
     version: 1,
     title: "Currency conversion to USD",
     description:
-      "Non-USD investment figures converted at an approximate annual average rate stated in the observation notes.",
+      "Non-USD investment figures multiplied by a USD rate stated in the observation notes: an approximate annual average for hand-converted rows, the ECB daily reference rate on the day the page was read for figures an adapter reads from a provider page.",
     assumptions: "Rates are indicative, not the rate on the announcement date.",
   },
   {
