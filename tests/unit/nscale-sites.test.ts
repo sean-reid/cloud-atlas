@@ -73,7 +73,7 @@ describe("parsing the recorded Nscale page", () => {
     expect(l[0]).toMatchObject({ value: 90, status: "unknown", figures: 1 });
     const t = sectionClaims(texas!, geo.places);
     expect(t.map((c) => c.value)).toEqual([240, 1200]);
-    expect(t.every((c) => c.place === null)).toBe(true);
+    expect(t.every((c) => c.place?.key === "Ward County, TX, US")).toBe(true);
   });
 });
 
@@ -116,8 +116,14 @@ describe("nscale-sites adapter", () => {
       /^Nscale Ward County \(Texas, United States\): "240MW": 2 figures/,
     );
     const tp = payloadOf(texas.payload);
-    expect(tp.place).toBeNull();
-    expect(tp.proposed).toBeNull();
+    expect(tp.place).toBe("Ward County, TX, US");
+    expect(tp.proposed).toMatchObject({
+      type: "campus",
+      provider: "nscale",
+      name: "Nscale Ward County campus",
+      country_code: "US",
+      location_precision: "locality",
+    });
     expect(tp.sentences[0]).toMatch(/^Ward County is a roughly 240MW AI data center in West Texas/);
   });
 

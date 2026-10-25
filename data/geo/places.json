@@ -1126,5 +1126,53 @@
     "lon": -85.99,
     "country_code": "US",
     "admin_area": "AL"
+  },
+  "Clarksville, TN, US": {
+    "lat": 36.53,
+    "lon": -87.36,
+    "country_code": "US",
+    "admin_area": "TN"
+  },
+  "Montgomery County, TN, US": {
+    "lat": 36.5,
+    "lon": -87.38,
+    "country_code": "US",
+    "admin_area": "TN"
+  },
+  "Stillwater, OK, US": {
+    "lat": 36.12,
+    "lon": -97.06,
+    "country_code": "US",
+    "admin_area": "OK"
+  },
+  "Mayes County, OK, US": {
+    "lat": 36.3,
+    "lon": -95.23,
+    "country_code": "US",
+    "admin_area": "OK"
+  },
+  "Monahans, TX, US": {
+    "lat": 31.59,
+    "lon": -102.89,
+    "country_code": "US",
+    "admin_area": "TX"
+  },
+  "Ward County, TX, US": {
+    "lat": 31.51,
+    "lon": -103.1,
+    "country_code": "US",
+    "admin_area": "TX"
+  },
+  "Glomfjord, NO": {
+    "lat": 66.82,
+    "lon": 13.95,
+    "country_code": "NO",
+    "admin_area": null
+  },
+  "Keflavik, IS": {
+    "lat": 64.0,
+    "lon": -22.56,
+    "country_code": "IS",
+    "admin_area": null
   }
 }
