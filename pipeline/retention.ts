@@ -1,3 +1,4 @@
+import { ASK_GROUP_SQL } from "../shared/availability";
 import type { Db } from "./db";
 
 export const HOURLY_DAYS = 90;
@@ -16,7 +17,7 @@ export async function pruneSignals(db: Db, now: Date, days = HOURLY_DAYS): Promi
        SELECT id FROM (
          SELECT id, ROW_NUMBER() OVER (
            PARTITION BY provider_slug, region_code, zone_code, sku, signal, substr(observed_at, 1, 10),
-             json_extract(detail, '$.target_capacity'), json_extract(detail, '$.instance_count')
+             ${ASK_GROUP_SQL}
            ORDER BY CASE WHEN signal IN ('spot_ratio', 'interruption_band', 'lead_time_days') THEN -value ELSE value END, observed_at
          ) AS rn
          FROM availability_signal WHERE observed_at < ?

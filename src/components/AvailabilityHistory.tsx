@@ -1,6 +1,12 @@
 import { scaleLinear, scaleUtc } from "d3-scale";
 import { useState } from "react";
-import { HIGHER_IS_WORSE, LEVEL_LABEL, type DayCell, type Level } from "../../shared/availability";
+import {
+  HIGHER_IS_WORSE,
+  LEVEL_LABEL,
+  spotScoreLabel,
+  type DayCell,
+  type Level,
+} from "../../shared/availability";
 import type { AvailabilitySignalKind } from "../../shared/types";
 import { useApi } from "../lib/api";
 import { useSize } from "./Charts";
@@ -257,6 +263,16 @@ const SIGNAL_UNIT: Partial<Record<AvailabilitySignalKind, Unit>> = {
       { level: "tight", from: 0, to: 3.5 },
       { level: "constrained", from: 3.5, to: 6.5 },
       { level: "available", from: 6.5, to: 10 },
+    ],
+  },
+  spot_placement: {
+    label: "spot placement score",
+    format: spotScoreLabel,
+    domain: [1, 3],
+    bands: [
+      { level: "tight", from: 1, to: 1.5 },
+      { level: "constrained", from: 1.5, to: 2.5 },
+      { level: "available", from: 2.5, to: 3 },
     ],
   },
   lead_time_days: {

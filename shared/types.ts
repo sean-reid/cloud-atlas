@@ -109,6 +109,7 @@ export type AvailabilitySignalKind =
   | "sell_status"
   | "capacity_report"
   | "interruption_band"
+  | "spot_placement"
   | "lead_time_days";
 
 export interface AvailabilitySignal {

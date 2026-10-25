@@ -28,6 +28,8 @@ export const SIGNAL_NOTES: Record<AvailabilitySignalKind, string> = {
     "The provider's published spot interruption frequency band for the trailing month. Under 10% available, 10 to 15% constrained, above tight.",
   placement_score:
     "The provider's own 1 to 10 likelihood that a request of the probed size succeeds. 7 and above available, 4 to 6 constrained, below tight.",
+  spot_placement:
+    "Microsoft's own three-step Spot placement score for the probed count in the region: High available, Medium constrained, Low tight.",
   lead_time_days:
     "Days until the provider's scheduler can start a block of the probed size. Today available, within three days constrained, later or never tight.",
   sell_status:
@@ -51,6 +53,10 @@ export function levelFor(r: Readings, spotTerciles: { q33: number; q66: number }
     const s = r.placement_score.value;
     return s >= 7 ? "available" : s >= 4 ? "constrained" : "tight";
   }
+  if (r.spot_placement) {
+    const s = r.spot_placement.value;
+    return s >= 3 ? "available" : s >= 2 ? "constrained" : "tight";
+  }
   if (r.lead_time_days) {
     const d = r.lead_time_days.value;
     return d <= 0 ? "available" : d <= 3 ? "constrained" : "tight";
@@ -73,6 +79,8 @@ const zoned = (text: string, r: SignalReading): string =>
     ? `${text} in ${String(r.detail.zone)}, ${r.detail.zones} zones`
     : text;
 
+export const spotScoreLabel = (v: number): string => (v >= 3 ? "High" : v >= 2 ? "Medium" : "Low");
+
 // The provider's own number behind a level, for the cell text and tooltips.
 export function measureFor(r: Readings): string {
   if (r.capacity_report)
@@ -88,6 +96,8 @@ export function measureFor(r: Readings): string {
       r.sell_status,
     );
   if (r.placement_score) return `score ${r.placement_score.value}/10`;
+  if (r.spot_placement)
+    return `spot score ${String(r.spot_placement.detail?.score ?? spotScoreLabel(r.spot_placement.value))}`;
   if (r.lead_time_days) {
     const d = r.lead_time_days.value;
     if (d >= 999) return "no start date";
@@ -135,8 +145,12 @@ export function spotTerciles(ratios: readonly number[]): { q33: number; q66: num
   return { q33: q(0.33), q66: q(0.66) };
 }
 
+// The detail field each probe stores its ask in; the same list partitions rows in SQL.
+export const ASK_FIELDS = ["target_capacity", "instance_count", "desired_count"] as const;
+export const ASK_GROUP_SQL = ASK_FIELDS.map((f) => `json_extract(detail, '$.${f}')`).join(", ");
+
 const askOf = (d: Record<string, unknown> | null | undefined): number =>
-  Number(d?.target_capacity ?? d?.instance_count ?? Infinity);
+  Number(ASK_FIELDS.map((f) => d?.[f]).find((v) => v !== undefined) ?? Infinity);
 
 // Folds one more row for a region and SKU into the reading shown for it. Probes that ask for
 // several sizes land as one row each, and the smallest ask is what most buyers feel; zone
@@ -205,8 +219,7 @@ export const HISTORY_DAY_SQL = `SELECT region_code, sku, zone_code, signal, subs
     MIN(${worseFirst}) AS worst, value, detail, COUNT(*) AS samples
   FROM availability_signal
   WHERE provider_slug = ? AND sku_family = ? AND observed_at >= ?
-  GROUP BY region_code, sku, zone_code, signal, day,
-    json_extract(detail, '$.target_capacity'), json_extract(detail, '$.instance_count')
+  GROUP BY region_code, sku, zone_code, signal, day, ${ASK_GROUP_SQL}
   ORDER BY region_code, sku, day`;
 
 // Builds the day cells for one family. A day folds its asks and zones the way the latest view

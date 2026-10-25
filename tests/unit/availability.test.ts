@@ -56,6 +56,24 @@ describe("availability levels", () => {
       levelFor(r({ lead_time_days: { value: 999, detail: null, baseline: null } }), null),
     ).toBe("tight");
   });
+  test("spot placement sits between placement scores and lead times", () => {
+    const spot = (v: number) => ({ spot_placement: { value: v, detail: null, baseline: null } });
+    expect(levelFor(r(spot(3)), null)).toBe("available");
+    expect(levelFor(r(spot(2)), null)).toBe("constrained");
+    expect(levelFor(r(spot(1)), null)).toBe("tight");
+    expect(
+      levelFor(
+        r({ ...spot(1), placement_score: { value: 9, detail: null, baseline: null } }),
+        null,
+      ),
+    ).toBe("available");
+    expect(
+      levelFor(
+        r({ ...spot(3), lead_time_days: { value: 999, detail: null, baseline: null } }),
+        null,
+      ),
+    ).toBe("available");
+  });
   test("market signals are relative within the family and fall back to offered", () => {
     expect(
       levelFor(r({ spot_ratio: { value: 0.2, detail: null, baseline: null } }), terciles),
@@ -91,6 +109,12 @@ describe("measurements shown beside a level", () => {
     );
     expect(measureFor(r({ lead_time_days: { value: 2, detail: null, baseline: null } }))).toBe(
       "starts in 2 days",
+    );
+    expect(
+      measureFor(r({ spot_placement: { value: 3, detail: { score: "High" }, baseline: null } })),
+    ).toBe("spot score High");
+    expect(measureFor(r({ spot_placement: { value: 2, detail: null, baseline: null } }))).toBe(
+      "spot score Medium",
     );
     expect(measureFor(r({ lead_time_days: { value: 0, detail: null, baseline: null } }))).toBe(
       "starts now",
@@ -255,5 +279,24 @@ describe("merging rows for one region and SKU", () => {
       null,
     );
     expect(lead.value).toBe(5);
+
+    const spotBig = mergeReading(
+      undefined,
+      { signal: "spot_placement", value: 1, detail: { desired_count: 8 }, zone_code: null },
+      null,
+    );
+    const spotSmall = mergeReading(
+      spotBig,
+      { signal: "spot_placement", value: 3, detail: { desired_count: 1 }, zone_code: null },
+      null,
+    );
+    expect(spotSmall.value).toBe(3);
+    expect(
+      mergeReading(
+        spotSmall,
+        { signal: "spot_placement", value: 2, detail: { desired_count: 1 }, zone_code: null },
+        null,
+      ).value,
+    ).toBe(2);
   });
 });
