@@ -1,8 +1,9 @@
 import { Link } from "wouter";
 import { providerBySlug, PROVIDERS } from "../../shared/providers";
 import { CapacitySeries, ProviderBars, RegionGrowth } from "../components/Charts";
+import { statedPowerMw, statedVsTracked, type StatedPick } from "../lib/stated";
 import { FilterBar } from "../components/FilterBar";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import type { RegionMarker } from "../components/Map";
 
 const AtlasMap = lazy(() => import("../components/Map").then((m) => ({ default: m.AtlasMap })));
@@ -10,6 +11,34 @@ import { useApi } from "../lib/api";
 import { api, useFilters } from "../lib/filters";
 import { fmtAgo, fmtDate, fmtMetric, fmtMw, fmtNum, statusLabel } from "../lib/format";
 import type { FeedItem, Meta, SeriesPoint, SiteRow, Summary } from "../lib/types";
+
+// "stated / tracked" cell text; either side may be missing.
+function pair(
+  stated: StatedPick | null,
+  fmt: (v: number) => string,
+  tracked: string | null,
+): ReactNode {
+  const left = stated ? (
+    <span title={`stated as of ${fmtDate(stated.pick.effective_date)}`}>
+      {fmt(stated.pick.value ?? 0)}
+    </span>
+  ) : (
+    <span className="faint" title="no provider statement">
+      -
+    </span>
+  );
+  return (
+    <>
+      {left}
+      <span className="faint"> / </span>
+      {tracked ?? (
+        <span className="faint" title="nothing tracked">
+          -
+        </span>
+      )}
+    </>
+  );
+}
 
 export function Overview() {
   const [filters, update, query] = useFilters();
@@ -137,49 +166,73 @@ export function Overview() {
               <h2>Providers compared</h2>
             </div>
             {summary.data ? (
-              <ProviderBars totals={summary.data.totals} />
+              <ProviderBars
+                totals={summary.data.totals}
+                stated={statedPowerMw(summary.data.provider_stated)}
+              />
             ) : (
               <p className="muted">Loading...</p>
             )}
             {summary.data && (
-              <div className="small muted" style={{ marginTop: "1rem" }}>
+              <div className="small" style={{ marginTop: "1rem" }}>
                 <div className="cap" style={{ marginBottom: "0.3rem" }}>
-                  Provider-wide statements, not summed with sites
+                  Stated by the provider, tracked by the evidence
                 </div>
-                <ul style={{ margin: 0, paddingLeft: "1.1rem" }}>
-                  {Object.entries(summary.data.provider_stated)
-                    .flatMap(([slug, metrics]) =>
-                      Object.entries(metrics)
-                        .filter(
-                          ([k]) =>
-                            k.startsWith("facility_power_mw") ||
-                            k.startsWith("facility_count") ||
-                            k.startsWith("region_count|operational"),
-                        )
-                        .slice(0, 2)
-                        .map(([k, sel]) => (
-                          <li key={`${slug}-${k}`}>
-                            <Link href={`/providers/${slug}`}>
-                              {providerBySlug(slug)?.shortName}
+                <div className="table-scroll">
+                  <table className="compact">
+                    <thead>
+                      <tr>
+                        <th>Provider</th>
+                        <th>Regions</th>
+                        <th>Buildings</th>
+                        <th>Power</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {statedVsTracked(
+                        summary.data.provider_stated,
+                        summary.data.totals,
+                        regions.data?.regions ?? [],
+                        sites.data?.sites ?? [],
+                      ).map((r) => (
+                        <tr key={r.provider_slug}>
+                          <td className="lead-cell">
+                            <Link href={`/providers/${r.provider_slug}`}>
+                              {providerBySlug(r.provider_slug)?.shortName ?? r.provider_slug}
                             </Link>
-                            :{" "}
-                            {fmtMetric(
-                              sel.pick.metric,
-                              sel.pick.value,
-                              sel.pick.value_low,
-                              sel.pick.value_high,
-                            )}{" "}
-                            {sel.pick.metric === "region_count"
-                              ? "regions"
-                              : sel.pick.metric === "facility_count"
-                                ? "datacenters"
-                                : statusLabel[sel.pick.status]}{" "}
-                            as of {fmtDate(sel.pick.effective_date)}
-                          </li>
-                        )),
-                    )
-                    .slice(0, 9)}
-                </ul>
+                          </td>
+                          <td data-label="Regions">
+                            {pair(
+                              r.regions.stated,
+                              (v) => fmtNum(v),
+                              r.regions.tracked ? fmtNum(r.regions.tracked) : null,
+                            )}
+                          </td>
+                          <td data-label="Buildings">
+                            {pair(
+                              r.datacenters.stated,
+                              (v) => fmtNum(v),
+                              r.datacenters.mapped ? fmtNum(r.datacenters.mapped) : null,
+                            )}
+                          </td>
+                          <td data-label="Operational power">
+                            {pair(
+                              r.power.stated,
+                              (v) => fmtMw(v),
+                              r.power.tracked_mw ? fmtMw(r.power.tracked_mw) : null,
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="muted" style={{ marginTop: "0.4rem" }}>
+                  Each cell reads stated / tracked: the provider&apos;s own figure, dated on hover,
+                  beside what cited evidence covers. Stated buildings are the provider&apos;s
+                  datacenter count; tracked ones are mapped buildings. Tracked power is the bar
+                  above. The two sides are never added together.
+                </p>
               </div>
             )}
           </div>

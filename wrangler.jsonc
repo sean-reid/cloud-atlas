@@ -24,4 +24,22 @@
       "migrations_dir": "migrations",
     },
   ],
+  // The e2e suite issues a few hundred API requests a minute from one address, which is the
+  // production budget; the local server for it gets a wider one. Bindings do not inherit.
+  "env": {
+    "e2e": {
+      "routes": [],
+      "ratelimits": [
+        { "name": "API_RATE", "namespace_id": "1", "simple": { "limit": 3000, "period": 60 } },
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "cloud-atlas",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations",
+        },
+      ],
+    },
+  },
 }
