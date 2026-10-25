@@ -120,6 +120,7 @@ const signals = async () =>
 const ociRoute = (req: HttpRequest): HttpResponse => {
   const path = new URL(req.url).pathname;
   if (path.endsWith("/regionSubscriptions")) return fixture("oci-region-subscriptions.json");
+  if (path.endsWith("/regions")) return fixture("oci-regions.json");
   if (path.endsWith("/availabilityDomains")) return fixture("oci-availability-domains.json");
   if (path.endsWith("/computeCapacityReports")) return fixture("oci-capacity-report.json");
   return status(404);
@@ -211,9 +212,14 @@ describe("oci-capacity-report", () => {
     const regions = (await db.query(
       "SELECT code, locality, lat FROM entity WHERE type = 'region' AND provider_slug = 'oracle' ORDER BY code",
     )) as { code: string; locality: string; lat: number }[];
-    expect(regions).toEqual([
+    // Every region Oracle lists becomes an entity, placed, whether or not the tenancy subscribes.
+    expect(regions).toHaveLength(44);
+    expect(regions.every((r) => r.lat !== null)).toBe(true);
+    expect(regions.filter((r) => r.code.startsWith("us-"))).toEqual([
       { code: "us-ashburn-1", locality: "Ashburn", lat: 39.04 },
+      { code: "us-chicago-1", locality: "Chicago", lat: 41.88 },
       { code: "us-phoenix-1", locality: "Phoenix", lat: 33.45 },
+      { code: "us-sanjose-1", locality: "San Jose", lat: 37.34 },
     ]);
     expect(new Set(rows.map((r) => r.region_code))).toEqual(
       new Set(["us-ashburn-1", "us-phoenix-1"]),

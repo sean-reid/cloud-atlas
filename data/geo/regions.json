@@ -1942,6 +1942,42 @@
       "country_code": "ID",
       "lat": 1.13,
       "lon": 104.05
+    },
+    "af-casablanca-1": {
+      "code": "af-casablanca-1",
+      "name": "Morocco West (Casablanca)",
+      "locality": "Casablanca",
+      "admin_area": null,
+      "country_code": "MA",
+      "lat": 33.57,
+      "lon": -7.59
+    },
+    "ap-kulai-2": {
+      "code": "ap-kulai-2",
+      "name": "Malaysia South (Kulai)",
+      "locality": "Kulai",
+      "admin_area": "Johor",
+      "country_code": "MY",
+      "lat": 1.66,
+      "lon": 103.6
+    },
+    "eu-madrid-3": {
+      "code": "eu-madrid-3",
+      "name": "Spain Central (Madrid)",
+      "locality": "Madrid",
+      "admin_area": null,
+      "country_code": "ES",
+      "lat": 40.42,
+      "lon": -3.7
+    },
+    "eu-turin-1": {
+      "code": "eu-turin-1",
+      "name": "Italy Northwest (Turin)",
+      "locality": "Turin",
+      "admin_area": "Piedmont",
+      "country_code": "IT",
+      "lat": 45.07,
+      "lon": 7.69
     }
   }
 }
