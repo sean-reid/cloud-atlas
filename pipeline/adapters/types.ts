@@ -14,6 +14,8 @@ export interface AdapterContext {
   fetch: (url: string, opts?: Partial<FetchOptions>) => Promise<FetchResult>;
   geo: GeoIndex;
   places: Gazetteer;
+  // Pause before the one fresh retry of a documentation table; tests pass 0.
+  tableRetryMs?: number;
 }
 
 // Thrown by a probe whose account the provider has not admitted to the API it needs. The runner

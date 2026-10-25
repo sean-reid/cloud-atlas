@@ -2,7 +2,7 @@ import { datePrecision } from "../../shared/dates";
 import { ensureEntity, ensureSource, makeObservation, providerEntity } from "../entities";
 import { recordFirstSeen } from "../first-seen";
 import { regionGeo } from "../geo";
-import { columnIndex, stripTags, tableWithColumns } from "../html";
+import { columnIndex, fetchTable, stripTags, tableWithColumns } from "../html";
 import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
 
 const REGIONS_URL =
@@ -70,8 +70,14 @@ export const awsRegions: Adapter = {
       for (const [code, r] of Object.entries(p.regions)) descriptions.set(code, r.description);
     }
 
-    const table = tableWithColumns(regionsPage.body, ["code", "name", "az", "geography"]);
-    if (!table || table.length < 20) throw new Error("region table missing or too short");
+    const table = await fetchTable(
+      ctx.fetch,
+      REGIONS_URL,
+      ["code", "name", "az", "geography"],
+      20,
+      "region table",
+      ctx.tableRetryMs,
+    );
     const header = table[0]!;
     const iCode = columnIndex(header, "code");
     const iName = columnIndex(header, "name");

@@ -4,7 +4,15 @@ import { ensureSource } from "../entities";
 import { assertAllowed, retryDelayMs, USER_AGENT } from "../fetch";
 import type { Db } from "../db";
 import { log } from "../log";
-import { GPU_ZONES_URL, gpuZoneRows } from "./gcp-gpu-zones";
+import {
+  GPU_ZONES_COLUMNS,
+  GPU_ZONES_MIN_ROWS,
+  GPU_ZONES_URL,
+  gpuZoneRows,
+  gpuZoneRowsOf,
+  type GpuZoneRow,
+} from "./gcp-gpu-zones";
+import { fetchTable } from "../html";
 import { emptyResult, meta, ProbeUnavailable, type Adapter, type AdapterContext } from "./types";
 
 const API_HOST = "compute.googleapis.com";
@@ -157,8 +165,12 @@ export async function regionsFromSignals(db: Db, now: Date): Promise<Map<string,
 }
 
 export function regionsByType(html: string): Map<string, string[]> {
+  return regionsFromZoneRows(gpuZoneRows(html));
+}
+
+export function regionsFromZoneRows(rows: readonly GpuZoneRow[]): Map<string, string[]> {
   const out = new Map<string, Set<string>>();
-  for (const row of gpuZoneRows(html)) {
+  for (const row of rows) {
     for (const t of CALENDAR_TYPES) {
       if (!row.types.includes(t.label)) continue;
       const set = out.get(t.sku) ?? new Set<string>();
@@ -255,7 +267,18 @@ export function makeAdapter(
       const source = await ensureSource(ctx.store, { ...this.source(), adapter: this.id });
       let regions: Map<string, string[]>;
       try {
-        regions = regionsByType((await ctx.fetch(GPU_ZONES_URL)).body);
+        regions = regionsFromZoneRows(
+          gpuZoneRowsOf(
+            await fetchTable(
+              ctx.fetch,
+              GPU_ZONES_URL,
+              GPU_ZONES_COLUMNS,
+              GPU_ZONES_MIN_ROWS,
+              "GPU zones table",
+              ctx.tableRetryMs,
+            ),
+          ),
+        );
       } catch (err) {
         regions = await regionsFromSignals(ctx.store.db, now);
         if (!regions.size) throw err;

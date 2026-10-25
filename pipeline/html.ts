@@ -53,3 +53,23 @@ export function columnIndex(header: readonly string[], label: string): number {
   if (i < 0) throw new Error(`column ${label} missing from table`);
   return i;
 }
+
+export const TABLE_RETRY_MS = 20_000;
+
+// Documentation hosts sometimes answer with a page variant that lacks the table; one fresh
+// fetch after a pause usually gets the full page. Only then is the shape change reported.
+export async function fetchTable(
+  fetchPage: (url: string, extra?: { fresh?: boolean }) => Promise<{ body: string }>,
+  url: string,
+  labels: readonly string[],
+  minRows: number,
+  what: string,
+  retryMs = TABLE_RETRY_MS,
+): Promise<string[][]> {
+  const first = tableWithColumns((await fetchPage(url)).body, labels);
+  if (first && first.length >= minRows) return first;
+  await new Promise((r) => setTimeout(r, retryMs));
+  const second = tableWithColumns((await fetchPage(url, { fresh: true })).body, labels);
+  if (second && second.length >= minRows) return second;
+  throw new Error(`${what} missing or too short`);
+}

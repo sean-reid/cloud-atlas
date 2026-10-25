@@ -1,6 +1,6 @@
 import { stableId } from "../../shared/ids";
 import { ensureSource } from "../entities";
-import { columnIndex, tableWithColumns } from "../html";
+import { columnIndex, fetchTable, tableWithColumns } from "../html";
 import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
 
 export const GPU_ZONES_URL = "https://docs.cloud.google.com/compute/docs/gpus/gpu-regions-zones";
@@ -13,9 +13,17 @@ export interface GpuZoneRow {
   types: string[];
 }
 
+export const GPU_ZONES_COLUMNS = ["zone", "gpu machine type"] as const;
+export const GPU_ZONES_MIN_ROWS = 30;
+
 export function gpuZoneRows(html: string): GpuZoneRow[] {
-  const table = tableWithColumns(html, ["zone", "gpu machine type"]);
-  if (!table || table.length < 30) throw new Error("GPU zones table missing or too short");
+  const table = tableWithColumns(html, GPU_ZONES_COLUMNS);
+  if (!table || table.length < GPU_ZONES_MIN_ROWS)
+    throw new Error("GPU zones table missing or too short");
+  return gpuZoneRowsOf(table);
+}
+
+export function gpuZoneRowsOf(table: string[][]): GpuZoneRow[] {
   const header = table[0]!;
   const iZone = columnIndex(header, "zone");
   const iTypes = columnIndex(header, "gpu machine type");
@@ -74,8 +82,15 @@ export const gcpGpuZones: Adapter = {
     const now = ctx.now();
     const hour = now.toISOString().slice(0, 13) + ":00:00Z";
     const source = await ensureSource(ctx.store, { ...this.source(), adapter: this.id });
-    const page = await ctx.fetch(URL);
-    for (const row of gpuZoneRows(page.body)) {
+    const table = await fetchTable(
+      ctx.fetch,
+      URL,
+      GPU_ZONES_COLUMNS,
+      GPU_ZONES_MIN_ROWS,
+      "GPU zones table",
+      ctx.tableRetryMs,
+    );
+    for (const row of gpuZoneRowsOf(table)) {
       for (const t of row.types) {
         const id = await stableId("sig", ["gcp", row.zone, t, "sku_offered", hour]);
         if (

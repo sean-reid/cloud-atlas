@@ -1,7 +1,7 @@
 import { ensureEntity, ensureSource, makeObservation, providerEntity } from "../entities";
 import { recordFirstSeen } from "../first-seen";
 import { regionGeo } from "../geo";
-import { columnIndex, tableWithColumns } from "../html";
+import { columnIndex, fetchTable } from "../html";
 import { emptyResult, meta, type Adapter, type AdapterContext } from "./types";
 
 const ZONES_URL = "https://docs.cloud.google.com/compute/docs/regions-zones";
@@ -36,9 +36,14 @@ export const gcpRegions: Adapter = {
     const provider = await providerEntity(store, "gcp", "Google Cloud", dataset);
     const source = await ensureSource(store, { ...this.source(), adapter: this.id });
 
-    const page = await ctx.fetch(ZONES_URL);
-    const table = tableWithColumns(page.body, ["zones", "location"]);
-    if (!table || table.length < 30) throw new Error("zones table missing or too short");
+    const table = await fetchTable(
+      ctx.fetch,
+      ZONES_URL,
+      ["zones", "location"],
+      30,
+      "zones table",
+      ctx.tableRetryMs,
+    );
     const header = table[0]!;
     const iZone = columnIndex(header, "zones");
     const iLoc = columnIndex(header, "location");

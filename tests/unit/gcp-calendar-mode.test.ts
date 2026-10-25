@@ -100,6 +100,7 @@ const run = (factory: CalendarClientFactory, sleeps: number[] = []) =>
     cacheDir: cache,
     now: fixedNow,
     fetchDefaults: fast,
+    tableRetryMs: 0,
     fetchImpl: fixtureFetch(FIX),
   });
 
@@ -138,6 +139,7 @@ describe("gcp calendar-mode lead times", () => {
       cacheDir: cache,
       now: fixedNow,
       fetchDefaults: fast,
+      tableRetryMs: 0,
       fetchImpl: fixtureFetch(FIX),
     });
     expect(await regionsFromSignals(db, fixedNow())).toEqual(regionsByType(zonesPage));
@@ -153,6 +155,7 @@ describe("gcp calendar-mode lead times", () => {
         cacheDir: cache,
         now: fixedNow,
         fetchDefaults: fast,
+        tableRetryMs: 0,
         fetchImpl: blank as unknown as typeof fetch,
       },
     );
