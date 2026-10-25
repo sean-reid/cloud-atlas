@@ -3,6 +3,7 @@ import type { ClaimType, Observation, SourceTier, Status } from "./types";
 
 export interface Candidate extends Observation {
   tier: SourceTier;
+  license?: string | null;
 }
 
 export type TimeMode = "known" | "reconstructed";

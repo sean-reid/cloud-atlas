@@ -79,7 +79,7 @@ export async function loadSites(
   const ids = entities.map((e) => e.id);
   for (let i = 0; i < ids.length; i += 80) {
     const chunk = ids.slice(i, i + 80);
-    const sql = `SELECT o.*, s.tier FROM observation o JOIN source s ON s.id = o.source_id
+    const sql = `SELECT o.*, s.tier, s.license FROM observation o JOIN source s ON s.id = o.source_id
       WHERE ${obsWhere.join(" AND ")} AND o.entity_id IN (${placeholders(chunk.length)})`;
     rows.push(...(await all<Candidate>(db, sql, [...obsParams, ...chunk])));
   }

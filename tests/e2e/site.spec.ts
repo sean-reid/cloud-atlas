@@ -35,6 +35,11 @@ test("overview shows tracked totals, the map, charts, and the feed", async ({ pa
   ).toBeVisible();
   await expect(page.locator(".feed li").first()).toBeVisible();
   await expect(page.locator(".maplibregl-canvas")).toBeVisible();
+  const attribution = page.locator(".maplibregl-ctrl-attrib");
+  if (!(await attribution.locator(".maplibregl-ctrl-attrib-inner").isVisible()))
+    await attribution.locator("summary").click();
+  await expect(attribution).toContainText("Land: Natural Earth");
+  await expect(attribution).toContainText("© OpenStreetMap contributors (ODbL)");
   await shot(page, "overview");
   expect(violations).toEqual([]);
 });
@@ -125,6 +130,21 @@ test("export carries provenance for the filtered set", async ({ request }) => {
     expect(line).toContain(",reported,");
     expect(line).not.toMatch(/(^|,)[=+@]/);
   }
+});
+
+test("export marks OpenStreetMap rows ODbL and nothing else", async ({ request }) => {
+  const res = await request.get("/api/export.csv?q=Hamina");
+  expect(res.ok()).toBe(true);
+  const lines = (await res.text()).trim().split("\n");
+  const cols = lines[0]!.split(",");
+  const at = cols.indexOf("source_license");
+  expect(at).toBeGreaterThan(cols.indexOf("source_published"));
+  const osm = lines.slice(1).filter((l) => l.includes("OpenStreetMap contributors"));
+  const rest = lines.slice(1).filter((l) => !l.includes("OpenStreetMap contributors"));
+  expect(osm.length).toBeGreaterThan(0);
+  expect(rest.length).toBeGreaterThan(0);
+  for (const line of osm) expect(line).toContain(",ODbL 1.0,");
+  for (const line of rest) expect(line).not.toContain("ODbL");
 });
 
 test("api responses carry cache headers and a budget", async ({ request }) => {
@@ -237,6 +257,13 @@ test("demo mode is visibly separate", async ({ page }) => {
   await page.goto("/?demo=1");
   await expect(page.locator(".banner")).toContainText("Demo mode");
   await expect(page.locator(".stat .value").first()).toContainText("0 MW");
+  // No OpenStreetMap rows in the demo set, so the map credits the land alone.
+  await expect(page.locator(".maplibregl-canvas")).toBeVisible();
+  const attribution = page.locator(".maplibregl-ctrl-attrib");
+  if (!(await attribution.locator(".maplibregl-ctrl-attrib-inner").isVisible()))
+    await attribution.locator("summary").click();
+  await expect(attribution).toContainText("Land: Natural Earth");
+  await expect(attribution).not.toContainText("OpenStreetMap");
 });
 
 test("demo mode keeps the feed and the regions chart on the demo dataset", async ({

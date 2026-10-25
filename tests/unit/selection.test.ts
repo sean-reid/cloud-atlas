@@ -132,6 +132,36 @@ describe("aggregation without double counting", () => {
     ent("other", "campus", null, null),
     ent("region", "region", null),
   ];
+  test("an ODbL buildings row leaves every power total unchanged", () => {
+    const power = [c({ id: "c", entity_id: "campus", value: 300 })];
+    const osm = c({
+      id: "osm",
+      entity_id: "b1",
+      metric: "building_count",
+      unit: "buildings",
+      value: 1,
+      scope: "facility",
+      tier: 3,
+      license: "ODbL 1.0",
+    });
+    const before = providerTotals(entities, selectSites(entities, power, null, "known"))[0]!;
+    const after = providerTotals(
+      entities,
+      selectSites(entities, [...power, osm], null, "known"),
+    )[0]!;
+    expect({ ...after, sites: 0, located_sites: 0 }).toEqual({
+      ...before,
+      sites: 0,
+      located_sites: 0,
+    });
+    expect(after.sites).toBe(before.sites + 1);
+    const alone = providerTotals(entities, selectSites(entities, [osm], null, "known"))[0]!;
+    expect(alone.it_power_mw).toBe(0);
+    expect(alone.facility_only_power_mw).toBe(0);
+    expect(alone.it_sites).toBe(0);
+    expect(alone.pipeline_it_power_mw.operational).toBe(0);
+    expect(alone.sites).toBe(1);
+  });
   test("a campus total covers its buildings; a campus without a total sums them", () => {
     const rows = [
       c({ id: "c", entity_id: "campus", value: 300 }),

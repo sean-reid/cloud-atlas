@@ -30,6 +30,7 @@ export interface SiteRow {
   location_precision: Entity["location_precision"];
   ownership: Entity["ownership"];
   landlord: string | null;
+  licenses: string[];
   metrics: Record<string, SiteMetric>;
   observation_count: number;
   latest_recorded: string;

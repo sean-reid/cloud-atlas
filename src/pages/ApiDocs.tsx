@@ -104,9 +104,11 @@ export function ApiDocs() {
           <h2>Terms</h2>
           <p>
             Compiled data is CC BY 4.0; cite Cloud Atlas and the original source each observation
-            names. Epoch AI figures are CC BY 4.0 and must credit Epoch AI. Responses are cached for
-            five minutes. Be polite: the Worker serves a small database and there is no key, so a
-            handful of requests a second is plenty.
+            names. Epoch AI figures are CC BY 4.0 and must credit Epoch AI. Rows whose source is
+            OpenStreetMap carry ODbL 1.0 in their <span className="mono">source_license</span>{" "}
+            column and are © OpenStreetMap contributors under that licence; the rest of the dataset
+            is not ODbL. Responses are cached for five minutes. Be polite: the Worker serves a small
+            database and there is no key, so a handful of requests a second is plenty.
           </p>
         </>
       )}

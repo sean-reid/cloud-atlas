@@ -76,6 +76,28 @@ const toLand = (m: { default: unknown }) => {
 const coarseLand = () => import("world-atlas/countries-110m.json").then(toLand);
 const fineLand = () => import("world-atlas/countries-50m.json").then(toLand);
 
+export const ODBL_ATTRIBUTION =
+  'Sites: © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap contributors</a> (ODbL)';
+
+// OpenStreetMap's licence asks for its credit wherever its data is shown, so the line appears
+// as soon as one site on the map comes from an ODbL source.
+export function attributionText(sites: readonly Pick<SiteRow, "licenses">[]): string {
+  const odbl = sites.some((s) => s.licenses?.some((l) => l.startsWith("ODbL")));
+  return odbl ? `Land: Natural Earth · ${ODBL_ATTRIBUTION}` : "Land: Natural Earth";
+}
+
+function setAttribution(
+  map: MLMap,
+  ref: { current: { control: maplibregl.AttributionControl; text: string } | null },
+  text: string,
+) {
+  if (ref.current?.text === text) return;
+  if (ref.current) map.removeControl(ref.current.control);
+  const control = new maplibregl.AttributionControl({ compact: true, customAttribution: text });
+  map.addControl(control, "bottom-right");
+  ref.current = { control, text };
+}
+
 function radius(value: number | null): number {
   if (value === null || value <= 0) return 4;
   return Math.max(4, Math.min(22, 3 + Math.sqrt(value) * 0.5));
@@ -98,6 +120,9 @@ const paperStyle = (dark: boolean) => ({
 export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
+  const attributionRef = useRef<{ control: maplibregl.AttributionControl; text: string } | null>(
+    null,
+  );
   const [ready, setReady] = useState(false);
   const [hover, setHover] = useState<{ x: number; y: number; html: string } | null>(null);
   const [, navigate] = useLocation();
@@ -124,13 +149,7 @@ export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }
       pitchWithRotate: false,
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-    map.addControl(
-      new maplibregl.AttributionControl({
-        compact: true,
-        customAttribution: "Land: Natural Earth",
-      }),
-      "bottom-right",
-    );
+    setAttribution(map, attributionRef, attributionText([]));
     map.touchZoomRotate.disableRotation();
     map.on("load", async () => {
       map.addSource("land", { type: "geojson", data: await coarseLand() });
@@ -242,6 +261,7 @@ export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
+    setAttribution(map, attributionRef, attributionText(sites));
     const siteFeatures: GeoJSON.Feature[] = sites
       .filter((s) => s.lat !== null && s.lon !== null)
       .map((s): GeoJSON.Feature => {
