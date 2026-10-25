@@ -140,10 +140,11 @@ export function Methodology() {
         machine SKU in a given region right now. Public signals: Azure&apos;s spot to pay-as-you-go
         price ratio and SKU offering map, AWS&apos;s spot interruption frequency bands, and
         Google&apos;s GPU offering per zone. Account signals, run only when read-only credentials
-        exist: AWS placement scores and capacity block lead times, Google&apos;s calendar-mode lead
-        times, Oracle capacity reports, and Alibaba and Tencent sell status. Each level is relative
-        within one provider and SKU family, the provider&apos;s own measurement is shown next to it,
-        and nothing is converted to megawatts or compared across providers.
+        exist: AWS placement scores and capacity block lead times, Azure spot placement scores,
+        Google&apos;s calendar-mode lead times, Oracle capacity reports, and Alibaba and Tencent
+        sell status. Each level is relative within one provider and SKU family, the provider&apos;s
+        own measurement is shown next to it, and nothing is converted to megawatts or compared
+        across providers.
       </p>
 
       <h2>Confidence</h2>
@@ -210,10 +211,10 @@ export function Methodology() {
           supplier-operated and flagged in notes.
         </li>
         <li>
-          The account probes (AWS placement scores and Capacity Blocks, Google calendar-mode advice,
-          Oracle capacity reports, Alibaba and Tencent sell status) run only where a read-only
-          account exists; the sources page shows which are waiting. Google admits accounts to
-          calendar mode one by one and has not admitted this one.
+          The account probes (AWS placement scores and Capacity Blocks, Azure spot placement scores,
+          Google calendar-mode advice, Oracle capacity reports, Alibaba and Tencent sell status) run
+          only where a read-only account exists; the sources page shows which are waiting. Google
+          admits accounts to calendar mode one by one and has not admitted this one.
         </li>
         <li>The metrics tracked here: {METRICS.map((m) => m.label.toLowerCase()).join("; ")}.</li>
       </ul>

@@ -2,6 +2,7 @@ import { awsEc2Probes } from "./aws-ec2-probes";
 import { awsRegions } from "./aws-regions";
 import { awsSpotAdvisor } from "./aws-spot-advisor";
 import { azureGlobeRegions } from "./azure-globe-regions";
+import { azurePlacementScores } from "./azure-placement-scores";
 import { azureRegions } from "./azure-regions";
 import { azureRetailPrices } from "./azure-retail-prices";
 import { csvImport } from "./csv-import";
@@ -28,6 +29,7 @@ export const ADAPTERS: readonly Adapter[] = [
   gcpGpuZones,
   awsEc2Probes,
   makeGcpCalendarMode(googleClient),
+  azurePlacementScores,
   ociCapacityReport,
   alibabaAvailableResource,
   tencentZoneConfig,

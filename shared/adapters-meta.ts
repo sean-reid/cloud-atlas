@@ -151,6 +151,23 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
     signals: ["lead_time_days"],
   },
   {
+    id: "azure-placement-scores",
+    title: "Azure spot placement scores",
+    publisher: "Microsoft Azure",
+    mode: "automated",
+    schedule: "hourly",
+    measures:
+      "Microsoft's High, Medium or Low Spot placement score per VM size and region for 1 and 8 instances, from the Spot Placement Scores API.",
+    credentials: [
+      "AZURE_TENANT_ID",
+      "AZURE_CLIENT_ID",
+      "AZURE_CLIENT_SECRET",
+      "AZURE_SUBSCRIPTION_ID",
+    ],
+    provider: "azure",
+    signals: ["spot_placement"],
+  },
+  {
     id: "oci-capacity-report",
     title: "Oracle Cloud capacity reports",
     publisher: "Oracle",
