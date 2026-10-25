@@ -31,6 +31,7 @@ export interface Env {
   DB: D1Database;
   ASSETS: Fetcher;
   API_RATE: RateLimit;
+  GITHUB_DISPATCH_TOKEN?: string;
 }
 
 type Handler = (
