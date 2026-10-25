@@ -1174,5 +1174,11 @@
     "lon": -22.56,
     "country_code": "IS",
     "admin_area": null
+  },
+  "St. Ghislain, BE": {
+    "lat": 50.45,
+    "lon": 3.82,
+    "country_code": "BE",
+    "admin_area": null
   }
 }
