@@ -7,7 +7,8 @@ import { feature } from "topojson-client";
 import type { Topology, GeometryCollection } from "topojson-specification";
 import { useLocation } from "wouter";
 import { providerBySlug, PROVIDERS } from "../../shared/providers";
-import { fmtMw, precisionLabel, statusLabel } from "../lib/format";
+import { precisionLabel } from "../lib/format";
+import { siteFigure } from "../lib/site-figure";
 import { escapeHtml } from "../lib/html";
 import type { SiteRow } from "../lib/types";
 
@@ -244,17 +245,9 @@ export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }
     const siteFeatures: GeoJSON.Feature[] = sites
       .filter((s) => s.lat !== null && s.lon !== null)
       .map((s): GeoJSON.Feature => {
-        const m =
-          s.metrics[metric] ??
-          s.metrics["it_power_mw"] ??
-          s.metrics["facility_power_mw"] ??
-          Object.values(s.metrics)[0];
         const color = providerBySlug(s.provider_slug)?.color ?? "#1b1a17";
-        const value = m?.value ?? null;
-        const figure = m
-          ? `${m.claim_type === "derived" ? "estimated " : ""}${metric.endsWith("_mw") || !s.metrics[metric] ? fmtMw(value) : String(value)}${m.status ? `, ${statusLabel[m.status] ?? escapeHtml(m.status)}` : ""}`
-          : "no figure";
-        const tip = `<strong>${escapeHtml(s.name)}</strong><br>${escapeHtml(providerBySlug(s.provider_slug)?.shortName ?? s.provider_slug)} · ${figure}<br><span class="muted">${precisionLabel[s.location_precision] ?? escapeHtml(s.location_precision)}</span>`;
+        const figure = siteFigure(s.metrics, metric);
+        const tip = `<strong>${escapeHtml(s.name)}</strong><br>${escapeHtml(providerBySlug(s.provider_slug)?.shortName ?? s.provider_slug)} · ${figure.text}<br><span class="muted">${precisionLabel[s.location_precision] ?? escapeHtml(s.location_precision)}</span>`;
         return {
           type: "Feature",
           geometry: { type: "Point", coordinates: [s.lon as number, s.lat as number] },
@@ -262,8 +255,8 @@ export function AtlasMap({ sites, regions, metric, variant = "atlas", onSelect }
             kind: "site",
             id: s.id,
             color,
-            r: radius(metric.endsWith("_mw") ? value : null),
-            claim: m?.claim_type ?? "unknown",
+            r: radius(figure.sizeBy),
+            claim: figure.claim,
             tip,
           },
         };
