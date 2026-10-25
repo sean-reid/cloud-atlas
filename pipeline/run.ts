@@ -49,6 +49,11 @@ export async function runAdapters(
   const reviewed = loadReviewed(opts.dataRoot);
   store.aliases = reviewed.aliases;
   store.decisions = reviewed.decisions;
+  // A decision recorded after the item was queued resolves it here, so a maintainer can answer
+  // the production queue from the repo without database access.
+  for (const item of store.review.values())
+    if (!item.resolved_at && reviewed.decisions.has(item.id))
+      await store.resolveReview(item.id, reviewed.decisions.get(item.id)!, now().toISOString());
   const geo = loadGeo(opts.dataRoot);
   const outcomes: RunOutcome[] = [];
 

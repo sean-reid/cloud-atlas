@@ -330,6 +330,34 @@ describe("csv import validation", () => {
   });
 });
 
+describe("recorded review decisions", () => {
+  test("a decision in data/review-decisions.csv resolves an item that is already open", async () => {
+    const store = await Store.open(db, "live");
+    await store.queueReview({
+      id: "rev_gcp_scope_europe-west15",
+      created_at: "2026-10-01T00:00:00Z",
+      adapter: "gcp-regions",
+      reason: "test",
+      payload: "{}",
+      resolved_at: null,
+      resolution: null,
+    });
+    await store.flush();
+    expect(store.review.get("rev_gcp_scope_europe-west15")!.resolved_at).toBeNull();
+    const { store: after } = await runAdapters([], {
+      db,
+      dataRoot: DATA,
+      dataset: "live",
+      cacheDir: cache,
+      now: fixedNow,
+      fetchDefaults: fast,
+    });
+    const item = after.review.get("rev_gcp_scope_europe-west15")!;
+    expect(item.resolved_at).toBe(fixedNow().toISOString());
+    expect(item.resolution).toMatch(/^rejected/);
+  });
+});
+
 describe("regions that appear after the seed run", () => {
   test("regions imported from CSV before the first adapter run get no first-seen date", async () => {
     const store = await Store.open(db, "live");

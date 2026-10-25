@@ -85,7 +85,7 @@ async function importGoogleSites(): Promise<void> {
 }
 
 describe("feed parsing and claim extraction on the recorded feeds", () => {
-  test("Google's Keyword feed: one placed claim, one unplaced, one entry without a figure", () => {
+  test("Google's Keyword feed: two placed claims and one entry without a figure", () => {
     const entries = feed("feed-google-global-network.xml");
     expect(entries).toHaveLength(3);
     const wm = entry(entries, WEST_MEMPHIS);
@@ -107,7 +107,7 @@ describe("feed parsing and claim extraction on the recorded feeds", () => {
     const alabama = claimsOf(entry(entries, ALABAMA));
     expect(alabama).toHaveLength(1);
     expect(alabama[0]!.value).toBe(1_500_000_000);
-    expect(alabama[0]!.place).toBeNull();
+    expect(alabama[0]!.place?.key).toBe("Jackson County, AL, US");
 
     expect(claimsOf(entry(entries, HORNDAL))).toHaveLength(0);
   });
@@ -179,13 +179,17 @@ describe("news-feeds adapter", () => {
     await importGoogleSites();
     const { store, outcomes } = await run();
     expect(outcomes[0]!.ok, outcomes[0]!.error ?? "").toBe(true);
-    expect(outcomes[0]!.result!.observations).toBe(1);
+    expect(outcomes[0]!.result!.observations).toBe(2);
     expect(outcomes[0]!.result!.entities).toBe(0);
 
-    const obs = [...store.observations.values()].filter((o) => o.method_id === FEED_METHOD);
-    expect(obs).toHaveLength(1);
-    const site = store.entities.get(obs[0]!.entity_id)!;
-    expect(site.name).toBe("Google West Memphis campus");
+    const all = [...store.observations.values()].filter((o) => o.method_id === FEED_METHOD);
+    expect(all).toHaveLength(2);
+    const siteOf = (o: { entity_id: string }) => store.entities.get(o.entity_id)!.name;
+    expect(all.map(siteOf).sort()).toEqual([
+      "Google Jackson County campus",
+      "Google West Memphis campus",
+    ]);
+    const obs = all.filter((o) => siteOf(o) === "Google West Memphis campus");
     expect(obs[0]).toMatchObject({
       metric: "investment_usd",
       value: 4_000_000_000,
@@ -202,8 +206,14 @@ describe("news-feeds adapter", () => {
     expect(source.url).toBe(FEEDS.find((f) => f.id === "google-global-network")!.url);
 
     const queued = [...store.review.values()].filter((r) => r.adapter === "news-feeds");
-    expect(queued).toHaveLength(7);
-    expect(queued.every((r) => r.resolved_at === null)).toBe(true);
+    expect(queued).toHaveLength(6);
+    // Two of these carry decisions in data/review-decisions.csv and land already resolved.
+    expect(queued.filter((r) => r.resolved_at === null)).toHaveLength(4);
+    expect(
+      queued
+        .filter((r) => r.resolved_at !== null)
+        .every((r) => r.resolution!.startsWith("rejected")),
+    ).toBe(true);
     const warsaw = queued.find((r) => payloadOf(r).link === WARSAW)!;
     const wp = payloadOf(warsaw);
     expect(wp.claim.value).toBe(700_000_000);
@@ -227,12 +237,13 @@ describe("news-feeds adapter", () => {
     expect(store.feedItems.get(HORNDAL)!.outcome).toBe("ignored");
     expect(store.feedItems.get(MOUNT_PLEASANT)!.outcome).toBe("ignored");
     expect(store.feedItems.get(WEST_MEMPHIS)!.outcome).toBe("accepted");
+    expect(store.feedItems.get(ALABAMA)!.outcome).toBe("accepted");
     expect(store.feedItems.get(WARSAW)!.outcome).toBe("candidate");
     expect(store.feedItems.get(WISCONSIN)!.published).toBe("2025-09-18T14:00:11.000Z");
     const rows = await db.query("SELECT outcome, COUNT(*) AS n FROM feed_item GROUP BY outcome");
     expect(Object.fromEntries(rows.map((r) => [r.outcome, r.n]))).toEqual({
-      accepted: 1,
-      candidate: 5,
+      accepted: 2,
+      candidate: 4,
       ignored: 14,
     });
   });

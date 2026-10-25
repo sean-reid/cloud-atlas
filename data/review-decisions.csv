@@ -9,3 +9,7 @@ rev_dup_ent_f88a2cefe337581d_ent_6071e032a5a90787,accepted: kept separate; the n
 rev_dup_ent_0590d11caacf65a3_ent_bbbae55844949e58,accepted: kept separate; the west-of-A7 plot is a new site beside the existing campus
 rev_dup_ent_63d008285878f0fb_ent_23bbd460f2a4dd87,accepted: kept separate; the county pair covers two campuses and the mega site is one of them
 rev_dup_ent_9e39b478f5f4f986_ent_94620b1234c3317f,accepted: kept separate; Kansas City East is one of the two sites the campus row covers
+rev_feed_ed35d082f72855e2,accepted: transcribed into data/imports/gcp.csv as Google Jackson County campus
+rev_feed_ed67907b57f4739e,rejected: 1 GW is a demand response programme total across utilities; not a site
+rev_feed_08983fe3d5270af1,rejected: 20 GW is a global capacity target for 2032; not a site
+rev_feed_d45cdbf7e578ff67,rejected: the same 20 GW global target reported a second time
