@@ -119,6 +119,15 @@ export const ADAPTER_META: readonly AdapterMeta[] = [
       "Power figures in the per-site prose of Nscale's infrastructure page, by the one-figure sentence rule; everything else waits for review.",
   },
   {
+    id: "osm-datacenters",
+    title: "OpenStreetMap datacenter buildings",
+    publisher: "OpenStreetMap contributors",
+    mode: "automated",
+    schedule: "daily",
+    measures:
+      "Buildings tagged telecom=data_center with a tracked operator, placed from the map and counted as one building each under ODbL 1.0; a building never enters a power total, and an it_power tag waits for review.",
+  },
+  {
     id: "gcp-gpu-zones",
     title: "Google Cloud GPU zones",
     publisher: "Google Cloud",

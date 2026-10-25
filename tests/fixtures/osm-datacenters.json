@@ -1,0 +1,541 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-25T00:50:06Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "way",
+      "id": 463571875,
+      "center": {
+        "lat": 39.0263681,
+        "lon": -77.4495202
+      },
+      "tags": {
+        "addr:city": "Ashburn",
+        "addr:housenumber": "44862",
+        "addr:postcode": "20147",
+        "addr:state": "VA",
+        "addr:street": "Interconnection Plaza",
+        "building": "data_center",
+        "input:electricity": "45 MW",
+        "it_power": "45 MW",
+        "name": "Amazon IAD-78",
+        "operator": "Amazon Web Services",
+        "operator:short": "AWS",
+        "operator:wikidata": "Q456157",
+        "ref": "IAD-78",
+        "start_date": "2019",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 463571876,
+      "center": {
+        "lat": 39.0263574,
+        "lon": -77.4508704
+      },
+      "tags": {
+        "addr:city": "Ashburn",
+        "addr:housenumber": "44858",
+        "addr:postcode": "20147",
+        "addr:state": "VA",
+        "addr:street": "Interconnection Plaza",
+        "building": "data_center",
+        "input:electricity": "45 MW",
+        "it_power": "47 MW",
+        "name": "Amazon IAD-79",
+        "operator": "Amazon Web Services",
+        "operator:short": "AWS",
+        "operator:wikidata": "Q456157",
+        "ref": "IAD-79",
+        "start_date": "2019",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 556599693,
+      "center": {
+        "lat": 39.0279064,
+        "lon": -77.4574998
+      },
+      "tags": {
+        "addr:city": "Ashburn",
+        "addr:housenumber": "21263",
+        "addr:postcode": "20147",
+        "addr:state": "VA",
+        "addr:street": "Smith Switch Road",
+        "building": "data_center",
+        "input:electricity": "32.5 MW",
+        "it_power": "28 MW",
+        "name": "Amazon IAD-71",
+        "operator": "Amazon Web Services",
+        "operator:short": "AWS",
+        "operator:wikidata": "Q456157",
+        "ref": "IAD-71",
+        "start_date": "2016",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 697020849,
+      "center": {
+        "lat": 38.9863003,
+        "lon": -77.4418855
+      },
+      "tags": {
+        "addr:city": "Sterling",
+        "addr:housenumber": "22745",
+        "addr:postcode": "20166",
+        "addr:state": "VA",
+        "addr:street": "Relocation Drive",
+        "building": "data_center",
+        "it_power": "36 MW",
+        "name": "Amazon IAD-58",
+        "operator": "Amazon Web Services",
+        "operator:short": "AWS",
+        "operator:wikidata": "Q456157",
+        "ref": "IAD-58",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 697020850,
+      "center": {
+        "lat": 38.9869931,
+        "lon": -77.4426325
+      },
+      "tags": {
+        "addr:city": "Sterling",
+        "addr:housenumber": "22755",
+        "addr:postcode": "20166",
+        "addr:state": "VA",
+        "addr:street": "Relocation Drive",
+        "building": "data_center",
+        "it_power": "33 MW",
+        "name": "Amazon IAD-57",
+        "operator": "Amazon Web Services",
+        "operator:short": "AWS",
+        "operator:wikidata": "Q456157",
+        "ref": "IAD-57",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 914613836,
+      "center": {
+        "lat": 45.8379238,
+        "lon": -119.6883543
+      },
+      "tags": {
+        "addr:city": "Boardman",
+        "addr:housenumber": "79388",
+        "addr:postcode": "97818",
+        "addr:state": "OR",
+        "addr:street": "Olson Road Southeast",
+        "building": "industrial",
+        "name": "Amazon Web Services",
+        "operator": "Amazon Web Services",
+        "operator:short": "AWS",
+        "operator:wikidata": "Q456157",
+        "operator:wikipedia": "en:Amazon Web Services",
+        "owner": "Vadata Inc",
+        "ref": "PDX91",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 914616810,
+      "center": {
+        "lat": 45.846655,
+        "lon": -119.6056452
+      },
+      "tags": {
+        "addr:city": "Boardman",
+        "addr:housenumber": "75294",
+        "addr:postcode": "97818",
+        "addr:state": "OR",
+        "addr:street": "Lewis and Clark Drive",
+        "building": "industrial",
+        "name": "Amazon Web Services",
+        "operator": "Amazon Web Services",
+        "operator:short": "AWS",
+        "operator:wikidata": "Q456157",
+        "operator:wikipedia": "en:Amazon Web Services",
+        "owner": "Vadata Inc",
+        "ref": "PDX64",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 926894444,
+      "center": {
+        "lat": 53.4137576,
+        "lon": -6.3821708
+      },
+      "tags": {
+        "building": "data_center",
+        "name": "Amazon Web Services",
+        "operator": "Amazon Web Services",
+        "operator:short": "AWS",
+        "operator:wikidata": "Q456157",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1088665595,
+      "center": {
+        "lat": -36.812172,
+        "lon": 174.5988965
+      },
+      "tags": {
+        "landuse": "construction",
+        "name": "Amazon Web Services Data Centre",
+        "operator": "Amazon Web Services",
+        "operator:short": "AWS",
+        "operator:wikidata": "Q456157",
+        "source": "https://www.newsroom.co.nz/amazon-draining-west-auckland-wetlands-to-build-giant-cloud-data-centre",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1252196806,
+      "center": {
+        "lat": 40.1173912,
+        "lon": -83.2020737
+      },
+      "tags": {
+        "building": "yes",
+        "operator": "Amazon Web Services",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11902288339,
+      "lat": 51.4138607,
+      "lon": -0.7820534,
+      "tags": {
+        "name": "AWS Bracknell Data Centre",
+        "note": "https://www.datacenterdynamics.com/en/news/amazon-may-be-behind-27mw-data-center-proposed-at-abandoned-hp-site-near-swindon/\n\nhttps://www.theregister.com/2022/01/13/aws_planning_app_oxford/",
+        "operator": "Amazon Web Services",
+        "operator:short": "AWS",
+        "operator:wikidata": "Q456157",
+        "source": "local knowledge",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 957632961,
+      "center": {
+        "lat": 52.7674588,
+        "lon": 5.038182
+      },
+      "tags": {
+        "building": "yes",
+        "name": "AMS11",
+        "operator": "Microsoft",
+        "operator:wikidata": "Q2283",
+        "operator:wikipedia": "en:Microsoft",
+        "ref": "AMS11",
+        "ref:bag": "1911100000597293",
+        "source": "BAG",
+        "source:date": "2024-02-23",
+        "start_date": "2021",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 957632962,
+      "center": {
+        "lat": 52.7659973,
+        "lon": 5.0356108
+      },
+      "tags": {
+        "building": "industrial",
+        "name": "AMS12",
+        "operator": "Microsoft",
+        "operator:wikidata": "Q2283",
+        "operator:wikipedia": "en:Microsoft",
+        "ref": "AMS12",
+        "ref:bag": "1911100000597294",
+        "source": "BAG",
+        "source:date": "2024-02-23",
+        "start_date": "2021",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 410408073,
+      "center": {
+        "lat": 47.2394776,
+        "lon": -119.8830092
+      },
+      "tags": {
+        "building": "data_center",
+        "name": "Microsoft",
+        "operator": "Microsoft",
+        "operator:wikidata": "Q2283",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 410408074,
+      "center": {
+        "lat": 47.2385754,
+        "lon": -119.8830801
+      },
+      "tags": {
+        "building": "data_center",
+        "name": "Microsoft",
+        "operator": "Microsoft",
+        "operator:wikidata": "Q2283",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1533392812,
+      "center": {
+        "lat": 29.4291907,
+        "lon": -98.8766548
+      },
+      "tags": {
+        "addr:city": "San Antonio",
+        "addr:housenumber": "18844",
+        "addr:postcode": "78009",
+        "addr:state": "TX",
+        "addr:street": "FM1957",
+        "building": "yes",
+        "name": "Microsoft SAT 80",
+        "note": "https://www.costar.com/article/115645674/microsoft-plans-nearly-500-million-data-center-expansion-outside-san-antonio",
+        "operator": "Microsoft",
+        "operator:wikidata": "Q2283",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1533392813,
+      "center": {
+        "lat": 29.427998,
+        "lon": -98.8766526
+      },
+      "tags": {
+        "addr:city": "San Antonio",
+        "addr:housenumber": "18844",
+        "addr:postcode": "78009",
+        "addr:state": "TX",
+        "addr:street": "FM1957",
+        "building": "yes",
+        "name": "Microsoft SAT 81",
+        "note": "https://www.costar.com/article/115645674/microsoft-plans-nearly-500-million-data-center-expansion-outside-san-antonio",
+        "operator": "Microsoft",
+        "operator:wikidata": "Q2283",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 546153676,
+      "center": {
+        "lat": 1.4508482,
+        "lon": 103.801945
+      },
+      "tags": {
+        "addr:city": "Singapore",
+        "addr:country": "SG",
+        "addr:housenumber": "1",
+        "addr:postcode": "757703",
+        "addr:street": "Woodlands Industrial Park E9",
+        "building": "data_center",
+        "building:levels": "12",
+        "operator": "Microsoft",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 323686447,
+      "center": {
+        "lat": 60.5383277,
+        "lon": 27.1120349
+      },
+      "tags": {
+        "addr:city": "Hamina",
+        "addr:country": "FI",
+        "addr:postcode": "49420",
+        "building": "data_center",
+        "operator": "Google",
+        "operator:wikidata": "Q95",
+        "ref": "LPP",
+        "source": "Mapbox",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "relation",
+      "id": 4510018,
+      "center": {
+        "lat": 60.5367747,
+        "lon": 27.1168006
+      },
+      "tags": {
+        "addr:city": "Hamina",
+        "addr:country": "FI",
+        "addr:postcode": "49420",
+        "building": "data_center",
+        "operator": "Google",
+        "operator:wikidata": "Q95",
+        "ref": "LPP",
+        "telecom": "data_center",
+        "type": "multipolygon"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1281982556,
+      "center": {
+        "lat": 39.8484523,
+        "lon": -82.9963927
+      },
+      "tags": {
+        "landuse": "construction",
+        "name": "Google Lockbourne, OH",
+        "operator": "Google",
+        "operator:wikidata": "Q95",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 844391358,
+      "center": {
+        "lat": 40.0611606,
+        "lon": -82.7643286
+      },
+      "tags": {
+        "building": "yes",
+        "building:levels": "2",
+        "name": "Google NBY-1",
+        "operator": "Google",
+        "operator:wikidata": "Q95",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 436766762,
+      "center": {
+        "lat": 55.5579737,
+        "lon": 9.6531741
+      },
+      "tags": {
+        "barrier": "fence",
+        "email": "fredericia@google.com",
+        "fence_type": "chain_link",
+        "landuse": "commercial",
+        "name": "Google Data Center Fredericia",
+        "operator": "Google",
+        "operator:wikidata": "Q95",
+        "start_date": "2020-11-30",
+        "telecom": "data_center",
+        "website": "https://www.google.com/about/datacenters/locations/fredericia/",
+        "wikidata": "Q115674884"
+      }
+    },
+    {
+      "type": "way",
+      "id": 626226408,
+      "center": {
+        "lat": 33.0640078,
+        "lon": -80.0423742
+      },
+      "tags": {
+        "landuse": "industrial",
+        "name": "Google Berkeley County Data Center",
+        "operator": "Google",
+        "operator:wikidata": "Q95",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 125557451,
+      "center": {
+        "lat": 50.5651944,
+        "lon": 3.0307579
+      },
+      "tags": {
+        "addr:city": "Seclin",
+        "addr:housenumber": "14",
+        "addr:postcode": "59113",
+        "addr:street": "Rue de Lorival",
+        "building": "yes",
+        "name": "Datacenter IBM",
+        "operator": "IBM",
+        "source": "cadastre-dgi-fr source : Direction Générale des Impôts - Cadastre. Mise à jour : 2011",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "way",
+      "id": 128487593,
+      "center": {
+        "lat": 51.0215574,
+        "lon": -0.350469
+      },
+      "tags": {
+        "building": "yes",
+        "name": "IBM Horsham",
+        "operator": "IBM",
+        "owner": "Royal & Sun Alliance",
+        "telecom": "data_center"
+      }
+    },
+    {
+      "type": "relation",
+      "id": 1604367,
+      "center": {
+        "lat": 48.8308625,
+        "lon": 2.6725645
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Datacenter IBM",
+        "operator": "IBM",
+        "telecom": "data_center",
+        "type": "multipolygon"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1553894888,
+      "center": {
+        "lat": 39.4275129,
+        "lon": -75.0168617
+      },
+      "tags": {
+        "building": "yes",
+        "name": "DataOne Vineland",
+        "operator": "Nebius",
+        "telecom": "data_center"
+      }
+    }
+  ]
+}

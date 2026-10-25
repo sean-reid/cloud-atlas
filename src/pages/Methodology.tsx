@@ -67,7 +67,12 @@ export function Methodology() {
           4.0), read automatically every day. It covers large AI sites only and estimates IT power
           from satellite imagery, permits, and statements; Epoch states that 80% of its IT power
           estimates fall within a factor of 1.4 of the true value. It is not a measure of cloud
-          coverage and is always labelled derived.
+          coverage and is always labelled derived. OpenStreetMap&apos;s community map data is read
+          through Overpass every day: a building tagged as a datacenter with a tracked operator
+          becomes a located facility counted as one building, never summed into a power total, and
+          an it_power tag waits for review rather than being written. Those rows are © OpenStreetMap
+          contributors under ODbL 1.0, which the map and the export state; nothing else here is
+          ODbL.
         </li>
         <li>
           <strong>Tier 4, reporting:</strong> trade and news reporting with attributable evidence,

@@ -66,6 +66,7 @@ interface SiteRow {
   location_precision: Entity["location_precision"];
   ownership: Entity["ownership"];
   landlord: string | null;
+  licenses: string[];
   metrics: Record<
     string,
     {
@@ -90,11 +91,12 @@ interface SiteRow {
 
 function siteRows(entities: Entity[], picks: SitePick[], rows: Candidate[], now: Date): SiteRow[] {
   const byEntity = new Map<string, SiteRow>();
-  const counts = new Map<string, { n: number; latest: string }>();
+  const counts = new Map<string, { n: number; latest: string; licenses: Set<string> }>();
   for (const r of rows) {
-    const c = counts.get(r.entity_id) ?? { n: 0, latest: "" };
+    const c = counts.get(r.entity_id) ?? { n: 0, latest: "", licenses: new Set<string>() };
     c.n++;
     if (r.recorded_at > c.latest) c.latest = r.recorded_at;
+    if (r.license) c.licenses.add(r.license);
     counts.set(r.entity_id, c);
   }
   const today = now.toISOString().slice(0, 10);
@@ -102,7 +104,7 @@ function siteRows(entities: Entity[], picks: SitePick[], rows: Candidate[], now:
     const e = p.entity;
     let row = byEntity.get(e.id);
     if (!row) {
-      const c = counts.get(e.id) ?? { n: 0, latest: "" };
+      const c = counts.get(e.id) ?? { n: 0, latest: "", licenses: new Set<string>() };
       row = {
         id: e.id,
         name: e.name,
@@ -117,6 +119,7 @@ function siteRows(entities: Entity[], picks: SitePick[], rows: Candidate[], now:
         location_precision: e.location_precision,
         ownership: e.ownership,
         landlord: e.landlord,
+        licenses: [...c.licenses].sort(),
         metrics: {},
         observation_count: c.n,
         latest_recorded: c.latest,
@@ -716,6 +719,7 @@ const exportCsv: Handler = async (_req, env, url) => {
     "source_url",
     "source_tier",
     "source_published",
+    "source_license",
     "excerpt",
     "method_id",
     "supersedes_id",
@@ -758,6 +762,7 @@ const exportCsv: Handler = async (_req, env, url) => {
         s?.url,
         s?.tier,
         s?.published_date,
+        s?.license,
         r.excerpt,
         r.method_id,
         r.supersedes_id,
