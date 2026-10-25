@@ -42,6 +42,7 @@ export class Store {
   readonly feedItems = new Map<string, FeedItem>();
   readonly signalIds = new Set<string>();
   readonly regionProvidersAtOpen = new Set<string>();
+  pendingFirstSeen: { adapter: string; entity: Entity; source: Source }[] = [];
   aliases = new Map<string, string>();
   decisions = new Map<string, string>();
   fetchRuns: FetchRun[] = [];

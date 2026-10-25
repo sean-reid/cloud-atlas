@@ -20,6 +20,7 @@ import {
 } from "../../pipeline/adapters/tencent-zone-config";
 import type { Adapter } from "../../pipeline/adapters/types";
 import type { SqliteDb } from "../../pipeline/db";
+import { entityId } from "../../pipeline/entities";
 import { runAdapters } from "../../pipeline/run";
 import {
   sha256Hex,
@@ -254,6 +255,24 @@ describe("oci-capacity-report", () => {
     expect(calls.filter((c) => c.url.includes("us-phoenix-1"))).toHaveLength(1);
     const rows = await signals();
     expect(rows.every((r) => r.region_code === "us-ashburn-1")).toBe(true);
+  });
+
+  test("a listing that widens by dozens of regions dates none of them", async () => {
+    setEnv("oci");
+    // One region known and one good run on record: the state the production tenancy was in.
+    const sjc = await entityId("oracle", "region", "us-sanjose-1");
+    await db.exec(
+      `INSERT INTO entity (id, dataset, type, provider_slug, parent_id, name, slug, code, country_code, admin_area, locality, lat, lon, location_precision, ownership, landlord) VALUES ('${sjc}', 'live', 'region', 'oracle', NULL, 'US West (San Jose)', 'us-sanjose-1', 'us-sanjose-1', 'US', 'California', 'San Jose', 37.34, -121.89, 'region_centroid', 'owned', NULL);` +
+        "INSERT INTO fetch_run (adapter, url, started_at, finished_at, ok, http_status, content_hash, changed, observations, error) VALUES ('oci-capacity-report', 'https://example.test', '2026-10-01T00:00:00Z', '2026-10-01T00:00:01Z', 1, NULL, NULL, 0, 0, NULL);",
+    );
+    const { factory } = replay(ociRoute);
+    const { outcomes, store } = await run([makeOci(factory, instant)]);
+    expect(outcomes[0]!.ok, outcomes[0]!.error ?? "").toBe(true);
+    expect(outcomes[0]!.result!.entities).toBe(44);
+    expect(outcomes[0]!.result!.observations).toBe(0);
+    expect([...store.observations.values()].some((o) => o.method_id === "first-seen.v1")).toBe(
+      false,
+    );
   });
 
   test("every region failing fails the run", async () => {
