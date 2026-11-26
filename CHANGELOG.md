@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.2.0](https://github.com/sean-reid/cloud-atlas/compare/cloud-atlas-v0.1.0...cloud-atlas-v0.2.0) (2026-11-26)
+
+
+### Features
+
+* **pipeline:** place every Oracle region from the identity region list ([#65](https://github.com/sean-reid/cloud-atlas/issues/65)) ([32f9a81](https://github.com/sean-reid/cloud-atlas/commit/32f9a8188662ae35fba1507deeb6426455d8ee9c))
+* serve the site from cloud-atlas.seanre.id ([#73](https://github.com/sean-reid/cloud-atlas/issues/73)) ([9f608ae](https://github.com/sean-reid/cloud-atlas/commit/9f608aef0ad7b629f2f46e09d17a7b0f78b76fcc))
+* **web:** show stated fleet figures beside tracked ones per provider ([#63](https://github.com/sean-reid/cloud-atlas/issues/63)) ([6bc1ac5](https://github.com/sean-reid/cloud-atlas/commit/6bc1ac53ec085d5023281b46a25d452ad23a83cd))
+* **worker:** dispatch the ingest workflow from a cron trigger on the hour ([#68](https://github.com/sean-reid/cloud-atlas/issues/68)) ([6768170](https://github.com/sean-reid/cloud-atlas/commit/6768170414f0c3d80ce8b4efa90a8c0d8c3dc2b0))
+
+
+### Bug Fixes
+
+* **pipeline:** cap first-seen region dates per run ([#66](https://github.com/sean-reid/cloud-atlas/issues/66)) ([29a8620](https://github.com/sean-reid/cloud-atlas/commit/29a8620227a9051e8187152e37e5b62849d40cd1))
+
 ## 0.1.0 (2026-10-25)
 
 
