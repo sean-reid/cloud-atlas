@@ -345,7 +345,7 @@ describe("osm-datacenters adapter", () => {
     expect(calls.filter((c) => c.url.startsWith(OVERPASS_URL))).toHaveLength(fast.retries + 1);
     expect(calls.at(-1)!.url).toBe(queryUrl(FALLBACK_URL));
     expect(new Set(calls.map((c) => c.agent))).toEqual(new Set([OSM_USER_AGENT]));
-    expect(OSM_USER_AGENT).toContain("https://cloud-atlas.dwainosaur.com");
+    expect(OSM_USER_AGENT).toContain("https://cloud-atlas.seanre.id");
     expect(osmEntities(store).filter((e) => e.type === "facility")).toHaveLength(28);
   });
 
