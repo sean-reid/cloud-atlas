@@ -12,7 +12,7 @@
   "observability": { "enabled": true },
   "workers_dev": true,
   "preview_urls": true,
-  "routes": [{ "pattern": "cloud-atlas.dwainosaur.com", "custom_domain": true }],
+  "routes": [{ "pattern": "cloud-atlas.seanre.id", "custom_domain": true }],
   // On the hour the Worker dispatches the ingest workflow; GitHub's own schedule drifts by hours.
   "triggers": { "crons": ["0 * * * *"] },
   "ratelimits": [

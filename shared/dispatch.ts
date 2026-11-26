@@ -16,7 +16,7 @@ export function ingestDispatch(now: Date, token: string): { url: string; init: R
         accept: "application/vnd.github+json",
         authorization: `Bearer ${token}`,
         "content-type": "application/json",
-        "user-agent": "cloud-atlas worker (+https://cloud-atlas.dwainosaur.com)",
+        "user-agent": "cloud-atlas worker (+https://cloud-atlas.seanre.id)",
         "x-github-api-version": "2022-11-28",
       },
       body: JSON.stringify({ ref: "main", inputs: { adapters: ingestAdaptersFor(now) } }),

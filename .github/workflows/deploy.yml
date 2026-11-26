@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://cloud-atlas.dwainosaur.com
+      url: https://cloud-atlas.seanre.id
     steps:
       - uses: actions/checkout@v7
         with:
@@ -62,5 +62,5 @@ jobs:
             return 1
           }
           check https://cloud-atlas.seanreid.workers.dev/api/health '"ok":true' 6 5
-          check https://cloud-atlas.dwainosaur.com/ 'Cloud Atlas' 18 10
-          check https://cloud-atlas.dwainosaur.com/api/health '"ok":true' 6 5
+          check https://cloud-atlas.seanre.id/ 'Cloud Atlas' 18 10
+          check https://cloud-atlas.seanre.id/api/health '"ok":true' 6 5

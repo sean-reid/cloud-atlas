@@ -13,7 +13,7 @@ export const FALLBACK_URL = "https://overpass.kumi.systems/api/interpreter";
 export const QUERY =
   '[out:json][timeout:180]; nwr["telecom"="data_center"]["operator"~"amazon|aws|microsoft|azure|google|oracle|alibaba|aliyun|tencent|huawei|ibm|coreweave|nebius|nscale|crusoe",i]; out center tags;';
 export const OSM_USER_AGENT =
-  "cloud-atlas/0.1 (+https://cloud-atlas.dwainosaur.com; OpenStreetMap datacenter layer)";
+  "cloud-atlas/0.1 (+https://cloud-atlas.seanre.id; OpenStreetMap datacenter layer)";
 export const COPYRIGHT_URL = "https://www.openstreetmap.org/copyright";
 export const ODBL = "ODbL 1.0";
 export const CAMPUS_KM = 10;
